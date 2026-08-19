@@ -452,11 +452,22 @@ async function main() {
         (await target.getAttribute('aria-expanded')) === 'false',
         '둘째 카드부터는 접혀 있다',
       );
-      const beforeOpen = (await card.innerText()).length;
+      /*
+        **글자 수가 아니라 높이로 잰다.**
+        펼침을 grid(`0fr → 1fr`)로 하기 때문에 본문은 접혀 있어도 DOM 에 남고 `innerText` 에
+        잡힌다. 글자 수로 짰더니 오히려 줄었다(525→482) — 펼치면 미리보기 문단이 사라지기
+        때문이다. 실제로 변하는 값은 카드의 렌더 높이다.
+      */
+      const cardHeight = async () => (await card.boundingBox())?.height ?? 0;
+      const beforeOpen = await cardHeight();
       await target.click();
-      await page.waitForTimeout(500);
-      const afterOpen = (await card.innerText()).length;
-      check(afterOpen > beforeOpen, '카드를 누르면 본문이 펼쳐진다', `${beforeOpen}자 → ${afterOpen}자`);
+      await page.waitForTimeout(600);
+      const afterOpen = await cardHeight();
+      check(
+        afterOpen > beforeOpen + 8,
+        '카드를 누르면 본문이 펼쳐진다',
+        `${Math.round(beforeOpen)}px → ${Math.round(afterOpen)}px`,
+      );
       check(
         (await target.getAttribute('aria-expanded')) === 'true',
         '펼친 카드는 aria-expanded 가 true 다',

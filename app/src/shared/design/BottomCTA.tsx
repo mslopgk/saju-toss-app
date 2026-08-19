@@ -47,17 +47,30 @@ export function BottomCTA({
         bottom: 0,
         zIndex: 20,
         padding: '0 20px calc(16px + env(safe-area-inset-bottom, 0px))',
-        /*
-          스크림. 버튼 위로 지나가는 본문이 CTA 에 닿기 전에 사라지게 한다.
-
-          **캡션이 놓이는 높이까지는 완전 불투명이어야 한다.** 처음에는 58% 지점부터
-          반투명으로 뒀는데, 그 구간에 캡션이 앉아 본문 글자가 캡션을 뚫고 비쳤다.
-          그래서 불투명 구간을 캡션 위까지 올리고 페이드는 맨 위에서만 준다.
-        */
-        background: `linear-gradient(to top, ${NIGHT.ground} 0%, ${NIGHT.ground} 72%, transparent 100%)`,
-        paddingTop: 40,
+        // 바 자체는 **완전 불투명**이다. 페이드는 바 위에 얹는 별도 띠가 담당한다(아래).
+        background: NIGHT.ground,
+        paddingTop: 14,
       }}
     >
+      {/*
+        본문이 바에 닿기 전에 사라지게 하는 페이드.
+
+        예전에는 바 배경 자체를 그라디언트로 줬는데, **캡션 줄 수에 따라 바 높이가 바뀌어**
+        캡션이 반투명 구간에 앉는 일이 반복됐다(온보딩 한 줄·깊이읽기 두 줄에서 각각 겹쳤다).
+        불투명 바 + 그 위 고정 높이 띠로 나누면 캡션이 몇 줄이든 관계가 깨지지 않는다.
+      */}
+      <div
+        aria-hidden
+        style={{
+          position: 'absolute',
+          left: 0,
+          right: 0,
+          bottom: '100%',
+          height: 36,
+          background: `linear-gradient(to top, ${NIGHT.ground} 0%, transparent 100%)`,
+          pointerEvents: 'none',
+        }}
+      />
       {caption !== undefined && (
         <p
           style={{

@@ -1,17 +1,19 @@
 import { Suspense, lazy, useState } from 'react'
-import {
-  Badge,
-  Button,
-  FixedBottomCTA,
-  List,
-  ListRow,
-  Loader,
-  Paragraph,
-  Spacing,
-  Top,
-} from '@toss/tds-mobile'
+import { Loader, Spacing } from '@toss/tds-mobile'
 import type { Chart, PillarKey, TenGod } from '../shared/lib/saju'
-import { DISCLAIMERS } from '../shared/interpret/ui'
+import { DISCLAIMERS, elementOfStem } from '../shared/interpret/ui'
+import { branchUrl } from '../shared/assets'
+import {
+  BottomCTA,
+  ELEMENT_ACCENT,
+  Hint,
+  NIGHT,
+  Screen,
+  ScreenTitle,
+  SectionLabel,
+  glassCard,
+} from '../shared/design'
+import { MOTION, stagger } from '../shared/motion'
 import {
   NO_SELF_REPORT,
   ReportView,
@@ -80,12 +82,38 @@ function tenGodLabel(value: TenGod | '일간' | null): string {
   return value ?? '—'
 }
 
+/**
+ * 근거 한 줄.
+ *
+ * TDS `ListRow` 를 쓰지 않는 이유는 폼과 같다 — 흰 바탕을 전제해서 어두운 하늘 위에 흰 띠가 생긴다.
+ */
+function FactLine({ label, value, last = false }: { label: string; value: string; last?: boolean }) {
+  return (
+    <div
+      style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'baseline',
+        gap: 14,
+        padding: '10px 0',
+        borderBottom: last ? 'none' : `1px solid ${NIGHT.glassBorder}`,
+      }}
+    >
+      <span style={{ fontSize: 14, fontWeight: 600, color: NIGHT.text, flexShrink: 0 }}>{label}</span>
+      <span style={{ fontSize: 13, color: NIGHT.textDim, textAlign: 'right' }}>{value}</span>
+    </div>
+  )
+}
+
 export function DetailPage({ chart, selfReport = NO_SELF_REPORT, onBack }: DetailPageProps) {
   const { pillars, tenGods, luck, jie, warnings } = chart
   const daewoon = luck.daewoon.pillars.filter((p) => p.ganji !== null).slice(0, 8)
   // 순수함수이고 1ms 미만이라 메모이제이션 없이 렌더마다 계산한다(C00 §7.2: 계산이 캐시보다 싸다).
   const report = buildRuleBasedReport(chart, selfReport)
   const [showCompat, setShowCompat] = useState(false)
+  // 세계관 색은 홈과 같은 값에서 나온다 — 두 화면이 같은 오행을 말해야 이어져 보인다.
+  const dayElement = elementOfStem(pillars.day.stem)
+  const accent = ELEMENT_ACCENT[dayElement]
 
   if (showCompat) {
     return (
@@ -98,7 +126,7 @@ export function DetailPage({ chart, selfReport = NO_SELF_REPORT, onBack }: Detai
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              background: 'var(--adaptiveBackground)',
+              background: NIGHT.ground,
             }}
           >
             <Loader size="large" type="primary" />
@@ -116,204 +144,190 @@ export function DetailPage({ chart, selfReport = NO_SELF_REPORT, onBack }: Detai
   }
 
   return (
-    <main>
-      <Top
+    <Screen element={dayElement} bottomInset={168}>
+      <Spacing size={20} />
+
+      <ScreenTitle
+        index={0}
         title="깊이 읽기"
-        subtitleBottom={`${pillars.sajuYear}년 ${jie.prev.ko}(${jie.prev.hanja}) 이후 · ${pillars.gz8}`}
+        subtitle={`${pillars.sajuYear}년 ${jie.prev.ko}(${jie.prev.hanja}) 이후 · ${pillars.gz8}`}
       />
 
       {warnings.length > 0 && (
-        <div style={{ padding: '0 24px' }}>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+        <>
+          <Spacing size={16} />
+          <div className={MOTION.rise} {...stagger(1)} style={{ margin: '0 20px', ...glassCard() }}>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+              {warnings.map((code) => (
+                <span
+                  key={code}
+                  style={{
+                    padding: '4px 10px',
+                    borderRadius: 999,
+                    fontSize: 12,
+                    fontWeight: 600,
+                    // 경고와 안내를 색으로 가른다. 둘 다 같은 색이면 사용자가 심각도를 읽지 못한다.
+                    background:
+                      ENGINE_WARNING_COPY[code].severity === 'warn'
+                        ? 'rgba(248,113,113,0.18)'
+                        : 'rgba(56,189,248,0.16)',
+                    color: ENGINE_WARNING_COPY[code].severity === 'warn' ? '#FCA5A5' : '#7DD3FC',
+                  }}
+                >
+                  {ENGINE_WARNING_COPY[code].label}
+                </span>
+              ))}
+            </div>
+            <Spacing size={8} />
             {warnings.map((code) => (
-              <Badge
+              <p
                 key={code}
-                size="small"
-                variant="weak"
-                color={ENGINE_WARNING_COPY[code].severity === 'warn' ? 'red' : 'blue'}
+                style={{ margin: '2px 0 0', fontSize: 13, lineHeight: 1.55, color: NIGHT.textDim }}
               >
-                {ENGINE_WARNING_COPY[code].label}
-              </Badge>
+                {ENGINE_WARNING_COPY[code].detail}
+              </p>
             ))}
           </div>
-          <Spacing size={8} />
-          {warnings.map((code) => (
-            <Paragraph key={code} typography="st13" color="var(--adaptiveGrey700)">
-              {ENGINE_WARNING_COPY[code].detail}
-            </Paragraph>
-          ))}
-        </div>
+        </>
       )}
 
-      <Spacing size={16} />
-
       {/*
-        읽을 거리가 먼저다. 예전에는 여덟 글자 표가 화면 맨 위였는데, 깊이읽기에 들어온 사람이
-        가장 먼저 만나는 것이 만세력 표면 **읽으러 온 글이 표 아래 어딘가에 묻힌다.**
+        읽을 거리가 먼저다. 예전에는 여덟 글자 표가 화면 맨 위였다 — 읽으러 들어온 사람이
+        가장 먼저 만나는 것이 만세력 표면 읽을 글이 표 아래 어딘가에 묻힌다.
         표는 근거이지 본문이 아니므로 아래로 내렸다.
 
         리포트가 비면(카드 미매칭) 이 블록 전체가 사라진다.
       */}
       {hasReportContent(report) && (
         <>
-          <Spacing size={12} />
+          <Spacing size={18} />
           <ReportView report={report} />
         </>
       )}
 
-      <Spacing size={28} />
+      <Spacing size={32} />
 
       <div style={{ padding: '0 24px' }}>
-        <Paragraph typography="st12" fontWeight="bold">
-          사주 네 기둥
-        </Paragraph>
+        <SectionLabel>사주 네 기둥</SectionLabel>
       </div>
-
       <Spacing size={12} />
 
       {/* 네 기둥. 삼주 모드면 시주 칸은 '—' 로 비운다 — 채워 넣지 않는다. */}
-      <div style={{ padding: '0 24px' }}>
+      <div style={{ padding: '0 20px' }}>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8 }}>
-          {PILLAR_ORDER.map(({ key, label }) => {
+          {PILLAR_ORDER.map(({ key, label }, i) => {
             const pillar = pillars[key]
             const gods = tenGods.byPillar[key]
+            // 지지 그림. 없으면 글자만 남는다 — 에셋 한 장 없다고 칸이 무너지지 않는다.
+            const art = pillar === null ? null : branchUrl(pillar.branch)
             return (
               <div
                 key={key}
+                className={MOTION.rise}
+                {...stagger(i + 2)}
                 style={{
                   padding: '12px 4px',
-                  borderRadius: 12,
+                  borderRadius: 14,
                   textAlign: 'center',
-                  background: 'var(--adaptiveGrey50)',
+                  background: NIGHT.glass,
+                  border: `1px solid ${NIGHT.glassBorder}`,
                 }}
               >
-                <Paragraph typography="st13" color="var(--adaptiveGrey700)">
-                  {label}
-                </Paragraph>
+                <span style={{ fontSize: 12, color: NIGHT.textDim }}>{label}</span>
+                {art !== null && (
+                  <div style={{ padding: '6px 0 2px' }}>
+                    <img
+                      src={art}
+                      alt=""
+                      aria-hidden
+                      style={{ width: '68%', aspectRatio: '1 / 1', objectFit: 'contain', borderRadius: 10 }}
+                    />
+                  </div>
+                )}
                 <Spacing size={4} />
-                <Paragraph typography="t5" fontWeight="bold">
+                <div style={{ fontSize: 19, fontWeight: 700, color: NIGHT.text }}>
                   {pillar === null ? '—' : pillar.ganji}
-                </Paragraph>
-                <Paragraph typography="st13" color="var(--adaptiveGrey700)">
+                </div>
+                <div style={{ fontSize: 12, color: NIGHT.textDim }}>
                   {pillar === null ? '시각 모름' : pillar.ganjiKo}
-                </Paragraph>
+                </div>
                 <Spacing size={6} />
-                <Paragraph typography="st13">{tenGodLabel(gods.stem)}</Paragraph>
-                <Paragraph typography="st13" color="var(--adaptiveGrey700)">
+                <div style={{ fontSize: 12, color: NIGHT.textSub }}>{tenGodLabel(gods.stem)}</div>
+                <div style={{ fontSize: 12, color: NIGHT.textDim }}>
                   {tenGodLabel(gods.branchMain)}
-                </Paragraph>
+                </div>
               </div>
             )
           })}
         </div>
       </div>
 
-      <Spacing size={8} />
-      <div style={{ padding: '0 24px' }}>
-        <Paragraph typography="st13" color="var(--adaptiveGrey700)">
-          칸의 아래 두 줄은 십신이에요. 위가 천간, 아래가 지지 정기 기준이고 일간 자리는 기준점이라 &apos;일간&apos;
-          으로 표시해요.
-        </Paragraph>
-      </div>
+      <Spacing size={10} />
+      <Hint>
+        칸의 아래 두 줄은 십신이에요. 위가 천간, 아래가 지지 정기 기준이고 일간 자리는 기준점이라
+        &apos;일간&apos; 으로 표시해요.
+      </Hint>
 
-
-      <Spacing size={28} />
+      <Spacing size={30} />
 
       <div style={{ padding: '0 24px' }}>
-        <Paragraph typography="st12" fontWeight="bold">
-          계산 근거
-        </Paragraph>
+        <SectionLabel>계산 근거</SectionLabel>
+      </div>
+      <Spacing size={12} />
+
+      <div style={{ margin: '0 20px', ...glassCard() }}>
+        <FactLine label="납음오행" value={`${pillars.day.naeum.ko} (${pillars.day.naeum.hanja})`} />
+        <FactLine
+          label="절기"
+          value={`${jie.prev.ko} ~ ${jie.next.ko} 사이 · 월지 ${pillars.month.branch}`}
+        />
+        <FactLine
+          label="대운"
+          value={`${luck.daewoon.forward ? '순행' : '역행'} · 대운수 ${luck.daewoon.daewoonNumber}${
+            luck.daewoon.approx ? ' (생시 모름 · 12시 가정)' : ''
+          }`}
+          last
+        />
       </div>
 
-      <List>
-        <ListRow
-          contents={<ListRow.Texts type="2RowTypeA" top="납음오행" bottom={`${pillars.day.naeum.ko} (${pillars.day.naeum.hanja})`} />}
-        />
-        <ListRow
-          contents={
-            <ListRow.Texts
-              type="2RowTypeA"
-              top="절기"
-              bottom={`${jie.prev.ko} ~ ${jie.next.ko} 사이 · 월지 ${pillars.month.branch}`}
-            />
-          }
-        />
-        <ListRow
-          contents={
-            <ListRow.Texts
-              type="2RowTypeA"
-              top="대운"
-              bottom={`${luck.daewoon.forward ? '순행' : '역행'} · 대운수 ${luck.daewoon.daewoonNumber}${
-                luck.daewoon.approx ? ' (생시 모름 · 12시 가정)' : ''
-              }`}
-            />
-          }
-        />
-      </List>
-
-      <Spacing size={16} />
+      <Spacing size={26} />
 
       <div style={{ padding: '0 24px' }}>
-        <Paragraph typography="st11" fontWeight="bold">
-          대운의 흐름
-        </Paragraph>
+        <SectionLabel>대운의 흐름</SectionLabel>
       </div>
-      <List>
-        {daewoon.map((entry) => (
-          <ListRow
+      <Spacing size={12} />
+
+      <div style={{ margin: '0 20px', ...glassCard() }}>
+        {daewoon.map((entry, i) => (
+          <FactLine
             key={entry.index}
-            contents={
-              <ListRow.Texts
-                type="2RowTypeA"
-                top={`${entry.ganji ?? '—'}`}
-                bottom={`만 ${entry.startAgeWestern}~${entry.endAgeWestern}세 · ${entry.startYear}~${entry.endYear}년`}
-              />
-            }
+            label={entry.ganji ?? '—'}
+            value={`만 ${entry.startAgeWestern}~${entry.endAgeWestern}세 · ${entry.startYear}~${entry.endYear}년`}
+            last={i === daewoon.length - 1}
           />
         ))}
-      </List>
-
-      <Spacing size={24} />
-
-      <div style={{ padding: '0 24px' }}>
-        <Paragraph typography="st12" fontWeight="bold">
-          알아두실 점
-        </Paragraph>
-        <Spacing size={8} />
-        {DISCLAIMERS.map((line) => (
-          <Paragraph key={line} typography="st13" color="var(--adaptiveGrey700)">
-            · {line}
-          </Paragraph>
-        ))}
-        <Spacing size={8} />
-        <Paragraph typography="st13" color="var(--adaptiveGrey700)">
-          계산 엔진 {chart.engineVersion}
-        </Paragraph>
       </div>
 
-      <FixedBottomCTA.Double
-        leftButton={
-          <Button display="block" size="large" color="dark" variant="weak" onClick={onBack}>
-            홈으로
-          </Button>
-        }
-        rightButton={
-          <Button
-            display="block"
-            size="large"
-            color="primary"
-            variant="fill"
-            onClick={() => setShowCompat(true)}
-          >
-            궁합 보기
-          </Button>
-        }
-        topAccessory={
-          <Paragraph typography="st13" textAlign="center">
-            상대방의 생년월일만 있으면 두 사람 궁합을 볼 수 있어요.
-          </Paragraph>
-        }
-      />
-    </main>
+      <Spacing size={30} />
+
+      <div style={{ padding: '0 24px' }}>
+        <SectionLabel>알아두실 점</SectionLabel>
+      </div>
+      <Spacing size={10} />
+      {DISCLAIMERS.map((line) => (
+        <Hint key={line}>· {line}</Hint>
+      ))}
+      <Spacing size={8} />
+      <Hint>계산 엔진 {chart.engineVersion}</Hint>
+
+      <BottomCTA
+        accent={accent}
+        onClick={() => setShowCompat(true)}
+        secondary={{ label: '홈으로', onClick: onBack }}
+        caption="상대방의 생년월일만 있으면 두 사람 궁합을 볼 수 있어요."
+      >
+        궁합 보기
+      </BottomCTA>
+    </Screen>
   )
 }

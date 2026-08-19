@@ -13,7 +13,7 @@
 
 export { DISCLAIMERS, SECTION_TITLES } from './copy';
 
-export { buildFactPack } from './factPack';
+export { buildFactPack, elementOfStem } from './factPack';
 export type { FactPack, FactPackTenGodPlacement } from './factPack';
 
 export { selectKnowledgeCards } from './retrieve';

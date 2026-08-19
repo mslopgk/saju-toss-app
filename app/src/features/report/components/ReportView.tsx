@@ -1,9 +1,10 @@
-import { List, ListRow, Paragraph, Spacing } from '@toss/tds-mobile'
 import { formatSourceLabel } from '../../../shared/knowledge'
 import { SECTION_TITLES } from '../../../shared/interpret/ui'
+import { NIGHT, SectionLabel, glassCard } from '../../../shared/design'
+import { MOTION, cx, stagger } from '../../../shared/motion'
 import type { RuleBasedReport } from '../buildReport'
-import { SectionCard } from './SectionCard'
 import { defaultInterpretationClient } from '../interpretationClient'
+import { SectionCard } from './SectionCard'
 import { useInterpretation, type InterpretationClient } from '../useInterpretation'
 
 /**
@@ -34,13 +35,13 @@ export function ReportView({ report, client }: ReportViewProps) {
 
   return (
     <section>
-      <div style={{ padding: '0 24px' }}>
-        <Paragraph typography="t5" fontWeight="bold">
+      <div className={MOTION.rise} {...stagger(1)} style={{ padding: '0 24px' }}>
+        <h2 style={{ margin: 0, fontSize: 19, fontWeight: 700, lineHeight: 1.4, color: NIGHT.text }}>
           {interpretation.headline}
-        </Paragraph>
+        </h2>
       </div>
 
-      <Spacing size={16} />
+      <div style={{ height: 16 }} />
 
       {/*
         섹션 하나 = 카드 하나. 첫 장만 펼쳐 둔다 — 전부 접으면 화면이 제목 목록처럼 보여
@@ -52,24 +53,24 @@ export function ReportView({ report, client }: ReportViewProps) {
       {interpretation.sections.map((section, index) => (
         <SectionCard
           key={section.id}
+          index={index + 2}
           title={SECTION_TITLES[section.id]}
           body={section.body}
           defaultOpen={index === 0}
         />
       ))}
 
-      <Spacing size={24} />
+      <div style={{ height: 14 }} />
 
-      <div style={{ padding: '0 24px' }}>
-        <div style={{ padding: '14px 16px', borderRadius: 12, background: 'var(--adaptiveGrey50)' }}>
-          <Paragraph typography="st13" color="var(--adaptiveGrey700)">
-            오늘 해볼 만한 한 가지
-          </Paragraph>
-          <Spacing size={4} />
-          <Paragraph typography="st12" fontWeight="bold">
-            {interpretation.actionToday}
-          </Paragraph>
-        </div>
+      <div
+        className={MOTION.rise}
+        {...stagger(3)}
+        style={{ margin: '0 20px', ...glassCard(true) }}
+      >
+        <span style={{ fontSize: 12, color: NIGHT.textDim }}>오늘 해볼 만한 한 가지</span>
+        <p style={{ margin: '6px 0 0', fontSize: 15, fontWeight: 600, lineHeight: 1.6, color: NIGHT.text }}>
+          {interpretation.actionToday}
+        </p>
       </div>
 
       {/*
@@ -78,42 +79,50 @@ export function ReportView({ report, client }: ReportViewProps) {
         서버를 아예 쓰지 않는 배포(`state === 'off'`)에서는 아무 말도 하지 않는다 — 폴백이 아니라 정상이다.
       */}
       {(view.state === 'loading' || view.state === 'fallback') && (
-        <>
-          <Spacing size={12} />
-          <div style={{ padding: '0 24px' }}>
-            <Paragraph typography="st13" color="var(--adaptiveGrey700)">
-              {view.state === 'loading'
-                ? '해석을 조금 더 다듬는 중이에요. 지금 글도 그대로 보셔도 좋아요.'
-                : '지금은 기본 해석으로 보여 드리고 있어요.'}
-            </Paragraph>
-          </div>
-        </>
+        <div style={{ padding: '12px 24px 0' }}>
+          <span
+            className={cx(view.state === 'loading' && MOTION.shimmer)}
+            style={{
+              display: 'inline-block',
+              padding: '4px 12px',
+              borderRadius: 999,
+              background: 'rgba(255,255,255,0.08)',
+              fontSize: 12,
+              color: NIGHT.textDim,
+            }}
+          >
+            {view.state === 'loading'
+              ? '해석을 조금 더 다듬는 중이에요'
+              : '지금은 기본 해석으로 보여 드리고 있어요'}
+          </span>
+        </div>
       )}
 
       {/* 근거 표시. 어떤 카드에서 나온 문장인지 사용자·QA 가 되짚을 수 있어야 한다(문서10 §5.1 설명가능성). */}
       {usedCards.length > 0 && (
         <>
-          <Spacing size={24} />
+          <div style={{ height: 28 }} />
           <div style={{ padding: '0 24px' }}>
-            <Paragraph typography="st12" fontWeight="bold">
-              이 리포트가 참고한 자료
-            </Paragraph>
+            <SectionLabel>이 리포트가 참고한 자료</SectionLabel>
           </div>
-          <List>
-            {usedCards.map((card) => (
-              <ListRow
+          <div style={{ height: 12 }} />
+          <div style={{ margin: '0 20px', ...glassCard() }}>
+            {usedCards.map((card, i) => (
+              <div
                 key={card.id}
-                verticalPadding="small"
-                contents={
-                  <ListRow.Texts
-                    type="2RowTypeA"
-                    top={card.title}
-                    bottom={`${formatSourceLabel(card.source)} · 근거등급 ${card.confidence}`}
-                  />
-                }
-              />
+                style={{
+                  padding: '10px 0',
+                  borderBottom:
+                    i === usedCards.length - 1 ? 'none' : `1px solid ${NIGHT.glassBorder}`,
+                }}
+              >
+                <div style={{ fontSize: 14, fontWeight: 600, color: NIGHT.text }}>{card.title}</div>
+                <div style={{ fontSize: 12, color: NIGHT.textDim, marginTop: 2 }}>
+                  {formatSourceLabel(card.source)} · 근거등급 {card.confidence}
+                </div>
+              </div>
             ))}
-          </List>
+          </div>
         </>
       )}
     </section>
