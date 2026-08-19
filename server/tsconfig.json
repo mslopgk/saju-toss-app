@@ -1,0 +1,35 @@
+{
+  "compilerOptions": {
+    "target": "es2023",
+    "lib": ["ES2023"],
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "types": ["node"],
+    "resolveJsonModule": true,
+    "allowImportingTsExtensions": true,
+    "verbatimModuleSyntax": true,
+    "moduleDetection": "force",
+    "noEmit": true,
+    "jsx": "react-jsx",
+
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "skipLibCheck": true,
+
+    /*
+     * `exactOptionalPropertyTypes` 는 **켜지 않는다.** 켜면 서버가 앱 소스(`shared/lib/saju`)를
+     * 앱보다 엄격한 규칙으로 다시 검사해서, 서버가 소유하지 않은 파일에서 에러가 난다.
+     * 공유 코드를 검사하는 쪽이 원본보다 엄격하면 원본을 고치라는 압력이 되는데,
+     * 그 경계는 앱 tsconfig 가 정한다.
+     */
+
+    /*
+     * 앱과 같은 제약을 건다. `erasableSyntaxOnly` 는 esbuild 트랜스파일(형 소거만)과 짝이다 —
+     * enum·파라미터 프로퍼티가 들어오면 번들이 조용히 달라진다.
+     */
+    "erasableSyntaxOnly": true
+  },
+  "include": ["src/**/*.ts", "test/**/*.ts", "vitest.config.ts"]
+}

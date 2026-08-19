@@ -1,0 +1,11 @@
+{
+  "_": "모델 단가 (USD / 1M tokens). 출처: claude-api 스킬 확인값 2026-08-12 · docs/interpretation.md §4.1. 값을 코드에 흩뿌리지 않으려고 데이터 파일 한 곳에 둔다.",
+  "_주의": "sonnet-5 는 2026-08-31 까지 도입가다. 9월부터 input 3.00 / output 15.00 / cacheWrite 3.75 / cacheRead 0.30 으로 바뀐다.",
+  "krwPerUsd": 1455,
+  "models": {
+    "claude-opus-5": { "input": 5.0, "cacheWrite5m": 6.25, "cacheRead": 0.5, "output": 25.0 },
+    "claude-sonnet-5": { "input": 2.0, "cacheWrite5m": 2.5, "cacheRead": 0.2, "output": 10.0 },
+    "claude-sonnet-5-list": { "input": 3.0, "cacheWrite5m": 3.75, "cacheRead": 0.3, "output": 15.0 },
+    "claude-haiku-4-5": { "input": 1.0, "cacheWrite5m": 1.25, "cacheRead": 0.1, "output": 5.0 }
+  }
+}
