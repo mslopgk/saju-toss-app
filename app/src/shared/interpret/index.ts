@@ -125,6 +125,8 @@ export {
   type VerifyResult,
 } from './guard';
 
+export { renderTemplateSummary } from './template';
+
 export {
   MockInterpretationClient,
   renderTemplateInterpretation,

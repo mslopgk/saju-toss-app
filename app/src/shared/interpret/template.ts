@@ -34,10 +34,18 @@
  */
 
 import { cardBody } from '../knowledge/types';
-import type { BloodType, Element, KnowledgeCard, PillarKey, SectionId, TenGodGroup } from './contracts';
+import type {
+  BloodType,
+  Element,
+  KnowledgeCard,
+  PillarKey,
+  SectionId,
+  StrengthGrade,
+  TenGodGroup,
+} from './contracts';
 import { compareCodepoint, type FactPack, type FactPackSinsalHit } from './factPack';
 import { systemOfKind } from './retrieve';
-import type { Interpretation, InterpretationSection } from './schema';
+import type { Interpretation, InterpretationSection, SummaryValue } from './schema';
 
 /* ─────────────────────────── 카드 본문 파싱 ─────────────────────────── */
 
@@ -1429,5 +1437,78 @@ export function renderTemplateReport(
     sections,
     actionToday: actionOf(fact, cards),
     usedCardIds,
+  };
+}
+
+/* --------------------------- 규칙 기반 요약 --------------------------- */
+
+/**
+ * 일간 오행 → 한 단어의 앞말.
+ *
+ * 오행이 사람의 결을 가리키는 통용 어휘를 그대로 쓴다. **새 판정이 아니다** — 어느 오행이
+ * 일간인지는 엔진이 이미 확정했고 여기서는 그 값에 이름을 붙일 뿐이다.
+ */
+const ELEMENT_WORD: Readonly<Record<Element, string>> = {
+  木: '뻗는',
+  火: '밝히는',
+  土: '품는',
+  金: '벼리는',
+  水: '스미는',
+};
+
+/**
+ * 신강신약 → 한 단어의 뒷말.
+ *
+ * 일곱 등급을 셋으로 접는다(강함·균형·여림). 등급 이름을 그대로 쓰면 "극신약 사람" 같은
+ * 판정문이 되어 홈 첫 화면에 어울리지 않고, 사용자가 등급을 좋고 나쁨으로 읽는다.
+ * 접는 기준은 엔진 등급 문자열이며 여기서 점수를 다시 보지 않는다.
+ */
+const GRADE_NOUN: Readonly<Record<StrengthGrade, string>> = {
+  극신약: '결',
+  신약: '결',
+  중화신약: '결',
+  중화: '사람',
+  중화신강: '사람',
+  신강: '힘',
+  극신강: '힘',
+};
+
+/**
+ * 한 문장. 일간 오행과 강약을 한 번씩만 말한다.
+ *
+ * 수치를 넣지 않는다 — 요약은 숫자를 말하는 자리가 아니고(프롬프트 §요약도 같은 규율),
+ * 넣으면 `verifySummary` 의 지어낸 수치 검사와 나란히 갈 이유가 없어진다.
+ */
+const GRADE_SENTENCE: Readonly<Record<StrengthGrade, string>> = {
+  극신약: '주변의 결을 오래 살핀 뒤에야 움직이고, 한번 정하면 조용히 끝까지 갑니다.',
+  신약: '주변을 먼저 살피는 편이고, 방향이 정해지면 서두르지 않고 끝까지 갑니다.',
+  중화신약: '한쪽으로 치우치지 않되 살피는 쪽에 조금 가깝고, 정한 방향은 오래 지킵니다.',
+  중화: '어느 한쪽으로 기울지 않아서, 상황에 따라 밀기도 하고 물러서기도 합니다.',
+  중화신강: '한쪽으로 치우치지 않되 미는 쪽에 조금 가깝고, 정한 방향으로 곧게 갑니다.',
+  신강: '한번 정한 방향으로는 곧게 가고, 시작 전에 오래 재는 편입니다.',
+  극신강: '방향이 정해지면 좀처럼 흔들리지 않고, 그만큼 시작을 오래 고릅니다.',
+};
+
+/**
+ * AI 없이 만드는 홈 요약.
+ *
+ * 홈 첫 화면이 이 값으로 채워지므로 **서버가 없어도 화면이 빈 적이 없어야 한다.** AI 요약이
+ * 도착하면 화면이 갈아끼우고, 실패하면 이 값이 그대로 남는다.
+ *
+ * 출력은 `verifySummary` 를 통과하는 모양이어야 한다 — 같은 규율을 두 경로가 나눠 지킨다.
+ * 근거 카드는 팩트팩이 아니라 호출부가 넘긴 목록에서 첫 장을 쓴다(빈 배열은 검증에서 거부된다).
+ */
+export function renderTemplateSummary(
+  fact: FactPack,
+  knowledgeCardIds: readonly string[],
+): SummaryValue {
+  const grade = fact.saju.strength?.strengthGrade ?? '중화';
+  const word = `${ELEMENT_WORD[fact.saju.dayElement]} ${GRADE_NOUN[grade]}`;
+  const sentence = GRADE_SENTENCE[grade];
+  return {
+    word,
+    sentence,
+    // 검증기가 빈 목록을 거부한다. 카드가 하나도 없으면 호출부가 애초에 이 함수를 부르지 않는다.
+    usedCardIds: knowledgeCardIds.slice(0, 1),
   };
 }

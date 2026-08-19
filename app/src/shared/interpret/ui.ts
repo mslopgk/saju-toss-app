@@ -19,7 +19,7 @@ export type { FactPack, FactPackTenGodPlacement } from './factPack';
 export { selectKnowledgeCards } from './retrieve';
 export type { RetrievalOptions } from './retrieve';
 
-export { renderTemplateReport } from './template';
+export { renderTemplateReport, renderTemplateSummary } from './template';
 
 export type {
   BloodType,
@@ -35,4 +35,4 @@ export type {
   UserProfile,
 } from './contracts';
 
-export type { Interpretation, InterpretationSection } from './schema';
+export type { Interpretation, InterpretationSection, SummaryValue } from './schema';
