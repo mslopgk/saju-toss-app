@@ -12,7 +12,8 @@
     "preview": "vite preview",
     "deploy": "ait deploy",
     "ui-smoke": "node scripts/ui-smoke.mjs",
-    "gen-store-assets": "node scripts/gen-store-assets.mjs"
+    "gen-store-assets": "node scripts/gen-store-assets.mjs",
+    "optimize-assets": "node scripts/optimize-assets.mjs"
   },
   "dependencies": {
     "@apps-in-toss/web-framework": "^3.0.3",

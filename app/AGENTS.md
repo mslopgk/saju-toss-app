@@ -14,6 +14,7 @@ npm run ui-smoke   # 실제 Chrome 으로 빌드된 앱을 몰아 본다 (레이
 npm run deploy     # ait deploy (검수·배포 단계에서만)
 
 npm run gen-store-assets   # 콘솔용 로고·썸네일 → docs/store (색·문구 바꿀 때만)
+npm run optimize-assets    # 생성 에셋 원본 PNG → 화면 크기 WebP (에셋을 새로 받은 뒤)
 npm run ui-smoke -- --shots docs/store   # 스토어 스크린샷 636x1048 재촬영
 ```
 
@@ -45,7 +46,9 @@ scripts/
 ├── build-knowledge.mjs     # cards.json 굽기
 ├── ui-smoke.mjs            # 실제 Chrome 구동 검증 (레이아웃을 보는 유일한 곳)
 └── gen-store-assets.mjs    # 콘솔용 로고·썸네일 → docs/store
-docs/store/             # 콘솔 등록용 이미지 (규격 고정 — 리사이즈하면 거부된다)
+docs/store/             # 콘솔 등록용 이미지(규격 고정) + 생성 에셋 **원본**
+                        #   원본을 지우지 않는다 — 다시 뽑으면 같은 그림이 나오지 않는다
+src/assets/generated/   # optimize-assets 산출물. 앱이 실제로 쓰는 것은 이쪽뿐이다
 apps-in-toss.config.ts  # ait init 산출물 — 손으로 고치지 말고 CLI로 재생성
 ```
 
@@ -114,6 +117,20 @@ apps-in-toss.config.ts  # ait init 산출물 — 손으로 고치지 말고 CLI�
   `source.section` 뒤에는 `(+ tables.json …)` 상호참조가 붙어 있다. 그대로 찍으면 소비자 앱에
   내부 경로가 노출된다 — 실제로 `C04-…-룩업테이블.md §7-12 §12-1 (+ tables.json gosinGwasuk)` 가
   결과 화면에 보이고 있었다. **새는 곳이 두 군데**라 `doc` 만 고치면 절반만 막힌다.
+
+- **생성 에셋은 원본과 배포본이 따로다.** Higgsfield 가 내는 2048px PNG 는 장당 4.7~6.4MB 라
+  그대로 번들에 넣을 수 없다(46장이면 215MB). `docs/store/` 에 원본을 두고
+  `npm run optimize-assets` 가 세트별 실사용 크기 WebP 로 굽는다 — 실측 71.7MB → 103KB.
+  히어로 800px · 배경 720px · 카드 아이콘 320px 로 나눈 이유는 아이콘 하나에 히어로만 한
+  용량을 쓰지 않기 위해서다.
+  - **원본 PNG 를 지우지 않는다.** 크기 정책이 바뀌거나 다른 용도로 다시 뽑아야 할 때
+    원본이 없으면 Higgsfield 를 다시 돌려야 하는데 **같은 그림이 나오지 않는다.**
+  - `shared/assets` 는 엔진 값(오행·사인 id·지지·십신 그룹)을 주소로 옮기기만 한다.
+    무엇을 보여 줄지 **판정하지 않는다** — 그 판정은 엔진이 이미 했다(C00 §H).
+    없는 에셋은 `null` 이고 던지지 않는다. 한 장 빠졌다고 화면이 죽으면 안 된다.
+  - `import.meta.glob` 에 `query: '?url'` 을 빼면 4KB 미만 파일이 base64 로 JS 안에 인라인돼
+    초기 청크가 커진다. URL 로 받아야 이미지가 별도 파일로 남는다.
+  - 에셋 생성 시 Higgsfield **동시 작업 한도는 8개**다. 넘기면 `rate_limit_reached` 로 실패한다.
 
 ## 아직 하지 않은 것
 
