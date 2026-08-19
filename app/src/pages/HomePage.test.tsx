@@ -12,7 +12,7 @@ import { renderToString } from 'react-dom/server'
 import { TDSMobileAITProvider } from '@toss/tds-mobile-ait'
 import { describe, expect, it } from 'vitest'
 import { computeChart, type Chart } from '../shared/lib/saju'
-import { buildFactPack, type SummaryValue } from '../shared/interpret/ui'
+import { buildFactPack } from '../shared/interpret/ui'
 import { HomePage } from './HomePage'
 
 const chartOf = (day: number): Chart =>
@@ -28,15 +28,15 @@ const chartOf = (day: number): Chart =>
     birthPlace: { region: 'KR' },
   })
 
-const render = (chart: Chart, summary?: SummaryValue): string =>
+/**
+ * `client={null}` 로 서버를 끈다. 정적 렌더에서는 `useEffect` 가 돌지 않아 어차피 요청이
+ * 나가지 않지만, 명시해 두면 이 테스트가 보는 것이 **AI 없는 경로**임이 분명해진다.
+ * 서버 값이 도착했을 때의 판단은 `useHomeSummary.test.ts` 가 순수함수로 본다.
+ */
+const render = (chart: Chart): string =>
   renderToString(
     <TDSMobileAITProvider>
-      <HomePage
-        chart={chart}
-        {...(summary === undefined ? {} : { summary })}
-        onOpenDetail={() => {}}
-        onRestart={() => {}}
-      />
+      <HomePage chart={chart} client={null} onOpenDetail={() => {}} onRestart={() => {}} />
     </TDSMobileAITProvider>,
   )
 
@@ -59,17 +59,6 @@ describe('HomePage', () => {
     // 규칙 기반 요약의 어휘(ELEMENT_WORD × GRADE_NOUN)가 실제로 문서에 실렸는지 본다.
     expect(html).toMatch(/뻗는|밝히는|품는|벼리는|스미는/)
     expect(html).toContain('타고난 기운의 분포')
-  })
-
-  it('AI 요약이 오면 그 값이 규칙 기반 값을 덮는다', () => {
-    const summary: SummaryValue = {
-      word: '고요한 불',
-      sentence: '스스로를 먼저 태워 주변을 밝히고, 다 타기 전에 한 번 멈추는 사람입니다.',
-      usedCardIds: ['X'],
-    }
-    const html = render(CHARTS[0]!, summary)
-    expect(html).toContain('고요한 불')
-    expect(html).toContain('다 타기 전에 한 번 멈추는')
   })
 
   /**

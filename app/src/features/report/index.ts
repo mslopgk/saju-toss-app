@@ -6,7 +6,7 @@
 export { NO_SELF_REPORT, buildRuleBasedReport, hasReportContent, resolveCards } from './buildReport'
 export type { ReportChart, ReportProfile, ReportSource, RuleBasedReport } from './buildReport'
 
-export { defaultInterpretationClient, resolveApiBase } from './interpretationClient'
+export { defaultInterpretationClient, defaultSummaryClient, resolveApiBase } from './interpretationClient'
 export { useInterpretation } from './useInterpretation'
 export type {
   InterpretationClient,
@@ -14,6 +14,9 @@ export type {
   InterpretationState,
   InterpretationView,
 } from './useInterpretation'
+
+export { adoptSummary, useHomeSummary } from './useHomeSummary'
+export type { HomeSummaryView, SummaryClient, SummaryOrigin, SummaryState } from './useHomeSummary'
 
 export { ReportView } from './components/ReportView'
 export type { ReportViewProps } from './components/ReportView'

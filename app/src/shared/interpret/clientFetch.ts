@@ -21,7 +21,7 @@ import type {
   InterpretationOutcome,
   InterpretOptions,
 } from './client';
-import type { Interpretation } from './schema';
+import type { Interpretation, SummaryValue } from './schema';
 
 /** `fetch` 의 필요한 부분만. 테스트가 가짜를 끼울 수 있고, 전역 fetch 에 묶이지 않는다. */
 export type FetchLike = (
@@ -61,6 +61,8 @@ const LIMITS = {
   action: 400,
   sections: 32,
   cards: 128,
+  word: 40,
+  sentence: 400,
 } as const;
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -110,6 +112,41 @@ export function parseInterpretation(value: unknown): Interpretation | null {
   return { headline, sections, actionToday, usedCardIds } as Interpretation;
 }
 
+/**
+ * 서버 응답의 `value` → `SummaryValue`.
+ *
+ * 홈의 한 단어·한 문장이다. 길이 상한만 본다 — 어휘 규율(단어 2~10자, 문장 20~80자)은
+ * 서버가 `verifySummary()` 로 이미 끝냈고, 여기서 그 상수를 다시 들고 오면 그래프가 넓어진다.
+ * 여기 한도는 "우리 서버가 맞는가"를 보는 방어선이지 품질 검사가 아니다.
+ */
+export function parseSummary(value: unknown): SummaryValue | null {
+  if (!isRecord(value)) return null;
+  const word = boundedString(value['word'], LIMITS.word);
+  const sentence = boundedString(value['sentence'], LIMITS.sentence);
+  if (word === null || sentence === null) return null;
+
+  const rawCards = value['usedCardIds'];
+  if (!Array.isArray(rawCards) || rawCards.length === 0 || rawCards.length > LIMITS.cards) return null;
+  const usedCardIds: string[] = [];
+  for (const id of rawCards) {
+    const parsed = boundedString(id, 120);
+    if (parsed === null) return null;
+    usedCardIds.push(parsed);
+  }
+
+  return { word, sentence, usedCardIds };
+}
+
+export type SummaryOutcome =
+  | {
+      readonly status: 'ok';
+      readonly source: 'llm' | 'cache';
+      readonly narrativeKey: string;
+      readonly value: SummaryValue;
+    }
+  | { readonly status: 'rejected'; readonly narrativeKey: string }
+  | { readonly status: 'error'; readonly code: InterpretationErrorCode; readonly message: string };
+
 function errorOutcome(code: InterpretationErrorCode, message: string): InterpretationOutcome {
   return { status: 'error', code, message };
 }
@@ -122,23 +159,40 @@ export function codeForStatus(status: number): InterpretationErrorCode {
   return 'UPSTREAM';
 }
 
+/** `post()` 가 돌려주는 것. 전송·시간초과·JSON 파싱까지만 책임지고, 의미 해석은 호출부가 한다. */
+type PostResult =
+  | {
+      readonly kind: 'payload';
+      readonly ok: boolean;
+      readonly status: number;
+      readonly payload: Record<string, unknown>;
+    }
+  | { readonly kind: 'error'; readonly code: InterpretationErrorCode; readonly message: string };
+
 export class ServerInterpretationClient implements InterpretationClient {
-  private readonly endpoint: string;
+  private readonly baseUrl: string;
   private readonly timeoutMs: number;
   private readonly fetchImpl: FetchLike;
 
   constructor(options: ServerClientOptions) {
-    this.endpoint = `${options.baseUrl.replace(/\/+$/, '')}/api/interpret`;
+    this.baseUrl = options.baseUrl.replace(/\/+$/, '');
     this.timeoutMs = options.timeoutMs ?? DEFAULT_TIMEOUT_MS;
     this.fetchImpl = options.fetchImpl ?? ((input, init) => fetch(input, init));
   }
 
-  async interpret(
+  /**
+   * 두 라우트가 공유하는 전송 경로.
+   *
+   * 시간초과·외부 취소·네트워크 오류를 라우트마다 다르게 다룰 이유가 없다. 한 벌만 두면
+   * "요약 경로만 취소를 잘못 다룬다" 같은 어긋남이 생길 자리가 없다.
+   */
+  private async post(
+    path: string,
     input: InterpretationInput,
-    options: InterpretOptions = {},
-  ): Promise<InterpretationOutcome> {
+    options: InterpretOptions,
+  ): Promise<PostResult> {
     if (options.signal?.aborted === true) {
-      return errorOutcome('ABORTED', '요청이 취소되었습니다');
+      return { kind: 'error', code: 'ABORTED', message: '요청이 취소되었습니다' };
     }
 
     // `AbortSignal.any` 를 쓰지 않는다 — WebView 지원 범위가 넓지 않다. 손으로 잇는다.
@@ -154,7 +208,7 @@ export class ServerInterpretationClient implements InterpretationClient {
     options.signal?.addEventListener('abort', onOuterAbort);
 
     try {
-      const response = await this.fetchImpl(this.endpoint, {
+      const response = await this.fetchImpl(`${this.baseUrl}${path}`, {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ kind: input.kind, chart: input.chart, profile: input.profile }),
@@ -165,39 +219,85 @@ export class ServerInterpretationClient implements InterpretationClient {
       try {
         payload = await response.json();
       } catch {
-        return errorOutcome('UPSTREAM', '서버 응답을 읽지 못했습니다');
+        return { kind: 'error', code: 'UPSTREAM', message: '서버 응답을 읽지 못했습니다' };
       }
 
-      if (!isRecord(payload)) return errorOutcome('UPSTREAM', '서버 응답 형식이 올바르지 않습니다');
-
-      if (response.ok && payload['status'] === 'ok') {
-        const value = parseInterpretation(payload['value']);
-        if (value === null) return errorOutcome('UPSTREAM', '서버 응답 형식이 올바르지 않습니다');
-        const source = payload['source'] === 'cache' ? 'cache' : 'llm';
-        const narrativeKey = boundedString(payload['narrativeKey'], 256) ?? '';
-        return { status: 'ok', source, narrativeKey, value };
+      if (!isRecord(payload)) {
+        return { kind: 'error', code: 'UPSTREAM', message: '서버 응답 형식이 올바르지 않습니다' };
       }
-
-      if (payload['status'] === 'rejected') {
-        // 서버가 모델 응답을 폐기했다. 화면은 규칙 기반 문장을 그대로 둔다.
-        return {
-          status: 'rejected',
-          narrativeKey: boundedString(payload['narrativeKey'], 256) ?? '',
-          failures: [],
-        };
-      }
-
-      return errorOutcome(codeForStatus(response.status), '해석 서버가 응답하지 못했습니다');
+      return { kind: 'payload', ok: response.ok, status: response.status, payload };
     } catch (error) {
-      if (abortedByCaller) return errorOutcome('ABORTED', '요청이 취소되었습니다');
+      if (abortedByCaller) return { kind: 'error', code: 'ABORTED', message: '요청이 취소되었습니다' };
       // 타임아웃도 abort 로 나타난다 — 바깥에서 취소한 게 아니라면 시간 초과다.
       if (error instanceof Error && error.name === 'AbortError') {
-        return errorOutcome('TIMEOUT', '해석 서버가 제때 응답하지 않았습니다');
+        return { kind: 'error', code: 'TIMEOUT', message: '해석 서버가 제때 응답하지 않았습니다' };
       }
-      return errorOutcome('NETWORK', '해석 서버에 연결하지 못했습니다');
+      return { kind: 'error', code: 'NETWORK', message: '해석 서버에 연결하지 못했습니다' };
     } finally {
       clearTimeout(timer);
       options.signal?.removeEventListener('abort', onOuterAbort);
     }
+  }
+
+  async interpret(
+    input: InterpretationInput,
+    options: InterpretOptions = {},
+  ): Promise<InterpretationOutcome> {
+    const result = await this.post('/api/interpret', input, options);
+    if (result.kind === 'error') return errorOutcome(result.code, result.message);
+    const { ok, status, payload } = result;
+
+    if (ok && payload['status'] === 'ok') {
+      const value = parseInterpretation(payload['value']);
+      if (value === null) return errorOutcome('UPSTREAM', '서버 응답 형식이 올바르지 않습니다');
+      const source = payload['source'] === 'cache' ? 'cache' : 'llm';
+      const narrativeKey = boundedString(payload['narrativeKey'], 256) ?? '';
+      return { status: 'ok', source, narrativeKey, value };
+    }
+
+    if (payload['status'] === 'rejected') {
+      // 서버가 모델 응답을 폐기했다. 화면은 규칙 기반 문장을 그대로 둔다.
+      return {
+        status: 'rejected',
+        narrativeKey: boundedString(payload['narrativeKey'], 256) ?? '',
+        failures: [],
+      };
+    }
+
+    return errorOutcome(codeForStatus(status), '해석 서버가 응답하지 못했습니다');
+  }
+
+  /**
+   * 홈의 한 단어·한 문장(`POST /api/interpret/summary`).
+   *
+   * 전체 리포트와 **따로 부른다.** 홈만 보고 나가는 사용자에게 섹션 여섯 개를 만들게 하지 않는다.
+   * 실패하면 화면은 규칙 기반 요약을 그대로 둔다 — 요약은 AI 가 없어도 이미 채워져 있다.
+   */
+  async summary(input: InterpretationInput, options: InterpretOptions = {}): Promise<SummaryOutcome> {
+    const result = await this.post('/api/interpret/summary', input, options);
+    if (result.kind === 'error') {
+      return { status: 'error', code: result.code, message: result.message };
+    }
+    const { ok, status, payload } = result;
+
+    if (ok && payload['status'] === 'ok') {
+      const value = parseSummary(payload['value']);
+      if (value === null) {
+        return { status: 'error', code: 'UPSTREAM', message: '서버 응답 형식이 올바르지 않습니다' };
+      }
+      const source = payload['source'] === 'cache' ? 'cache' : 'llm';
+      return {
+        status: 'ok',
+        source,
+        narrativeKey: boundedString(payload['narrativeKey'], 256) ?? '',
+        value,
+      };
+    }
+
+    if (payload['status'] === 'rejected') {
+      return { status: 'rejected', narrativeKey: boundedString(payload['narrativeKey'], 256) ?? '' };
+    }
+
+    return { status: 'error', code: codeForStatus(status), message: '해석 서버가 응답하지 못했습니다' };
   }
 }

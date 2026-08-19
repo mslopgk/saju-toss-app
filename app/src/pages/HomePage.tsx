@@ -1,13 +1,9 @@
 import { Button, FixedBottomCTA, Paragraph, Spacing } from '@toss/tds-mobile'
 import type { Chart } from '../shared/lib/saju'
 import type { SelfReport } from '../features/onboarding'
-import {
-  buildFactPack,
-  renderTemplateSummary,
-  selectKnowledgeCards,
-  type SummaryValue,
-} from '../shared/interpret/ui'
+import { buildFactPack, renderTemplateSummary, selectKnowledgeCards } from '../shared/interpret/ui'
 import { CARDS } from '../shared/knowledge'
+import { defaultSummaryClient, useHomeSummary, type SummaryClient } from '../features/report'
 import { elementBackdropUrl, elementObjectUrl } from '../shared/assets'
 import type { Element } from '../shared/lib/saju/types'
 
@@ -32,10 +28,11 @@ import type { Element } from '../shared/lib/saju/types'
 export interface HomePageProps {
   readonly chart: Chart
   readonly selfReport?: SelfReport
-  /** AI 요약. 없으면 규칙 기반으로 그린다. */
-  readonly summary?: SummaryValue
-  /** AI 요약을 기다리는 중인지. 문구 한 줄이 달라질 뿐 화면 구조는 같다. */
-  readonly summaryPending?: boolean
+  /**
+   * 요약 서버 클라이언트. 생략하면 빌드 설정(`VITE_INTERPRET_API_BASE`)을 보고 정한다.
+   * `null` 을 명시하면 서버를 쓰지 않는다(테스트·미리보기) — `ReportView` 의 `client` 와 같은 규칙이다.
+   */
+  readonly client?: SummaryClient | null
   readonly onOpenDetail: () => void
   readonly onRestart: () => void
 }
@@ -101,24 +98,23 @@ const ELEMENT_LABEL: Readonly<Record<Element, string>> = {
 
 const ELEMENT_ORDER: readonly Element[] = ['木', '火', '土', '金', '水']
 
-export function HomePage({
-  chart,
-  selfReport,
-  summary,
-  summaryPending = false,
-  onOpenDetail,
-  onRestart,
-}: HomePageProps) {
+export function HomePage({ chart, selfReport, client, onOpenDetail, onRestart }: HomePageProps) {
   // 성별은 자기신고가 아니라 **계산 입력**이라 차트에서 읽는다 — `buildRuleBasedReport` 와 같은 규칙이다.
-  const fact = buildFactPack(
-    chart,
-    { gender: chart.input.gender, mbti: selfReport?.mbti ?? null, blood: selfReport?.blood ?? null },
-    'fusion',
-  )
+  const profile = {
+    gender: chart.input.gender,
+    mbti: selfReport?.mbti ?? null,
+    blood: selfReport?.blood ?? null,
+  }
+  const fact = buildFactPack(chart, profile, 'fusion')
   const cardIds = selectKnowledgeCards(fact, CARDS).map((c) => c.id)
 
-  // AI 값이 있으면 그것을, 없으면 규칙 기반을. 화면 구조는 어느 쪽이든 같다.
-  const shown = summary ?? renderTemplateSummary(fact, cardIds)
+  // 규칙 기반 값을 먼저 만들어 두고 서버 값이 오면 갈아 끼운다. 화면 구조는 어느 쪽이든 같다.
+  const fallback = renderTemplateSummary(fact, cardIds)
+  const view = useHomeSummary(fallback, { kind: 'fusion', chart, profile }, {
+    client: client === undefined ? defaultSummaryClient() : client,
+  })
+  const shown = view.summary
+  const summaryPending = view.state === 'loading'
 
   const strength = fact.saju.strength
   const dayElement = fact.saju.dayElement

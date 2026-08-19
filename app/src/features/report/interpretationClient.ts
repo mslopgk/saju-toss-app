@@ -14,6 +14,7 @@
 
 import { ServerInterpretationClient } from '../../shared/interpret/clientFetch'
 import type { InterpretationClient } from './useInterpretation'
+import type { SummaryClient } from './useHomeSummary'
 
 /** 빈 문자열·`undefined`·공백은 전부 "서버 없음"이다. */
 export function resolveApiBase(raw: unknown): string | null {
@@ -25,15 +26,27 @@ export function resolveApiBase(raw: unknown): string | null {
   return trimmed.replace(/\/+$/, '')
 }
 
-let cached: InterpretationClient | null | undefined
+let cached: ServerInterpretationClient | null | undefined
 
 /**
  * 기본 클라이언트. 모듈 수명 동안 한 번만 만든다 —
- * 렌더마다 새로 만들면 `ReportView` 의 이펙트가 매번 다시 돌아 같은 요청을 반복한다.
+ * 렌더마다 새로 만들면 이펙트가 매번 다시 돌아 같은 요청을 반복한다(원가 직결).
+ *
+ * 전체 해석과 홈 요약이 **같은 인스턴스**를 쓴다. 둘은 같은 서버의 다른 라우트일 뿐이라
+ * 주소 해석·시간 한도를 두 벌로 두면 어긋날 자리만 생긴다.
  */
-export function defaultInterpretationClient(): InterpretationClient | null {
+function client(): ServerInterpretationClient | null {
   if (cached !== undefined) return cached
   const base = resolveApiBase(import.meta.env['VITE_INTERPRET_API_BASE'])
   cached = base === null ? null : new ServerInterpretationClient({ baseUrl: base })
   return cached
+}
+
+export function defaultInterpretationClient(): InterpretationClient | null {
+  return client()
+}
+
+/** 홈 요약용 표면. 같은 인스턴스를 다른 타입으로 내보낸다 — 화면마다 필요한 메서드만 보인다. */
+export function defaultSummaryClient(): SummaryClient | null {
+  return client()
 }
