@@ -1,0 +1,15 @@
+node_modules/
+dist/
+.env
+.env.local
+
+# Claude Code 개인 설정 (커밋하지 않음)
+.claude/settings.local.json
+
+# 서버 배포용 환경파일 — API 키가 들어간다. 서버에만 두고 저장소에 넣지 않는다.
+interpret.env
+*.env.local
+
+# 산출물
+app/sajuapp.ait
+coverage/
