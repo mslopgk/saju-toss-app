@@ -1,0 +1,40 @@
+{
+  "name": "app",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0",
+    "build": "tsc -b && vite build && ait build",
+    "typecheck": "tsc -b --noEmit",
+    "test": "vitest run",
+    "lint": "oxlint",
+    "preview": "vite preview",
+    "deploy": "ait deploy",
+    "ui-smoke": "node scripts/ui-smoke.mjs",
+    "gen-store-assets": "node scripts/gen-store-assets.mjs"
+  },
+  "dependencies": {
+    "@apps-in-toss/web-framework": "^3.0.3",
+    "@emotion/react": "^11.14.0",
+    "@toss/tds-mobile": "^2.5.1",
+    "@toss/tds-mobile-ait": "^2.5.1",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@apps-in-toss/devtools": "^3.0.3",
+    "@types/node": "^24.13.3",
+    "@types/react": "^18.3.31",
+    "@types/react-dom": "^18.3.7",
+    "@vitejs/plugin-react": "^6.0.4",
+    "@vitest/coverage-v8": "^4.1.10",
+    "oxlint": "^1.75.0",
+    "playwright": "^1.62.1",
+    "sharp": "^0.35.3",
+    "typescript": "~6.0.2",
+    "vite": "^8.2.0",
+    "vitest": "^4.1.10"
+  }
+}

@@ -1,0 +1,297 @@
+import { Suspense, lazy, useState } from 'react'
+import {
+  Badge,
+  Button,
+  FixedBottomCTA,
+  List,
+  ListRow,
+  Loader,
+  Paragraph,
+  Spacing,
+  Top,
+} from '@toss/tds-mobile'
+import type { Chart, PillarKey, TenGod } from '../shared/lib/saju'
+import { DISCLAIMERS } from '../shared/interpret/ui'
+import {
+  NO_SELF_REPORT,
+  ReportView,
+  buildRuleBasedReport,
+  hasReportContent,
+  type ReportProfile,
+} from '../features/report'
+import { ENGINE_WARNING_COPY } from './engineWarningCopy'
+
+/**
+ * 계산 결과 화면.
+ *
+ * 근거: C00 §S3(네 기둥) · §S4-1(십신) · §S6(대운) · §5.4(경고 코드) / docs/product.md 핵심 흐름 2단계.
+ *
+ * ⛔ 해석 레이어의 **서버 전용 코드는 여기로 들어오지 않는다.** 면책 문구는
+ *    `shared/interpret/ui`(= `copy.ts` 재수출)에서만 가져온다. `shared/interpret`(배럴)을 import 하면
+ *    시스템 프롬프트 전문과 Anthropic API 매퍼가 미니앱 번들에 실려 사용자 단말로 내려간다.
+ *
+ * 표시하지 않는 것: 십신 `groupWeights`. S5 이후로는 정식 배점(합 80.00)이라 인용해도 되는 값이지만,
+ * 이 표에서는 십신 **이름**만 보여준다 — 같은 점수를 리포트의 신강신약 섹션이 오행 단위로 이미 말하고,
+ * 한 화면에서 같은 수치를 두 체계로 두 번 보여주면 서로 다른 값처럼 읽힌다.
+ *
+ * 해석 문장은 이 파일이 쓰지 않는다. `features/report` 가 팩트팩 → 카드검색 → 규칙 렌더러를 통과시킨
+ * 결과를 그대로 그린다(§H: 화면은 계산·서술 결과를 고치지 않는다).
+ */
+export interface ResultPageProps {
+  chart: Chart
+  /**
+   * 자기신고 값(MBTI·혈액형). 선택 입력이라 없으면 해당 리포트 섹션이 빠진다.
+   * 기본값이 "둘 다 모름"인 이유: 온보딩을 거치지 않는 호출부(테스트·미리보기)도 화면을 그릴 수 있어야 한다.
+   *
+   * 온보딩의 좁은 타입(`SelfReport`)이 아니라 리포트 쪽의 넓은 타입을 받는다 — 두 feature 를 잇는 것은
+   * 이 조합 계층의 일이고, `SelfReport` 는 이 타입에 그대로 대입된다.
+   */
+  selfReport?: ReportProfile
+  /** 입력을 다시 받으러 돌아간다. */
+  onRestart: () => void
+}
+
+/**
+ * 궁합 화면 청크.
+ *
+ * `pages/CompatPage` 는 궁합 엔진(`shared/lib/compat`) · `compat-params.json`(34.9 kB) ·
+ * `compat-calib.json` · 상대방 입력 폼을 끌고 온다. 결과 화면에 들어온 사람 전부가 궁합을
+ * 보는 것은 아니므로 그 무게를 여기서 다시 한 번 미룬다 — 경계는 `App.tsx`(온보딩 → 결과)에
+ * 이어 이 파일(결과 → 궁합)에 하나 더 있는 셈이다.
+ *
+ * ⚠ 지연되는 것은 **모듈 로딩뿐이다.** 받고 나면 `computeCompatibility()` 는 여전히 동기
+ *   순수함수다(C00 §S8: 결정론).
+ */
+const CompatPage = lazy(async () => ({ default: (await import('./CompatPage')).CompatPage }))
+
+const PILLAR_ORDER: readonly { key: PillarKey; label: string }[] = [
+  { key: 'year', label: '연주' },
+  { key: 'month', label: '월주' },
+  { key: 'day', label: '일주' },
+  { key: 'hour', label: '시주' },
+]
+
+function tenGodLabel(value: TenGod | '일간' | null): string {
+  return value ?? '—'
+}
+
+export function ResultPage({ chart, selfReport = NO_SELF_REPORT, onRestart }: ResultPageProps) {
+  const { pillars, tenGods, luck, jie, warnings } = chart
+  const daewoon = luck.daewoon.pillars.filter((p) => p.ganji !== null).slice(0, 8)
+  // 순수함수이고 1ms 미만이라 메모이제이션 없이 렌더마다 계산한다(C00 §7.2: 계산이 캐시보다 싸다).
+  const report = buildRuleBasedReport(chart, selfReport)
+  const [showCompat, setShowCompat] = useState(false)
+
+  if (showCompat) {
+    return (
+      <Suspense
+        fallback={
+          <div
+            style={{
+              position: 'fixed',
+              inset: 0,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              background: 'var(--adaptiveBackground)',
+            }}
+          >
+            <Loader size="large" type="primary" />
+          </div>
+        }
+      >
+        {/* 자기신고 값은 온보딩의 좁은 타입이 그대로 대입되는 구조라 변환 없이 넘어간다. */}
+        <CompatPage
+          selfChart={chart}
+          selfProfile={{ mbti: selfReport.mbti, blood: selfReport.blood }}
+          onBack={() => setShowCompat(false)}
+        />
+      </Suspense>
+    )
+  }
+
+  return (
+    <main>
+      <Top
+        title="당신의 사주 네 기둥"
+        subtitleBottom={`${pillars.sajuYear}년 ${jie.prev.ko}(${jie.prev.hanja}) 이후 · ${pillars.gz8}`}
+      />
+
+      {warnings.length > 0 && (
+        <div style={{ padding: '0 24px' }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+            {warnings.map((code) => (
+              <Badge
+                key={code}
+                size="small"
+                variant="weak"
+                color={ENGINE_WARNING_COPY[code].severity === 'warn' ? 'red' : 'blue'}
+              >
+                {ENGINE_WARNING_COPY[code].label}
+              </Badge>
+            ))}
+          </div>
+          <Spacing size={8} />
+          {warnings.map((code) => (
+            <Paragraph key={code} typography="st13" color="var(--adaptiveGrey700)">
+              {ENGINE_WARNING_COPY[code].detail}
+            </Paragraph>
+          ))}
+        </div>
+      )}
+
+      <Spacing size={16} />
+
+      {/* 네 기둥. 삼주 모드면 시주 칸은 '—' 로 비운다 — 채워 넣지 않는다. */}
+      <div style={{ padding: '0 24px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8 }}>
+          {PILLAR_ORDER.map(({ key, label }) => {
+            const pillar = pillars[key]
+            const gods = tenGods.byPillar[key]
+            return (
+              <div
+                key={key}
+                style={{
+                  padding: '12px 4px',
+                  borderRadius: 12,
+                  textAlign: 'center',
+                  background: 'var(--adaptiveGrey50)',
+                }}
+              >
+                <Paragraph typography="st13" color="var(--adaptiveGrey700)">
+                  {label}
+                </Paragraph>
+                <Spacing size={4} />
+                <Paragraph typography="t5" fontWeight="bold">
+                  {pillar === null ? '—' : pillar.ganji}
+                </Paragraph>
+                <Paragraph typography="st13" color="var(--adaptiveGrey700)">
+                  {pillar === null ? '시각 모름' : pillar.ganjiKo}
+                </Paragraph>
+                <Spacing size={6} />
+                <Paragraph typography="st13">{tenGodLabel(gods.stem)}</Paragraph>
+                <Paragraph typography="st13" color="var(--adaptiveGrey700)">
+                  {tenGodLabel(gods.branchMain)}
+                </Paragraph>
+              </div>
+            )
+          })}
+        </div>
+      </div>
+
+      <Spacing size={8} />
+      <div style={{ padding: '0 24px' }}>
+        <Paragraph typography="st13" color="var(--adaptiveGrey700)">
+          칸의 아래 두 줄은 십신이에요. 위가 천간, 아래가 지지 정기 기준이고 일간 자리는 기준점이라 &apos;일간&apos;
+          으로 표시해요.
+        </Paragraph>
+      </div>
+
+      {/* 읽을 거리를 표보다 앞에 둔다. 리포트가 비면(카드 미매칭) 이 블록 전체가 사라진다. */}
+      {hasReportContent(report) && (
+        <>
+          <Spacing size={28} />
+          <ReportView report={report} />
+        </>
+      )}
+
+      <Spacing size={28} />
+
+      <div style={{ padding: '0 24px' }}>
+        <Paragraph typography="st12" fontWeight="bold">
+          계산 근거
+        </Paragraph>
+      </div>
+
+      <List>
+        <ListRow
+          contents={<ListRow.Texts type="2RowTypeA" top="납음오행" bottom={`${pillars.day.naeum.ko} (${pillars.day.naeum.hanja})`} />}
+        />
+        <ListRow
+          contents={
+            <ListRow.Texts
+              type="2RowTypeA"
+              top="절기"
+              bottom={`${jie.prev.ko} ~ ${jie.next.ko} 사이 · 월지 ${pillars.month.branch}`}
+            />
+          }
+        />
+        <ListRow
+          contents={
+            <ListRow.Texts
+              type="2RowTypeA"
+              top="대운"
+              bottom={`${luck.daewoon.forward ? '순행' : '역행'} · 대운수 ${luck.daewoon.daewoonNumber}${
+                luck.daewoon.approx ? ' (생시 모름 · 12시 가정)' : ''
+              }`}
+            />
+          }
+        />
+      </List>
+
+      <Spacing size={16} />
+
+      <div style={{ padding: '0 24px' }}>
+        <Paragraph typography="st11" fontWeight="bold">
+          대운의 흐름
+        </Paragraph>
+      </div>
+      <List>
+        {daewoon.map((entry) => (
+          <ListRow
+            key={entry.index}
+            contents={
+              <ListRow.Texts
+                type="2RowTypeA"
+                top={`${entry.ganji ?? '—'}`}
+                bottom={`만 ${entry.startAgeWestern}~${entry.endAgeWestern}세 · ${entry.startYear}~${entry.endYear}년`}
+              />
+            }
+          />
+        ))}
+      </List>
+
+      <Spacing size={24} />
+
+      <div style={{ padding: '0 24px' }}>
+        <Paragraph typography="st12" fontWeight="bold">
+          알아두실 점
+        </Paragraph>
+        <Spacing size={8} />
+        {DISCLAIMERS.map((line) => (
+          <Paragraph key={line} typography="st13" color="var(--adaptiveGrey700)">
+            · {line}
+          </Paragraph>
+        ))}
+        <Spacing size={8} />
+        <Paragraph typography="st13" color="var(--adaptiveGrey700)">
+          계산 엔진 {chart.engineVersion}
+        </Paragraph>
+      </div>
+
+      <FixedBottomCTA.Double
+        leftButton={
+          <Button display="block" size="large" color="dark" variant="weak" onClick={onRestart}>
+            다시 입력하기
+          </Button>
+        }
+        rightButton={
+          <Button
+            display="block"
+            size="large"
+            color="primary"
+            variant="fill"
+            onClick={() => setShowCompat(true)}
+          >
+            궁합 보기
+          </Button>
+        }
+        topAccessory={
+          <Paragraph typography="st13" textAlign="center">
+            상대방의 생년월일만 있으면 두 사람 궁합을 볼 수 있어요.
+          </Paragraph>
+        }
+      />
+    </main>
+  )
+}

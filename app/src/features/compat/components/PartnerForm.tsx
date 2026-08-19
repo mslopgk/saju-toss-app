@@ -1,0 +1,511 @@
+import { useReducer, useState } from 'react'
+import type { ChangeEvent } from 'react'
+import {
+  BottomSheet,
+  Button,
+  FixedBottomCTA,
+  List,
+  ListRow,
+  Paragraph,
+  Spacing,
+  TextButton,
+  Top,
+  Wheel,
+} from '@toss/tds-mobile'
+import type { CalendarType, RawBirthInput } from '../../../shared/lib/saju/types'
+import type { CompatBloodType, CompatProfile } from '../../../shared/lib/compat/types'
+import { MBTI_TYPE_ORDER } from '../../../shared/lib/compat/params'
+import type { PartnerDraft, PartnerMonth } from '../partnerState'
+import {
+  HOUR_OPTIONS,
+  INITIAL_PARTNER_DRAFT,
+  MINUTE_OPTIONS,
+  SEED_DATE,
+  SEED_TIME,
+  YEAR_OPTIONS,
+  buildPartnerInput,
+  describePartnerDate,
+  describePartnerTime,
+  formatHourOption,
+  formatMinuteOption,
+  formatMonthOption,
+  monthIndexOf,
+  monthsOf,
+  partnerReducer,
+  rangeInclusive,
+} from '../partnerState'
+
+/**
+ * 상대방 출생 정보 입력.
+ *
+ * 근거: docs/product.md(궁합 흐름) / C00 §S0-2(음력)·§S0-3(출생지 기본값)·§S0-4(삼주).
+ *
+ * **첫 사람은 다시 묻지 않는다** — 이미 온보딩에서 받은 차트를 그대로 쓴다. 이 화면은 두 번째
+ * 사람만 받고, 토스 프리필 버튼은 **의도적으로 없다**(그 경로가 채우는 것은 사용자 본인의
+ * 생년월일이라, 상대방 칸에 넣으면 남의 사주가 아니라 자기 사주를 두 번 보게 된다).
+ */
+export interface PartnerFormProps {
+  onSubmit: (input: RawBirthInput, profile: CompatProfile) => void
+  /** 계산 엔진이 입력을 거절했을 때의 사용자용 문구 */
+  engineError?: string | null
+  onBack?: () => void
+}
+
+type SheetKind = 'date' | 'time' | 'mbti'
+
+const NOT_SELECTED = '선택해 주세요'
+const UNKNOWN_LABEL = '모름'
+const MBTI_UNKNOWN = '__unknown__'
+const BLOOD_OPTIONS: readonly CompatBloodType[] = ['A', 'B', 'O', 'AB']
+
+const MBTI_OPTIONS = [
+  { name: '모르겠어요', value: MBTI_UNKNOWN },
+  ...MBTI_TYPE_ORDER.map((type) => ({ name: type, value: type })),
+]
+
+/** 휠 한 칸. TDS `Wheel` 은 비제어라(`initialIndex` 만 읽는다) 되돌리려면 `key` 재마운트가 필요하다 */
+function WheelColumn({
+  label,
+  options,
+  value,
+  format,
+  onChange,
+}: {
+  label: string
+  options: number[]
+  value: number
+  format: (v: number) => string
+  onChange: (v: number) => void
+}) {
+  const index = options.indexOf(value)
+  return (
+    <div style={{ flex: 1, minWidth: 0 }}>
+      <Wheel
+        aria-label={label}
+        options={options}
+        initialIndex={index < 0 ? 0 : index}
+        formatValue={format}
+        onChange={onChange}
+        width="100%"
+      />
+    </div>
+  )
+}
+
+export function PartnerForm({ onSubmit, engineError = null, onBack }: PartnerFormProps) {
+  const [draft, dispatch] = useReducer(partnerReducer, INITIAL_PARTNER_DRAFT)
+  const [openSheet, setOpenSheet] = useState<SheetKind | null>(null)
+  const [sheetSession, setSheetSession] = useState(0)
+
+  const built = buildPartnerInput(draft)
+
+  const openSheetOf = (kind: SheetKind) => {
+    setSheetSession((s) => s + 1)
+    setOpenSheet(kind)
+  }
+  const closeSheet = () => setOpenSheet(null)
+
+  const handleSubmit = () => {
+    if (built.ok) onSubmit(built.input, built.profile)
+  }
+
+  return (
+    <main>
+      <Top
+        title="상대방은 언제 태어났나요?"
+        subtitleBottom="두 사람의 사주를 나란히 놓고 궁합을 봐요. 내 정보는 이미 받았으니 다시 묻지 않아요."
+      />
+
+      <Spacing size={8} />
+
+      <List>
+        <ListRow
+          withTouchEffect
+          arrowType="right"
+          onClick={() => openSheetOf('date')}
+          contents={
+            <ListRow.Texts
+              type="2RowTypeA"
+              top="태어난 날"
+              bottom={
+                draft.date === null ? NOT_SELECTED : describePartnerDate(draft.calendarType, draft.date)
+              }
+            />
+          }
+        />
+        <ListRow
+          withTouchEffect
+          arrowType="right"
+          onClick={() => openSheetOf('time')}
+          contents={
+            <ListRow.Texts type="2RowTypeA" top="태어난 시각" bottom={describePartnerTime(draft)} />
+          }
+        />
+      </List>
+
+      {draft.timeUnknown && (
+        <div style={{ padding: '4px 24px 0' }}>
+          <Paragraph typography="st12">
+            시각을 몰라도 연·월·일 세 기둥은 그대로 나와요. 시주만 빼고 계산해요.
+          </Paragraph>
+        </div>
+      )}
+
+      <div style={{ padding: '8px 24px 0' }}>
+        <Paragraph typography="st12" color="var(--adaptiveGrey700)">
+          태어난 곳은 서울 기준으로 계산해요. 국내에서는 진태양시 보정 차이가 최대 8분대라 시주
+          경계에 걸리지 않는 한 결과가 달라지지 않아요.
+        </Paragraph>
+      </div>
+
+      <Spacing size={24} />
+
+      <div style={{ padding: '0 24px' }}>
+        <Paragraph typography="st11" fontWeight="bold">
+          성별
+        </Paragraph>
+        <Spacing size={8} />
+        <div style={{ display: 'flex', gap: 8 }}>
+          {(['M', 'F'] as const).map((gender) => (
+            <div key={gender} style={{ flex: 1 }}>
+              <Button
+                display="block"
+                size="large"
+                color={draft.gender === gender ? 'primary' : 'dark'}
+                variant={draft.gender === gender ? 'fill' : 'weak'}
+                aria-pressed={draft.gender === gender}
+                onClick={() => dispatch({ type: 'setGender', gender })}
+              >
+                {gender === 'M' ? '남성' : '여성'}
+              </Button>
+            </div>
+          ))}
+        </div>
+        <Spacing size={8} />
+        <Paragraph typography="st12">
+          대운 방향 판정에 필요하고, 혈액형 궁합의 남녀 보정에도 써요.
+        </Paragraph>
+      </div>
+
+      <Spacing size={24} />
+
+      <div style={{ padding: '0 24px' }}>
+        <Paragraph typography="st11" fontWeight="bold">
+          상대방의 MBTI와 혈액형 (선택)
+        </Paragraph>
+        <Spacing size={4} />
+        <Paragraph typography="st12">
+          모르면 비워 두세요. 비운 항목은 배점에서 빼고 그 몫을 나머지에 비율대로 나눠 담아요.
+        </Paragraph>
+      </div>
+
+      <Spacing size={8} />
+
+      <List>
+        <ListRow
+          withTouchEffect
+          arrowType="right"
+          onClick={() => openSheetOf('mbti')}
+          contents={
+            <ListRow.Texts type="2RowTypeA" top="MBTI 유형" bottom={draft.mbti ?? UNKNOWN_LABEL} />
+          }
+        />
+      </List>
+
+      <div style={{ padding: '8px 24px 0' }}>
+        <Paragraph typography="st11" fontWeight="bold">
+          혈액형
+        </Paragraph>
+        <Spacing size={8} />
+        <div style={{ display: 'flex', gap: 8 }}>
+          {BLOOD_OPTIONS.map((blood) => (
+            <div key={blood} style={{ flex: 1 }}>
+              <Button
+                display="block"
+                size="medium"
+                color={draft.blood === blood ? 'primary' : 'dark'}
+                variant={draft.blood === blood ? 'fill' : 'weak'}
+                aria-pressed={draft.blood === blood}
+                // 같은 값을 다시 누르면 해제된다 — "모름"으로 돌아갈 길이 없으면 잘못 누른 사용자가 갇힌다.
+                onClick={() =>
+                  dispatch({ type: 'setBlood', blood: draft.blood === blood ? null : blood })
+                }
+              >
+                {blood}
+              </Button>
+            </div>
+          ))}
+        </div>
+        <Spacing size={8} />
+        <Paragraph typography="st12">
+          혈액형 궁합은 과학적 근거가 없어요. 배점에는 넣되 비중을 10%로 두고, 결과 화면에서 그
+          사실을 다시 밝혀요.
+        </Paragraph>
+      </div>
+
+      {engineError !== null && (
+        <div style={{ padding: '16px 24px 0' }} role="alert">
+          <Paragraph typography="st12" color="var(--adaptiveRed500)">
+            {engineError}
+          </Paragraph>
+        </div>
+      )}
+
+      {onBack !== undefined && (
+        <div style={{ display: 'flex', justifyContent: 'center', padding: '20px 24px 0' }}>
+          <TextButton size="medium" variant="underline" onClick={onBack}>
+            내 결과로 돌아가기
+          </TextButton>
+        </div>
+      )}
+
+      <FixedBottomCTA
+        disabled={!built.ok}
+        onClick={handleSubmit}
+        topAccessory={
+          <Paragraph typography="st13" textAlign="center">
+            운세 콘텐츠예요. 두 사람의 관계를 예측하지 않아요.
+          </Paragraph>
+        }
+      >
+        궁합 보기
+      </FixedBottomCTA>
+
+      <PartnerDateSheet
+        key={`date-${sheetSession}`}
+        open={openSheet === 'date'}
+        calendarType={draft.calendarType}
+        initialDate={draft.date ?? SEED_DATE}
+        onClose={closeSheet}
+        onConfirm={(calendarType, date) => {
+          dispatch({ type: 'setDate', calendarType, date })
+          closeSheet()
+        }}
+      />
+
+      <PartnerTimeSheet
+        key={`time-${sheetSession}`}
+        open={openSheet === 'time'}
+        initialTime={draft.time ?? SEED_TIME}
+        onClose={closeSheet}
+        onConfirm={(time) => {
+          dispatch({ type: 'setTime', time })
+          closeSheet()
+        }}
+        onUnknown={() => {
+          dispatch({ type: 'setTimeUnknown' })
+          closeSheet()
+        }}
+      />
+
+      <BottomSheet
+        key={`mbti-${sheetSession}`}
+        open={openSheet === 'mbti'}
+        onClose={closeSheet}
+        onDimmerClick={closeSheet}
+        maxHeight="72vh"
+        header={<BottomSheet.Header>상대방의 MBTI를 알고 있나요?</BottomSheet.Header>}
+        headerDescription={
+          <BottomSheet.HeaderDescription>
+            이미 아는 유형을 골라 주세요. 이 앱은 성격 검사를 제공하지 않아요.
+          </BottomSheet.HeaderDescription>
+        }
+      >
+        <BottomSheet.Select
+          options={MBTI_OPTIONS}
+          value={draft.mbti ?? MBTI_UNKNOWN}
+          onChange={(event: ChangeEvent<HTMLInputElement>) => {
+            const value = event.target.value
+            dispatch({ type: 'setMbti', mbti: value === MBTI_UNKNOWN ? null : value })
+            closeSheet()
+          }}
+        />
+      </BottomSheet>
+    </main>
+  )
+}
+
+/**
+ * 생년월일 시트.
+ *
+ * TDS `WheelDatePicker` 를 쓰지 않는 이유는 온보딩과 같다 — 그건 `Date` 를 다뤄 그레고리력
+ * 대소월을 강제하는데, 음력은 대소월이 29/30 으로 갈리고 윤달이 끼어 한 해가 13달이 된다.
+ * 그래서 월 휠의 값은 월 번호가 아니라 **시퀀스 인덱스**다(윤2월과 2월이 같은 번호이기 때문).
+ */
+function PartnerDateSheet({
+  open,
+  calendarType: initialCalendarType,
+  initialDate,
+  onClose,
+  onConfirm,
+}: {
+  open: boolean
+  calendarType: CalendarType
+  initialDate: { year: number; month: number; day: number }
+  onClose: () => void
+  onConfirm: (calendarType: CalendarType, date: { year: number; month: number; day: number }) => void
+}) {
+  const [lunar, setLunar] = useState(initialCalendarType !== 'solar')
+  const [year, setYear] = useState(initialDate.year)
+  const [monthSeq, setMonthSeq] = useState(() =>
+    monthIndexOf(initialCalendarType, initialDate.year, initialDate.month, initialCalendarType === 'lunar_leap'),
+  )
+  const [day, setDay] = useState(initialDate.day)
+
+  const calendarType: CalendarType = lunar ? 'lunar' : 'solar'
+  const months = monthsOf(calendarType, year)
+  const seq = months.length === 0 ? 0 : Math.min(Math.max(monthSeq, 0), months.length - 1)
+  const picked: PartnerMonth | undefined = months[seq]
+  const selected: CalendarType = lunar ? (picked?.leap === true ? 'lunar_leap' : 'lunar') : 'solar'
+  const maxDay = picked?.days ?? 0
+  const boundedDay = maxDay === 0 ? day : Math.min(Math.max(day, 1), maxDay)
+  const value = { year, month: picked?.month ?? 1, day: boundedDay }
+
+  const switchCalendar = (nextLunar: boolean) => {
+    setLunar(nextLunar)
+    const next: CalendarType = nextLunar ? 'lunar' : 'solar'
+    setMonthSeq(monthIndexOf(next, year, picked?.month ?? 1, false))
+  }
+
+  const handleYear = (nextYear: number) => {
+    setYear(nextYear)
+    // 윤달은 해마다 자리가 다르다. 연도를 바꾸면 같은 시퀀스 칸이 다른 달이 되므로 월 번호로 다시 잡는다.
+    const nextSeq = monthIndexOf(calendarType, nextYear, picked?.month ?? 1, picked?.leap ?? false)
+    setMonthSeq(nextSeq)
+    const nextMonth = monthsOf(calendarType, nextYear)[nextSeq]
+    setDay((current) => Math.min(current, nextMonth?.days ?? current))
+  }
+
+  const handleMonth = (nextSeq: number) => {
+    setMonthSeq(nextSeq)
+    setDay((current) => Math.min(current, months[nextSeq]?.days ?? current))
+  }
+
+  return (
+    <BottomSheet
+      open={open}
+      onClose={onClose}
+      onDimmerClick={onClose}
+      header={<BottomSheet.Header>상대방이 태어난 날은요?</BottomSheet.Header>}
+      headerDescription={
+        <BottomSheet.HeaderDescription>
+          주민등록상 날짜가 아니라 실제로 태어난 날짜를 골라 주세요.
+        </BottomSheet.HeaderDescription>
+      }
+      cta={
+        <BottomSheet.CTA disabled={maxDay === 0} onClick={() => onConfirm(selected, value)}>
+          선택 완료
+        </BottomSheet.CTA>
+      }
+    >
+      <div style={{ display: 'flex', gap: 8, padding: '0 0 12px' }} role="group" aria-label="달력 종류">
+        {[false, true].map((isLunar) => (
+          <div key={String(isLunar)} style={{ flex: 1 }}>
+            <Button
+              display="block"
+              size="medium"
+              color={lunar === isLunar ? 'primary' : 'dark'}
+              variant={lunar === isLunar ? 'fill' : 'weak'}
+              aria-pressed={lunar === isLunar}
+              onClick={() => switchCalendar(isLunar)}
+            >
+              {isLunar ? '음력' : '양력'}
+            </Button>
+          </div>
+        ))}
+      </div>
+
+      <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+        <WheelColumn
+          label="년도 선택"
+          options={YEAR_OPTIONS}
+          value={year}
+          format={(v) => `${v}년`}
+          onChange={handleYear}
+        />
+        <WheelColumn
+          key={`month-${calendarType}-${months.length}-${year}`}
+          label="월 선택"
+          options={months.map((_, i) => i)}
+          value={seq}
+          format={(i) => {
+            const m = months[i]
+            return m === undefined ? '' : formatMonthOption(m)
+          }}
+          onChange={handleMonth}
+        />
+        <WheelColumn
+          key={`day-${maxDay}`}
+          label="일 선택"
+          options={rangeInclusive(1, maxDay)}
+          value={boundedDay}
+          format={(v) => `${v}일`}
+          onChange={setDay}
+        />
+      </div>
+
+      {lunar && (
+        <>
+          <Spacing size={8} />
+          <Paragraph typography="st12">{describePartnerDate(selected, value)}</Paragraph>
+        </>
+      )}
+    </BottomSheet>
+  )
+}
+
+function PartnerTimeSheet({
+  open,
+  initialTime,
+  onClose,
+  onConfirm,
+  onUnknown,
+}: {
+  open: boolean
+  initialTime: { hour: number; minute: number }
+  onClose: () => void
+  onConfirm: (time: { hour: number; minute: number }) => void
+  onUnknown: () => void
+}) {
+  const [hour, setHour] = useState(initialTime.hour)
+  const [minute, setMinute] = useState(initialTime.minute)
+
+  return (
+    <BottomSheet
+      open={open}
+      onClose={onClose}
+      onDimmerClick={onClose}
+      header={<BottomSheet.Header>상대방은 몇 시에 태어났나요?</BottomSheet.Header>}
+      headerDescription={
+        <BottomSheet.HeaderDescription>
+          24시간제로 골라 주세요. 모르면 아래에서 넘어갈 수 있어요.
+        </BottomSheet.HeaderDescription>
+      }
+      cta={<BottomSheet.CTA onClick={() => onConfirm({ hour, minute })}>선택 완료</BottomSheet.CTA>}
+    >
+      <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+        <WheelColumn
+          label="시 선택"
+          options={HOUR_OPTIONS}
+          value={hour}
+          format={formatHourOption}
+          onChange={setHour}
+        />
+        <WheelColumn
+          label="분 선택"
+          options={MINUTE_OPTIONS}
+          value={minute}
+          format={formatMinuteOption}
+          onChange={setMinute}
+        />
+      </div>
+      <div style={{ display: 'flex', justifyContent: 'center', paddingTop: 8 }}>
+        <TextButton size="medium" variant="underline" onClick={onUnknown}>
+          시간을 모르겠어요
+        </TextButton>
+      </div>
+    </BottomSheet>
+  )
+}
+
+export type { PartnerDraft }

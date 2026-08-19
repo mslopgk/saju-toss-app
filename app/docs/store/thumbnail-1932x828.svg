@@ -1,0 +1,35 @@
+
+<svg xmlns="http://www.w3.org/2000/svg" width="1932" height="828" viewBox="0 0 1932 828">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#101736"/>
+      <stop offset="55%" stop-color="#1B2550"/>
+      <stop offset="100%" stop-color="#243268"/>
+    </linearGradient>
+  </defs>
+  <rect width="1932" height="828" fill="url(#bg)"/>
+  <circle cx="1600" cy="120" r="4"   fill="#fff" opacity=".7"/>
+  <circle cx="1700" cy="200" r="3"   fill="#fff" opacity=".45"/>
+  <circle cx="1520" cy="240" r="2.5" fill="#fff" opacity=".4"/>
+  <circle cx="250"  cy="700" r="3"   fill="#fff" opacity=".35"/>
+  
+  <circle cx="1520" cy="414" r="260.4" fill="none" stroke="#ffffff" stroke-width="2" opacity=".12"/>
+  <g fill="none" stroke-width="54" stroke-linecap="round">
+    <path d="M1520 204 A210 210 0 0 1 1730 414" stroke="#FF9F1C"/>
+    <path d="M1730 414 A210 210 0 0 1 1520 624" stroke="#3182F6"/>
+    <path d="M1520 624 A210 210 0 0 1 1310 414" stroke="#F0455B"/>
+    <path d="M1310 414 A210 210 0 0 1 1520 204" stroke="#8B5CF6"/>
+  </g>
+  <circle cx="1520" cy="414" r="102.89999999999999" fill="#0C1230"/>
+  <circle cx="1520" cy="414" r="102.89999999999999" fill="none" stroke="#fff" stroke-width="2" opacity=".18"/>
+  <circle cx="1520" cy="414" r="23.1" fill="#fff"/>
+  <circle cx="1520" cy="204" r="17.85" fill="#fff"/>
+  <circle cx="1730" cy="414" r="17.85" fill="#fff"/>
+  <circle cx="1520" cy="624" r="17.85" fill="#fff"/>
+  <circle cx="1310" cy="414" r="17.85" fill="#fff"/>
+  <text x="150" y="330" fill="#ffffff" font-family="'Malgun Gothic','Apple SD Gothic Neo',sans-serif" font-size="112" font-weight="700">사주믹스</text>
+  <text x="150" y="440" fill="#B9C6E8" font-family="'Malgun Gothic','Apple SD Gothic Neo',sans-serif" font-size="52" font-weight="500">사주 · MBTI · 혈액형 · 별자리</text>
+  <text x="150" y="520" fill="#8FA3D4" font-family="'Malgun Gothic','Apple SD Gothic Neo',sans-serif" font-size="44" font-weight="400">네 가지를 한 번에 겹쳐 읽어요</text>
+  <rect x="150" y="580" width="470" height="82" rx="41" fill="#3182F6"/>
+  <text x="385" y="634" fill="#ffffff" text-anchor="middle" font-family="'Malgun Gothic','Apple SD Gothic Neo',sans-serif" font-size="42" font-weight="700">생년월일만 넣으면 끝</text>
+</svg>

@@ -1,0 +1,22 @@
+/*
+ * 전역 스타일은 최소로만 둔다.
+ * 색·타이포·간격·다크모드는 TDS 토큰이 담당한다 (docs/design-system.md 참고).
+ * TDSMobileAITProvider 가 GlobalCSSVariables 와 SafeAreaInsets 를 내부에서 렌더하므로
+ * 여기서 폰트·색상 기본값을 다시 정의하면 TDS 시각 언어를 덮어쓴다.
+ */
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+}
+
+body {
+  -webkit-tap-highlight-color: transparent;
+}
