@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Paragraph, Spacing } from '@toss/tds-mobile'
+import { firstSentence } from './sectionPreview'
 
 /**
  * 깊이읽기의 섹션 한 장.
@@ -17,21 +18,6 @@ export interface SectionCardProps {
   readonly body: string
   /** 처음부터 펼쳐 둘지. 첫 장만 열어 두면 사용자가 펼치는 동작을 배운다. */
   readonly defaultOpen?: boolean
-}
-
-/**
- * 본문의 첫 문장.
- *
- * 접힌 카드의 미리보기다. 마침표까지 포함해 자른다 — 자른 티가 나는 말줄임표보다
- * 온전한 한 문장이 읽기 좋고, 규칙 렌더러도 LLM 도 문장 단위로 글을 쓴다.
- *
- * 마침표가 없으면(한 문장짜리 본문이거나 물음표로 끝나는 경우) 본문 전체를 돌려준다.
- * 자르기 실패를 빈 문자열로 만들지 않는다 — 미리보기가 비면 카드가 제목만 남는다.
- */
-export function firstSentence(body: string): string {
-  const end = body.indexOf('. ')
-  if (end === -1) return body.trim()
-  return body.slice(0, end + 1).trim()
 }
 
 export function SectionCard({ title, body, defaultOpen = false }: SectionCardProps) {

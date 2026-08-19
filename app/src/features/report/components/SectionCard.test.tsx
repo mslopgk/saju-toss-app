@@ -7,7 +7,8 @@
 import { renderToString } from 'react-dom/server'
 import { TDSMobileAITProvider } from '@toss/tds-mobile-ait'
 import { describe, expect, it } from 'vitest'
-import { SectionCard, firstSentence } from './SectionCard'
+import { SectionCard } from './SectionCard'
+import { firstSentence } from './sectionPreview'
 
 describe('firstSentence', () => {
   it('마침표까지 포함해 첫 문장만 남긴다', () => {
