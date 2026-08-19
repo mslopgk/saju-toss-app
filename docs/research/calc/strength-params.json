@@ -1,0 +1,246 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "id": "saju-toss-app/strength-params",
+  "version": "1.0.0",
+  "generated": "2026-08-11",
+  "generatedBy": "docs/research/calc/C17-신강신약-용신-계수-실구현체-확보.md",
+  "description": "신강신약·용신·격국 계산에 쓰이는 모든 수치 계수의 외부 설정 파일. 코드에 하드코딩 금지. 각 값에 evidenceGrade 를 붙여 '명리 규칙'과 '설계 파라미터'를 분리한다.",
+
+  "evidenceGradeLegend": {
+    "A": "2개 이상 독립 오픈소스 구현체에서 동일하거나 동치인 수치를 실제 소스코드로 확인",
+    "B": "1개 오픈소스 구현체의 소스코드에서 확인",
+    "C": "고전/교재 문헌에 서술은 있으나 수치가 없음 — 수치화는 본 프로젝트가 수행",
+    "D": "실측 근거 없는 설계 파라미터. 명리학 규칙이 아니라 제품 튜닝 노브. A/B 테스트 대상",
+    "X": "실측 결과 오류로 판명되어 폐기"
+  },
+
+  "scoreModel": {
+    "_note": "score[오행] = Σ(천간 기여) + Σ(지장간 기여). 총점 고정 80.00.",
+    "stemPositionWeight": {
+      "value": { "year": 0.8, "month": 1.0, "day": 0.0, "hour": 0.8 },
+      "unit": "×10점",
+      "evidenceGrade": "D",
+      "rationale": "월간만 1.0, 년/시간 0.8 은 「월령 제강」 서술의 자체 정량화. 실구현체는 년월시간을 균등(1.0)하게 두거나(HeiGe/china-testing/BaziEval/dzcmemory) 월간만 1.2(saju-engine) 로 둔다.",
+      "alternatives": {
+        "uniform_1.0": { "year": 1.0, "month": 1.0, "day": 0.0, "hour": 1.0, "source": "HeiGe paipan.py / china-testing bazi.py / dzcmemory wang-shuai.ts", "evidenceGrade": "A" },
+        "sajuEngine": { "year": 1.0, "month": 1.2, "day": 0.0, "hour": 1.0, "source": "adminhelper/saju-engine elements.mjs stemW", "evidenceGrade": "B" }
+      },
+      "sensitivity": "천간 균등(1.0)+일간포함 으로 바꾸면 신강/신약 2치 판정이 3.157% 뒤집힘 (N=518,400 전수)"
+    },
+    "dayStemSelfScore": {
+      "value": 0.0,
+      "evidenceGrade": "A",
+      "rationale": "일간을 점수에 포함하면 아군 쪽 구조적 편향이 생긴다. 일간 제외는 adminhelper/saju-engine(stemW[2]=0)과 dzcmemory/wang-shuai.ts(得势에 年月时干만 사용) 2개 독립 구현체가 채택. 반대로 포함하는 것은 HeiGe/china-testing/ssaju/realdev/BaziEval.",
+      "measured": "일간 1.0 포함 시 전수 평균 R 0.4000 → 0.3556 (아군비율이 오히려 내려감: 총점 분모가 커지고 일간은 항상 비겁이라 분자·분모 동시 증가하지만 분모 증가폭이 큼). 2치 판정 뒤집힘 0.000% (백분위 재캘리브레이션 시)"
+    },
+    "branchPositionWeight": {
+      "value": { "year": 1.0, "month": 2.0, "day": 1.4, "hour": 1.0 },
+      "unit": "×10점",
+      "evidenceGrade": "B",
+      "rationale": "월지 ×2.0 은 HeiGe paipan.py(mult=2.0)와 china-testing bazi.py(월지를 리스트에 1회 더 추가) 2개 구현체 일치 → 이 항목만은 A등급. 일지 ×1.4 는 실구현체 없음 → D등급.",
+      "perFieldGrade": { "year": "A", "month": "A", "day": "D", "hour": "A" },
+      "alternatives": {
+        "sajuEngine_F": { "year": 1.3, "month": 3.0, "day": 2.0, "hour": 1.5, "source": "adminhelper/saju-engine elements.mjs branchW", "evidenceGrade": "A(2개 구현체가 3.0/2.0 계열)" },
+        "quain4code_I": { "year": 1.0, "month": 3.0, "day": 2.0, "hour": 1.0, "source": "quain4code/bazi js/wuxing.js weight (idx1→3, idx2→2, else 1)", "evidenceGrade": "B" },
+        "heige_A": { "year": 1.0, "month": 2.0, "day": 1.0, "hour": 1.0, "source": "HeiGe-SuanMing paipan.py", "evidenceGrade": "A" },
+        "flat_G": { "year": 1.0, "month": 1.0, "day": 1.0, "hour": 1.0, "source": "allanpk716/BaziEval BaziAlgorithm.cpp (위치가중 전무, 월령효과를 계수표에 흡수)", "evidenceGrade": "B" }
+      },
+      "sensitivity": {
+        "monthWeightSweep_binaryFlipPct": {
+          "2.0": 0.0, "2.2": 1.912, "2.4": 3.289, "2.6": 4.844, "2.8": 6.559,
+          "3.0": 7.8, "3.2": 8.835, "3.4": 9.921, "3.6": 10.876, "3.8": 11.998, "4.0": 12.881
+        },
+        "dayWeightSweep_binaryFlipPct": {
+          "1.0": 3.934, "1.2": 1.894, "1.4": 0.0, "1.6": 1.922, "1.8": 3.639,
+          "2.0": 5.398, "2.5": 9.291, "3.0": 12.985
+        },
+        "profileSwap_binaryFlipPct": {
+          "sajuEngine_F": 2.947, "quain4code_I": 15.0, "heige_A": 5.085, "flat_G": 11.198, "doc03_authored": 4.455
+        }
+      }
+    },
+    "hiddenStemRatio": {
+      "value": { "3": [0.60, 0.25, 0.15], "2": [0.70, 0.30], "1": [1.0] },
+      "order": "[본기, 중기, 여기]",
+      "evidenceGrade": "A",
+      "rationale": "합=1.0 정규화 후 4개 독립 구현체 값의 중앙 부근. 실측 뒤집힘률 1.5~1.8%로 계수 선택이 결과에 미치는 영향이 가장 작은 항목.",
+      "alternatives": {
+        "heige_A": { "3": [0.588, 0.294, 0.118], "raw": [1.0, 0.5, 0.2], "source": "HeiGe paipan.py weights", "flipPct": 1.758 },
+        "chinaTesting_B": { "3": [0.625, 0.250, 0.125], "raw": [5, 2, 1], "source": "china-testing/bazi ganzhi.py zhi5", "flipPct": 1.541 },
+        "sajuEngine_F": { "3": [0.556, 0.278, 0.167], "raw": [1.0, 0.5, 0.3], "source": "adminhelper/saju-engine elements.mjs ohaengWeighted", "flipPct": 1.729 },
+        "baziEval_G": { "3": [0.50, 0.30, 0.20], "2": [0.70, 0.30], "source": "allanpk716/BaziEval DiZhi_Strength 기준월 값", "flipPct": 4.192 },
+        "realdev_E": { "3": [0.60, 0.20, 0.20], "source": "be-realdeveloper/saju BRANCH_HIDDEN", "flipPct": 1.791 },
+        "mainOnly": { "3": [1.0, 0.0, 0.0], "source": "adminhelper/saju-engine strengthScore() 는 본기만 사용", "flipPct": 12.694 }
+      }
+    },
+    "totalScore": { "value": 80.0, "evidenceGrade": "D", "rationale": "고정 총점은 디버깅 편의용 정규화. 명리 의미 없음." }
+  },
+
+  "threshold": {
+    "_note": "★ 실측 결과 임계값이 위치가중보다 결과를 3~5배 더 크게 좌우한다. 최우선 튜닝 대상.",
+    "method": {
+      "value": "percentileRank",
+      "evidenceGrade": "D",
+      "rationale": "실구현체 중 백분위 정규화를 쓰는 것은 없다(전부 고정 임계). 그러나 고정 임계는 모두 신약 편향을 내장한다 — 아군은 2개 오행, 적군은 3개 오행이라 전수 평균 아군비율이 0.4000 이지 0.5 가 아니기 때문.",
+      "measuredPopulationStats": {
+        "N": 518400, "mean": 0.4000, "median": 0.3950, "pstdev": 0.1610, "min": 0.0, "max": 1.0
+      }
+    },
+    "anchors_R_to_SI": [
+      [0.0000, 0], [0.0525, 1], [0.1400, 5], [0.1925, 10], [0.2250, 15], [0.2562, 20],
+      [0.2825, 25], [0.3063, 30], [0.3312, 35], [0.3513, 40], [0.3750, 45], [0.3950, 50],
+      [0.4188, 55], [0.4375, 60], [0.4625, 65], [0.4862, 70], [0.5125, 75], [0.5400, 80],
+      [0.5750, 85], [0.6138, 90], [0.6750, 95], [0.7800, 99], [1.0000, 100]
+    ],
+    "grades": [
+      { "max": 10, "label": "극신약", "designShare": 0.10 },
+      { "max": 30, "label": "신약", "designShare": 0.20 },
+      { "max": 45, "label": "중화신약", "designShare": 0.15 },
+      { "max": 55, "label": "중화", "designShare": 0.10 },
+      { "max": 70, "label": "중화신강", "designShare": 0.15 },
+      { "max": 90, "label": "신강", "designShare": 0.20 },
+      { "max": 101, "label": "극신강", "designShare": 0.10 }
+    ],
+    "isStrongCut_SI": { "value": 55, "evidenceGrade": "D" },
+    "neutralBand_SI": { "value": [45, 55], "evidenceGrade": "D" },
+    "implementationAlternatives": {
+      "heige_A": { "scale": "아군비율", "strong": 0.55, "weak": 0.45, "source": "HeiGe paipan.py L818", "evidenceGrade": "B", "resultStrongPct": 25.61, "flipVsStd": 26.509 },
+      "chinaTesting_B": { "scale": "절대점 /60", "cut": 29, "equivRatio": 0.4833, "source": "china-testing bazi.py L288", "evidenceGrade": "B", "resultStrongPct": 38.83, "flipVsStd": 14.943 },
+      "sajuEngine_F": { "scale": "support/(support+drain)*100", "strong": 60, "weak": 40, "yongsinCut": 55, "source": "adminhelper/saju-engine elements.mjs", "evidenceGrade": "B", "resultStrongPct": 18.04, "flipVsStd": 33.407 },
+      "dzcmemory_H": { "scale": "부호점수", "extremeStrong": 8, "strong": 3, "weak": -2.5, "extremeWeak": -8, "source": "dzcmemory-web wang-shuai.ts", "evidenceGrade": "B", "resultStrongPct": 37.27 },
+      "ssaju_D": { "scale": "기저50 가감", "strong": 70, "weak": 30, "special": [85, 15], "source": "golbin/ssaju analyze.ts", "evidenceGrade": "B", "resultStrongPct": 59.35 },
+      "realdev_E": { "scale": "일간오행 절대점", "cut": 3.0, "source": "be-realdeveloper/saju saju.js", "evidenceGrade": "B", "resultStrongPct": 27.38 },
+      "quain4code_I": { "scale": "sup-att 절대차", "band": 5, "source": "quain4code/bazi wuxing.js", "evidenceGrade": "B", "resultStrongPct": 71.39 },
+      "doc03_authored": { "scale": "아군비율", "very_strong": 0.65, "strong": 0.55, "medium": 0.45, "weak": 0.35, "source": "docs/research/03-사주명리-이론체계.md L460 — 자체 설계 명시", "evidenceGrade": "X", "resultStrongPct": 6.38, "flipVsStd": 38.730, "verdict": "폐기. 신강 6.38%만 나와 인구 분포가 붕괴한다." }
+    }
+  },
+
+  "climate": {
+    "stemScore": { "甲": 3, "乙": 1, "丙": 6, "丁": 4, "戊": 5, "己": -4, "庚": -1, "辛": -3, "壬": -5, "癸": -6 },
+    "branchScore": { "子": -6, "丑": -4, "寅": 3, "卯": 1, "辰": -4, "巳": 5, "午": 6, "未": 3, "申": -2, "酉": -3, "戌": 4, "亥": -5 },
+    "evidenceGrade": "A",
+    "sources": [
+      "china-testing/bazi ganzhi.py L17 `temps`",
+      "holygeek00/ziping-bazi-skill scripts/bazi_audit.py CLIMATE_STEM_SCORE / CLIMATE_BRANCH_SCORE (동일 수치, 출처를 《八字命理学进阶教程》第一章 「干支寒暖燥湿计分」 으로 명시)"
+    ],
+    "aggregation": {
+      "chinaTesting": { "formula": "Σ천간4 + Σ지지4 + temps[월지] (월지 2회 계상)", "evidenceGrade": "B" },
+      "holygeek": { "formula": "Σ천간4 + Σ지지4 + monthBonus[월지]", "monthBonus": { "寅": 0, "卯": 1, "辰": 2, "巳": 3, "午": 4, "未": 3, "申": 0, "酉": -1, "戌": -2, "亥": -3, "子": -4, "丑": -4 }, "evidenceGrade": "B" }
+    },
+    "triggerThreshold": {
+      "value": 12,
+      "evidenceGrade": "D",
+      "alternatives": { "holygeek": 6, "note": "holygeek 은 ±6 을 「기본 중화 구간」으로 규정. C05-STD 의 ±12 는 발동 빈도를 줄이려는 자체 설정." }
+    },
+    "requiredElementScoreCut": { "value": 8.0, "evidenceGrade": "D" }
+  },
+
+  "tiaohouPrimary": {
+    "_note": "일간×월지 120칸, 제1용신 1글자만. 3표 다수결로 확정. 열 순서 = 寅卯辰巳午未申酉戌亥子丑",
+    "evidenceGrade": "A",
+    "sources": [
+      "표① HeiGe-SuanMing references/03_tiaohou_qiongtong.md (穷通宝鉴/栏江网)",
+      "표② china-testing/bazi datas.py `tiaohous` (1순위 표기 파싱)",
+      "표③ holygeek00/ziping-bazi-skill references/计算与结构底稿.md §6.1 (陆致极《八字命理学进阶教程》표1.4)"
+    ],
+    "agreement": { "threeWayIdentical": "116/120 (96.67%)", "twoToOne": 4, "threeWaySplit": 0 },
+    "table": {
+      "甲": ["丙","庚","庚","癸","癸","癸","庚","庚","庚","庚","丁","丁"],
+      "乙": ["丙","丙","癸","癸","癸","癸","丙","癸","癸","丙","丙","丙"],
+      "丙": ["壬","壬","壬","壬","壬","壬","壬","壬","甲","甲","壬","壬"],
+      "丁": ["甲","庚","甲","甲","壬","甲","甲","甲","甲","甲","甲","甲"],
+      "戊": ["丙","丙","甲","甲","壬","癸","丙","丙","甲","甲","丙","丙"],
+      "己": ["丙","甲","丙","癸","癸","癸","丙","丙","甲","丙","丙","丙"],
+      "庚": ["戊","丁","甲","壬","壬","丁","丁","丁","甲","丁","丁","丙"],
+      "辛": ["己","壬","壬","壬","壬","壬","壬","壬","壬","壬","丙","丙"],
+      "壬": ["庚","戊","甲","壬","癸","辛","戊","甲","甲","戊","戊","丙"],
+      "癸": ["辛","庚","丙","辛","庚","庚","丁","辛","辛","庚","丙","丙"]
+    },
+    "disputedCells": [
+      { "cell": "乙申", "votes": { "丙": ["표①","표③"], "庚": ["표②"] }, "resolved": "丙" },
+      { "cell": "丁卯", "votes": { "庚": ["표②","표③"], "甲": ["표①"] }, "resolved": "庚", "c05Had": "甲", "correction": true },
+      { "cell": "丁子", "votes": { "甲": ["표①","표③"], "丙": ["표②"] }, "resolved": "甲" },
+      { "cell": "庚寅", "votes": { "戊": ["표②","표③"], "丙": ["표①"] }, "resolved": "戊", "c05Had": "丙", "correction": true }
+    ]
+  },
+
+  "yongsinPriority": {
+    "value": ["從/專旺", "調候", "抑扶", "格局", "病藥"],
+    "evidenceGrade": "B",
+    "source": "HeiGe-SuanMing references/02_wangshuai_yongshen.md §3 「五道关」: 先验从格，再急调候，扶抑定向，格局定点，病药校验",
+    "alternatives": {
+      "holygeek": { "order": ["抑扶", "調候", "通關", "病藥"], "source": "holygeek00/ziping-bazi-skill references/用神取法.md — 扶抑을 최상위로 둠", "evidenceGrade": "B" },
+      "maochengsun": { "order": ["制化最旺五行"], "source": "maochengsun16-code/bazi-analysis-skill D4-取用神方法论.md — 신강약이 아니라 「가장 왕한 오행을 제화하는 글자」를 용신으로 삼는 월령 기반 결정표", "evidenceGrade": "B" }
+    }
+  },
+
+  "yongsinByMonthGod": {
+    "_note": "maochengsun D4 §7 「月令类型별 용신」 결정표. 신강약 판정 없이 월령 십신만으로 결정하는 대안 경로.",
+    "evidenceGrade": "B",
+    "source": "maochengsun16-code/bazi-analysis-skill references/knowledge/D-格局与判旺衰/D4-取用神方法论.md",
+    "table": {
+      "재성월": { "primary": ["인성", "비겁"], "forbidden": ["관성"], "reason": "財生官殺 → 財官이 한 묶음이라 관살 사용 시 재생살" },
+      "관살월": { "primary": ["인성"], "secondary": ["식상", "비겁"], "rank": ["印化 최상", "食傷制 중간", "比劫扛 최하"] },
+      "인성월": { "primary": ["재성"], "secondary": ["비겁"] },
+      "식상월": { "primary": ["인성"], "secondary": ["관성"], "forbidden": ["재성", "비겁"] },
+      "비겁월": { "primary": ["관성"], "secondary": ["재성", "식상"], "rank": ["官殺制 1", "財耗 2", "食傷泄 3"] }
+    }
+  },
+
+  "eokbuTable": {
+    "evidenceGrade": "A",
+    "sources": ["Brhiza/mingyu baziUsefulGodRules.ts (balance-strong/balance-weak)", "quain4code/bazi wuxing.js deriveXiYongShen", "adminhelper/saju-engine elements.mjs yongsinCandidates"],
+    "strong": { "favorableOrder": ["관성", "식상", "재성"], "avoid": ["인성", "비겁"] },
+    "weak": { "favorableOrder": ["인성", "비겁"], "avoid": ["관성", "재성"] },
+    "note": "3개 구현체 모두 신강→관/식/재, 신약→인/비 로 완전 일치. 내부 순서만 갈린다(saju-engine·quain4code 는 신강 시 식상 먼저, mingyu 는 output_wealth_officer 집합만 지정하고 순서 미지정)."
+  },
+
+  "tonggwan": {
+    "evidenceGrade": "A",
+    "sources": ["HeiGe 02_wangshuai_yongshen.md", "holygeek00 用神取法.md §3", "docs/research/03 §8.2"],
+    "table": { "金木": "水", "水火": "木", "木土": "火", "火金": "土", "土水": "金" },
+    "triggerCondition": { "value": "두 상극 오행이 각각 총점 25% 이상 AND |차이|/총점 < 0.05", "evidenceGrade": "D" }
+  },
+
+  "geokguk": {
+    "algorithm": "C05 §6.1 (자평진전 계열)",
+    "evidenceGrade": "A",
+    "sources": ["Brhiza/mingyu baziPatternStrategy.ts resolveExposedStemPriority", "dzcmemory-web/bazi-ziwei-skill ge-ju.ts judgeGeJu"],
+    "tieBreakOrder": ["본기 > 중기 > 여기", "투출 횟수 多", "월간 > 시간 > 년간"],
+    "excludeDayStemFromExposure": { "value": true, "evidenceGrade": "A", "note": "mingyu·dzcmemory 둘 다 年月时干만 투출 대상으로 삼음" },
+    "measuredDistribution_N518400": {
+      "正官격": 10.785, "七殺격": 10.771, "傷官격": 10.604, "正財격": 10.514, "正印격": 10.465,
+      "건록격": 10.049, "偏財격": 10.035, "食神격": 9.639, "偏印격": 9.507, "양인격": 7.632
+    },
+    "distributionVerdict": "10격 균등기대 10.00% 대비 최대 10.785% / 최소 7.632%. 특정 격 쏠림 없음 → 규칙 건전.",
+    "crossImplAgreement": "C05-STD vs dzcmemory ge-ju.ts 십신 정규화 후 91.85% 일치 (476,136/518,400)"
+  },
+
+  "specialPattern": {
+    "jeonwang": { "condition": "SI >= 95 AND 년월시간·지지4본기 중 식상/재성/관성 오행 0개", "evidenceGrade": "D" },
+    "jong": { "condition": "SI <= 8 AND hasRoot == false", "evidenceGrade": "D" },
+    "rootDefinition": {
+      "c05Std": { "strongRoot": "지지 본기 == 일간오행", "weakRoot": "중기·여기 동기", "evidenceGrade": "B", "source": "Brhiza/mingyu analyzeRoot" },
+      "maochengsun": {
+        "rule": "地支 明現 비겁/인성 또는 對應庫 만 근(根)으로 인정. 中氣·餘氣 는 근이 아니다.",
+        "positionRank": ["坐支(일지) 明現比劫/印 = 極强", "他支 明現 = 强", "坐支 庫根 = 中", "他支 庫根 = 中偏弱", "中/餘氣 = 근 아님", "無根 = 極弱"],
+        "evidenceGrade": "B",
+        "source": "maochengsun16-code D2-透干根气与强弱判断.md §2, §5.5",
+        "conflict": "이 유파는 일지(坐支)를 최상위로 두며 월지 우위를 말하지 않는다. branchPositionWeight 의 월지>일지 순서와 상충."
+      }
+    }
+  },
+
+  "rejected": {
+    "combineTransform": { "value": "합충 점수 반영 없음", "evidenceGrade": "A", "rationale": "HeiGe·china-testing·ssaju·realdev·BaziEval·saju-engine·dzcmemory·quain4code 8개 구현체 전부 합충을 점수에 반영하지 않는다. mingyu 만 성국을 비수치로 표시." },
+    "doc03PositionWeights": { "value": { "월지": 3.0, "일지": 2.0, "시지": 1.5, "연지": 1.0, "월간": 1.5, "시간": 1.0, "연간": 0.8 }, "evidenceGrade": "X", "rationale": "지지 부분(3.0/2.0/1.5/1.0)은 adminhelper/saju-engine branchW=[1.3,3.0,2.0,1.5] 와 근사하나 년지 1.0 vs 1.3 이 다르고, 천간 부분(1.5/1.0/0.8)은 어떤 구현체에도 없다. C05-STD 또는 saju-engine 원본 중 하나로 통일할 것." },
+    "doc03SeasonMultiplier": { "value": { "旺": 1.0, "相": 0.7, "休": 0.4, "囚": 0.2, "死": 0.1 }, "evidenceGrade": "X", "rationale": "실구현체 미확인. 유사 개념인 BaziEval 의 월별 계수는 1.0~1.2 범위(최대 +20%)로 훨씬 압축적이다. 0.1~1.0 (10배 차)은 근거 없음." }
+  },
+
+  "runtimeContract": {
+    "note": "모든 계수는 이 파일에서만 읽는다. 코드에 숫자 리터럴 금지.",
+    "abTestable": ["scoreModel.branchPositionWeight", "threshold.isStrongCut_SI", "climate.triggerThreshold", "yongsinPriority"],
+    "frozen": ["climate.stemScore", "climate.branchScore", "tiaohouPrimary.table", "eokbuTable", "tonggwan.table"],
+    "frozenRationale": "frozen 항목은 evidenceGrade A 이며 변경 시 명리학적 정합성이 깨진다. abTestable 항목만 제품 지표로 튜닝한다."
+  }
+}

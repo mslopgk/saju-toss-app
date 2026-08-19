@@ -1,0 +1,58 @@
+# golden-set.json : 사주 계산 엔진 골든 테스트셋  n=287  byConfidence={"documented":80,"consensus":195,"low":12}
+# engines: {"ref":"astronomy-engine@2.1.19 (VSOP87) + C03 공식 자체구현","manseryeok":"2.0.0","lunar-javascript":"1.7.7 (KST−1h 보정 적용)"}
+
+## A. 전수 결과
+| 항목 | 통과 |
+|---|---|
+| 4기둥 전부 일치 | 279/280 = 99.64% |
+| 연주 | 279/280 = 99.64% |
+| 월주 | 279/280 = 99.64% |
+| 일주 | 280/280 = 100.00% |
+| 시주 | 280/280 = 100.00% |
+| 십신 7항 (4기둥 통과분만) | 279/279 = 100.00% |
+| 대운 순역 | 275/275 = 100.00% |
+| 대운수(골든 conventions 규칙 그대로) | 216/275 = 78.55% |
+
+## B. confidence 별 4기둥 통과율
+| confidence | n | 통과 | 비율 |
+|---|---|---|---|
+| documented | 73 | 73 | 100.0% |
+| consensus | 195 | 195 | 100.0% |
+| low | 12 | 11 | 91.7% |
+
+## B2. 대운수 규칙 후보별 적중 (기대값 = golden-set daewoonNumber)
+| 규칙 | 적중 |
+|---|---|
+| round(floor(d)/3) | 216/275 = 78.5% |
+| max(1,round(floor(d)/3)) | 275/275 = 100.0% |
+| round(d/3) | 194/275 = 70.5% |
+| max(1,round(d/3)) | 243/275 = 88.4% |
+| floor(d/3)+1버림2올림 | 216/275 = 78.5% |
+| max(1,한국전통) | 275/275 = 100.0% |
+
+(4기둥 기대값이 없는 케이스 7건 제외: G-C06-TV-3-A, G-C06-TV-3-B, G-C06-TV-3-C, G-C06-TV-3-D, G-C06-TV-3-E, G-C06-TV-3-F, G-C06-TV-3-G)
+
+## C. 4기둥 불일치 전량 (8건)
+| ID | 입력 | tzMode/lon/jasi | 기대 | 자체 | confidence | label |
+|---|---|---|---|---|---|---|
+| G-C06-TV-3-A | 1990-08-17 10:00 M | raw_kst/-/yajasi-nextstem | undefined undefined undefined undefined | 庚午 甲申 甲寅 己巳 | documented | 순행 대운수 7 |
+| G-C06-TV-3-B | 1990-08-17 10:00 F | raw_kst/-/yajasi-nextstem | undefined undefined undefined undefined | 庚午 甲申 甲寅 己巳 | documented | 역행 대운수 3 (성별만 뒤집기) |
+| G-C06-TV-3-C | 2000-01-01 12:00 F | raw_kst/-/yajasi-nextstem | undefined undefined undefined undefined | 己卯 丙子 戊午 戊午 | documented | 한국식1/반올림2 — 계단 점프 경계 |
+| G-C06-TV-3-D | 2000-01-01 09:00 F | raw_kst/-/yajasi-nextstem | undefined undefined undefined undefined | 己卯 丙子 戊午 丁巳 | documented | 3시간 앞당기면 대운수 2 (TV-7-1) |
+| G-C06-TV-3-E | 2000-01-01 12:00 M | raw_kst/-/yajasi-nextstem | undefined undefined undefined undefined | 己卯 丙子 戊午 戊午 | documented | 역행 대운수 8 |
+| G-C06-TV-3-F | 2023-11-11 04:30 M | raw_kst/-/yajasi-nextstem | undefined undefined undefined undefined | 癸卯 癸亥 癸酉 甲寅 | documented | 역행 최소값 |
+| G-C06-TV-3-G | 1982-03-21 14:20 F | raw_kst/-/yajasi-nextstem | undefined undefined undefined undefined | 壬戌 癸卯 癸卯 己未 | documented | 역행 대운수 5 |
+| G-EDGE-104 | 2100-02-04 04:02 M | raw_kst/-/yajasi | 己未 丁丑 丁丑 壬寅 | 庚申 戊寅 丁丑 壬寅 | low | 2100 입춘이 속한 분(실절입 13초) — ΔT 모델 발산 구간 포함 ⚠️구현 |
+
+## D. 대운수 불일치 (59건, 상위 25)
+| ID | 입력 | 성별 | 상세 | label |
+|---|---|---|---|---|
+| G-XP-03 | 1990-05-06 03:34 | M | 자체 round(floor(0.001일)/3)=0 vs 기대 1 (dir forward/forward) | 입하 절입 1분 전 |
+| G-XP-05 | 1970-07-07 09:00 | M | 자체 round(floor(0.549일)/3)=0 vs 기대 1 (dir forward/forward) | sxtwl 날짜단위 절기 오답 검출 |
+| G-XP-06 | 1990-05-05 23:30 | M | 자체 round(floor(0.170일)/3)=0 vs 기대 1 (dir forward/forward) | 야자시 유파 3분기 (정자시) |
+| G-XP-07 | 2025-02-03 23:20 | M | 자체 round(floor(0.007일)/3)=0 vs 기대 1 (dir backward/reverse) | 입춘+야자시 중첩 |
+| G-XP-09 | 1985-02-03 23:50 | M | 자체 round(floor(0.265일)/3)=0 vs 기대 1 (dir forward/forward) | 입춘 직전 야자시 |
+| G-XP-16 | 1961-08-09 23:30 | M | 자체 round(floor(1.821일)/3)=0 vs 기대 1 (dir backward/reverse) | 표준시 이력 ↔ 야자시 상호작용 |
+| G-XP-20 | 2025-06-05 23:00 | M | 자체 round(floor(0.169일)/3)=0 vs 기대 1 (dir backward/reverse) | 자시 개시 정각 |
+| G-XP-31 | 1987-10-11 02:30 | M | 자체 round(floor(1.896일)/3)=0 vs 기대 1 (dir backward/reverse) | 서머타임 해제 중복시각 |
+| G-C14-B-04 | 2016-03-05 12:43 | M | 자체 round(floor(0.000일)/3)=0 vs 기대 1 (dir forward/forward) | 경칩 반올림 경계 — 월주 갈림 ⚠️C14

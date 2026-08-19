@@ -1,0 +1,7 @@
+{
+  "name": "saju-independent-oracle",
+  "private": true,
+  "version": "1.0.0",
+  "type": "commonjs",
+  "description": "C11 독립 검증 오라클 — 런타임 의존성 0 (검증 스크립트만 manseryeok/lunar-javascript/astronomy-engine 사용)"
+}

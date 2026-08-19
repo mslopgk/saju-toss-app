@@ -1,0 +1,1215 @@
+{
+  "_meta": {
+    "doc": "C21-MBTI-혈액형-별자리-데이터-정합성-수정.md",
+    "generated": "2026-08-12",
+    "confidenceLegend": {
+      "P1": "1차 출처 원문 직접 확인",
+      "P1-archived": "1차 출처 원문(웹아카이브 스냅샷)에서 직접 판독",
+      "P1-rule": "1차 출처의 규칙을 코드로 재생성해 표와 대조 통과",
+      "P2": "2차 출처(위키·언론·상용사이트) 확인",
+      "P2-corrected": "2차 출처 확인 + 원표 오류를 자체 재산출로 정정",
+      "D": "자체 설계/자체 저작(derived, 외부 근거 없음)",
+      "U": "미검증"
+    },
+    "removedFields": {
+      "zodiacSigns.stone": "제거. 탄생석은 양력 월 기준이라 사인 경계와 불일치(적중률 67.67%). monthBirthstones 로 분리.",
+      "bloodCompatibility(문서06 §A-3)": "제거. Threads 카드뉴스 파생 → C08 §7 정본으로 대체.",
+      "mbtiAlias16P": "미수록. NERIS Analytics 저작물/브랜딩."
+    }
+  },
+  "mbti": {
+    "dichotomies": [
+      {
+        "axis": "attitude",
+        "pair": [
+          "E",
+          "I"
+        ],
+        "ko": [
+          "외향",
+          "내향"
+        ]
+      },
+      {
+        "axis": "perceiving",
+        "pair": [
+          "S",
+          "N"
+        ],
+        "ko": [
+          "감각",
+          "직관"
+        ]
+      },
+      {
+        "axis": "judging",
+        "pair": [
+          "T",
+          "F"
+        ],
+        "ko": [
+          "사고",
+          "감정"
+        ]
+      },
+      {
+        "axis": "lifestyle",
+        "pair": [
+          "J",
+          "P"
+        ],
+        "ko": [
+          "판단",
+          "인식"
+        ]
+      }
+    ],
+    "_source_dichotomies": "https://en.wikipedia.org/wiki/Myers%E2%80%93Briggs_Type_Indicator",
+    "_confidence_dichotomies": "P2",
+    "usFrequencyDichotomyTotals": {
+      "E": {
+        "rangePct": [
+          45,
+          53
+        ],
+        "pointPct": 49.3
+      },
+      "I": {
+        "rangePct": [
+          47,
+          55
+        ],
+        "pointPct": 50.7
+      },
+      "S": {
+        "rangePct": [
+          66,
+          74
+        ],
+        "pointPct": 73.3
+      },
+      "N": {
+        "rangePct": [
+          26,
+          34
+        ],
+        "pointPct": 26.7
+      },
+      "T": {
+        "rangePct": [
+          40,
+          50
+        ],
+        "pointPct": 40.2
+      },
+      "F": {
+        "rangePct": [
+          50,
+          60
+        ],
+        "pointPct": 59.8
+      },
+      "J": {
+        "rangePct": [
+          54,
+          60
+        ],
+        "pointPct": 54.1
+      },
+      "P": {
+        "rangePct": [
+          40,
+          46
+        ],
+        "pointPct": 45.9
+      }
+    },
+    "_source_usFrequencyDichotomyTotals": "https://www.myersbriggs.org/my-mbti-personality-type/my-mbti-results/how-frequent-is-my-type.htm (Wayback 20230417084849, estimated_frequency_table.gif 판독)",
+    "_confidence_usFrequencyDichotomyTotals": "P1-archived",
+    "krSampleN": 104484,
+    "krSampleWindow": "2023-03 ~ 2023-08",
+    "krSampleKind": "self-selected online (인구 대표성 없음)",
+    "types": [
+      {
+        "code": "ISTJ",
+        "aliasKo": "원칙의 관리자",
+        "_source_aliasKo": "자체 작성(본 프로젝트 저작물)",
+        "_confidence_aliasKo": "D",
+        "temperament": "SJ",
+        "_source_temperament": "자체 작성(본 프로젝트 저작물)",
+        "_confidence_temperament": "D",
+        "stack": [
+          "Si",
+          "Te",
+          "Fi",
+          "Ne"
+        ],
+        "_source_stack": "https://www.myersbriggs.org/unique-features-of-myers-briggs/type-dynamics-processes/ + Grant 모델",
+        "_confidence_stack": "P1-rule",
+        "usFrequencyPct": 11.6,
+        "usFrequencyRangePct": [
+          11,
+          14
+        ],
+        "_source_usFrequency": "https://www.myersbriggs.org/my-mbti-personality-type/my-mbti-results/how-frequent-is-my-type.htm (Wayback 20230417084849, estimated_frequency_table.gif 판독)",
+        "_confidence_usFrequency": "P1-archived",
+        "krSelfSelectedPct": 8.89,
+        "krSelfSelectedN": 9289,
+        "_source_krSelfSelected": "https://testmoa.com/korea-mbti-statistics/ (2023.3~8, n=104,484, 자가선택 표본; 비율열 ISTP/INTJ 전치 오류를 count열로 재산출)",
+        "_confidence_krSelfSelected": "P2-corrected"
+      },
+      {
+        "code": "ISFJ",
+        "aliasKo": "든든한 지킴이",
+        "_source_aliasKo": "자체 작성(본 프로젝트 저작물)",
+        "_confidence_aliasKo": "D",
+        "temperament": "SJ",
+        "_source_temperament": "자체 작성(본 프로젝트 저작물)",
+        "_confidence_temperament": "D",
+        "stack": [
+          "Si",
+          "Fe",
+          "Ti",
+          "Ne"
+        ],
+        "_source_stack": "https://www.myersbriggs.org/unique-features-of-myers-briggs/type-dynamics-processes/ + Grant 모델",
+        "_confidence_stack": "P1-rule",
+        "usFrequencyPct": 13.8,
+        "usFrequencyRangePct": [
+          9,
+          14
+        ],
+        "_source_usFrequency": "https://www.myersbriggs.org/my-mbti-personality-type/my-mbti-results/how-frequent-is-my-type.htm (Wayback 20230417084849, estimated_frequency_table.gif 판독)",
+        "_confidence_usFrequency": "P1-archived",
+        "krSelfSelectedPct": 9.08,
+        "krSelfSelectedN": 9484,
+        "_source_krSelfSelected": "https://testmoa.com/korea-mbti-statistics/ (2023.3~8, n=104,484, 자가선택 표본; 비율열 ISTP/INTJ 전치 오류를 count열로 재산출)",
+        "_confidence_krSelfSelected": "P2-corrected"
+      },
+      {
+        "code": "INFJ",
+        "aliasKo": "통찰의 조언자",
+        "_source_aliasKo": "자체 작성(본 프로젝트 저작물)",
+        "_confidence_aliasKo": "D",
+        "temperament": "NF",
+        "_source_temperament": "자체 작성(본 프로젝트 저작물)",
+        "_confidence_temperament": "D",
+        "stack": [
+          "Ni",
+          "Fe",
+          "Ti",
+          "Se"
+        ],
+        "_source_stack": "https://www.myersbriggs.org/unique-features-of-myers-briggs/type-dynamics-processes/ + Grant 모델",
+        "_confidence_stack": "P1-rule",
+        "usFrequencyPct": 1.5,
+        "usFrequencyRangePct": [
+          1,
+          3
+        ],
+        "_source_usFrequency": "https://www.myersbriggs.org/my-mbti-personality-type/my-mbti-results/how-frequent-is-my-type.htm (Wayback 20230417084849, estimated_frequency_table.gif 판독)",
+        "_confidence_usFrequency": "P1-archived",
+        "krSelfSelectedPct": 7.68,
+        "krSelfSelectedN": 8021,
+        "_source_krSelfSelected": "https://testmoa.com/korea-mbti-statistics/ (2023.3~8, n=104,484, 자가선택 표본; 비율열 ISTP/INTJ 전치 오류를 count열로 재산출)",
+        "_confidence_krSelfSelected": "P2-corrected"
+      },
+      {
+        "code": "INTJ",
+        "aliasKo": "전략 설계자",
+        "_source_aliasKo": "자체 작성(본 프로젝트 저작물)",
+        "_confidence_aliasKo": "D",
+        "temperament": "NT",
+        "_source_temperament": "자체 작성(본 프로젝트 저작물)",
+        "_confidence_temperament": "D",
+        "stack": [
+          "Ni",
+          "Te",
+          "Fi",
+          "Se"
+        ],
+        "_source_stack": "https://www.myersbriggs.org/unique-features-of-myers-briggs/type-dynamics-processes/ + Grant 모델",
+        "_confidence_stack": "P1-rule",
+        "usFrequencyPct": 2.1,
+        "usFrequencyRangePct": [
+          2,
+          4
+        ],
+        "_source_usFrequency": "https://www.myersbriggs.org/my-mbti-personality-type/my-mbti-results/how-frequent-is-my-type.htm (Wayback 20230417084849, estimated_frequency_table.gif 판독)",
+        "_confidence_usFrequency": "P1-archived",
+        "krSelfSelectedPct": 5.37,
+        "krSelfSelectedN": 5607,
+        "_source_krSelfSelected": "https://testmoa.com/korea-mbti-statistics/ (2023.3~8, n=104,484, 자가선택 표본; 비율열 ISTP/INTJ 전치 오류를 count열로 재산출)",
+        "_confidence_krSelfSelected": "P2-corrected"
+      },
+      {
+        "code": "ISTP",
+        "aliasKo": "손끝의 해결사",
+        "_source_aliasKo": "자체 작성(본 프로젝트 저작물)",
+        "_confidence_aliasKo": "D",
+        "temperament": "SP",
+        "_source_temperament": "자체 작성(본 프로젝트 저작물)",
+        "_confidence_temperament": "D",
+        "stack": [
+          "Ti",
+          "Se",
+          "Ni",
+          "Fe"
+        ],
+        "_source_stack": "https://www.myersbriggs.org/unique-features-of-myers-briggs/type-dynamics-processes/ + Grant 모델",
+        "_confidence_stack": "P1-rule",
+        "usFrequencyPct": 5.4,
+        "usFrequencyRangePct": [
+          4,
+          6
+        ],
+        "_source_usFrequency": "https://www.myersbriggs.org/my-mbti-personality-type/my-mbti-results/how-frequent-is-my-type.htm (Wayback 20230417084849, estimated_frequency_table.gif 판독)",
+        "_confidence_usFrequency": "P1-archived",
+        "krSelfSelectedPct": 5.97,
+        "krSelfSelectedN": 6241,
+        "_source_krSelfSelected": "https://testmoa.com/korea-mbti-statistics/ (2023.3~8, n=104,484, 자가선택 표본; 비율열 ISTP/INTJ 전치 오류를 count열로 재산출)",
+        "_confidence_krSelfSelected": "P2-corrected"
+      },
+      {
+        "code": "ISFP",
+        "aliasKo": "조용한 예술가",
+        "_source_aliasKo": "자체 작성(본 프로젝트 저작물)",
+        "_confidence_aliasKo": "D",
+        "temperament": "SP",
+        "_source_temperament": "자체 작성(본 프로젝트 저작물)",
+        "_confidence_temperament": "D",
+        "stack": [
+          "Fi",
+          "Se",
+          "Ni",
+          "Te"
+        ],
+        "_source_stack": "https://www.myersbriggs.org/unique-features-of-myers-briggs/type-dynamics-processes/ + Grant 모델",
+        "_confidence_stack": "P1-rule",
+        "usFrequencyPct": 8.8,
+        "usFrequencyRangePct": [
+          5,
+          9
+        ],
+        "_source_usFrequency": "https://www.myersbriggs.org/my-mbti-personality-type/my-mbti-results/how-frequent-is-my-type.htm (Wayback 20230417084849, estimated_frequency_table.gif 판독)",
+        "_confidence_usFrequency": "P1-archived",
+        "krSelfSelectedPct": 7.13,
+        "krSelfSelectedN": 7447,
+        "_source_krSelfSelected": "https://testmoa.com/korea-mbti-statistics/ (2023.3~8, n=104,484, 자가선택 표본; 비율열 ISTP/INTJ 전치 오류를 count열로 재산출)",
+        "_confidence_krSelfSelected": "P2-corrected"
+      },
+      {
+        "code": "INFP",
+        "aliasKo": "마음의 이상가",
+        "_source_aliasKo": "자체 작성(본 프로젝트 저작물)",
+        "_confidence_aliasKo": "D",
+        "temperament": "NF",
+        "_source_temperament": "자체 작성(본 프로젝트 저작물)",
+        "_confidence_temperament": "D",
+        "stack": [
+          "Fi",
+          "Ne",
+          "Si",
+          "Te"
+        ],
+        "_source_stack": "https://www.myersbriggs.org/unique-features-of-myers-briggs/type-dynamics-processes/ + Grant 모델",
+        "_confidence_stack": "P1-rule",
+        "usFrequencyPct": 4.4,
+        "usFrequencyRangePct": [
+          4,
+          5
+        ],
+        "_source_usFrequency": "https://www.myersbriggs.org/my-mbti-personality-type/my-mbti-results/how-frequent-is-my-type.htm (Wayback 20230417084849, estimated_frequency_table.gif 판독)",
+        "_confidence_usFrequency": "P1-archived",
+        "krSelfSelectedPct": 8.07,
+        "krSelfSelectedN": 8435,
+        "_source_krSelfSelected": "https://testmoa.com/korea-mbti-statistics/ (2023.3~8, n=104,484, 자가선택 표본; 비율열 ISTP/INTJ 전치 오류를 count열로 재산출)",
+        "_confidence_krSelfSelected": "P2-corrected"
+      },
+      {
+        "code": "INTP",
+        "aliasKo": "개념의 탐구자",
+        "_source_aliasKo": "자체 작성(본 프로젝트 저작물)",
+        "_confidence_aliasKo": "D",
+        "temperament": "NT",
+        "_source_temperament": "자체 작성(본 프로젝트 저작물)",
+        "_confidence_temperament": "D",
+        "stack": [
+          "Ti",
+          "Ne",
+          "Si",
+          "Fe"
+        ],
+        "_source_stack": "https://www.myersbriggs.org/unique-features-of-myers-briggs/type-dynamics-processes/ + Grant 모델",
+        "_confidence_stack": "P1-rule",
+        "usFrequencyPct": 3.3,
+        "usFrequencyRangePct": [
+          3,
+          5
+        ],
+        "_source_usFrequency": "https://www.myersbriggs.org/my-mbti-personality-type/my-mbti-results/how-frequent-is-my-type.htm (Wayback 20230417084849, estimated_frequency_table.gif 판독)",
+        "_confidence_usFrequency": "P1-archived",
+        "krSelfSelectedPct": 4.92,
+        "krSelfSelectedN": 5143,
+        "_source_krSelfSelected": "https://testmoa.com/korea-mbti-statistics/ (2023.3~8, n=104,484, 자가선택 표본; 비율열 ISTP/INTJ 전치 오류를 count열로 재산출)",
+        "_confidence_krSelfSelected": "P2-corrected"
+      },
+      {
+        "code": "ESTP",
+        "aliasKo": "돌파하는 실전가",
+        "_source_aliasKo": "자체 작성(본 프로젝트 저작물)",
+        "_confidence_aliasKo": "D",
+        "temperament": "SP",
+        "_source_temperament": "자체 작성(본 프로젝트 저작물)",
+        "_confidence_temperament": "D",
+        "stack": [
+          "Se",
+          "Ti",
+          "Fe",
+          "Ni"
+        ],
+        "_source_stack": "https://www.myersbriggs.org/unique-features-of-myers-briggs/type-dynamics-processes/ + Grant 모델",
+        "_confidence_stack": "P1-rule",
+        "usFrequencyPct": 4.3,
+        "usFrequencyRangePct": [
+          4,
+          5
+        ],
+        "_source_usFrequency": "https://www.myersbriggs.org/my-mbti-personality-type/my-mbti-results/how-frequent-is-my-type.htm (Wayback 20230417084849, estimated_frequency_table.gif 판독)",
+        "_confidence_usFrequency": "P1-archived",
+        "krSelfSelectedPct": 2.81,
+        "krSelfSelectedN": 2938,
+        "_source_krSelfSelected": "https://testmoa.com/korea-mbti-statistics/ (2023.3~8, n=104,484, 자가선택 표본; 비율열 ISTP/INTJ 전치 오류를 count열로 재산출)",
+        "_confidence_krSelfSelected": "P2-corrected"
+      },
+      {
+        "code": "ESFP",
+        "aliasKo": "무대 위 활력가",
+        "_source_aliasKo": "자체 작성(본 프로젝트 저작물)",
+        "_confidence_aliasKo": "D",
+        "temperament": "SP",
+        "_source_temperament": "자체 작성(본 프로젝트 저작물)",
+        "_confidence_temperament": "D",
+        "stack": [
+          "Se",
+          "Fi",
+          "Te",
+          "Ni"
+        ],
+        "_source_stack": "https://www.myersbriggs.org/unique-features-of-myers-briggs/type-dynamics-processes/ + Grant 모델",
+        "_confidence_stack": "P1-rule",
+        "usFrequencyPct": 8.5,
+        "usFrequencyRangePct": [
+          4,
+          9
+        ],
+        "_source_usFrequency": "https://www.myersbriggs.org/my-mbti-personality-type/my-mbti-results/how-frequent-is-my-type.htm (Wayback 20230417084849, estimated_frequency_table.gif 판독)",
+        "_confidence_usFrequency": "P1-archived",
+        "krSelfSelectedPct": 5.21,
+        "krSelfSelectedN": 5444,
+        "_source_krSelfSelected": "https://testmoa.com/korea-mbti-statistics/ (2023.3~8, n=104,484, 자가선택 표본; 비율열 ISTP/INTJ 전치 오류를 count열로 재산출)",
+        "_confidence_krSelfSelected": "P2-corrected"
+      },
+      {
+        "code": "ENFP",
+        "aliasKo": "불꽃 탐험가",
+        "_source_aliasKo": "자체 작성(본 프로젝트 저작물)",
+        "_confidence_aliasKo": "D",
+        "temperament": "NF",
+        "_source_temperament": "자체 작성(본 프로젝트 저작물)",
+        "_confidence_temperament": "D",
+        "stack": [
+          "Ne",
+          "Fi",
+          "Te",
+          "Si"
+        ],
+        "_source_stack": "https://www.myersbriggs.org/unique-features-of-myers-briggs/type-dynamics-processes/ + Grant 모델",
+        "_confidence_stack": "P1-rule",
+        "usFrequencyPct": 8.1,
+        "usFrequencyRangePct": [
+          6,
+          8
+        ],
+        "_source_usFrequency": "https://www.myersbriggs.org/my-mbti-personality-type/my-mbti-results/how-frequent-is-my-type.htm (Wayback 20230417084849, estimated_frequency_table.gif 판독)",
+        "_confidence_usFrequency": "P1-archived",
+        "krSelfSelectedPct": 7.36,
+        "krSelfSelectedN": 7695,
+        "_source_krSelfSelected": "https://testmoa.com/korea-mbti-statistics/ (2023.3~8, n=104,484, 자가선택 표본; 비율열 ISTP/INTJ 전치 오류를 count열로 재산출)",
+        "_confidence_krSelfSelected": "P2-corrected"
+      },
+      {
+        "code": "ENTP",
+        "aliasKo": "논쟁하는 발명가",
+        "_source_aliasKo": "자체 작성(본 프로젝트 저작물)",
+        "_confidence_aliasKo": "D",
+        "temperament": "NT",
+        "_source_temperament": "자체 작성(본 프로젝트 저작물)",
+        "_confidence_temperament": "D",
+        "stack": [
+          "Ne",
+          "Ti",
+          "Fe",
+          "Si"
+        ],
+        "_source_stack": "https://www.myersbriggs.org/unique-features-of-myers-briggs/type-dynamics-processes/ + Grant 모델",
+        "_confidence_stack": "P1-rule",
+        "usFrequencyPct": 3.2,
+        "usFrequencyRangePct": [
+          2,
+          5
+        ],
+        "_source_usFrequency": "https://www.myersbriggs.org/my-mbti-personality-type/my-mbti-results/how-frequent-is-my-type.htm (Wayback 20230417084849, estimated_frequency_table.gif 판독)",
+        "_confidence_usFrequency": "P1-archived",
+        "krSelfSelectedPct": 3.61,
+        "krSelfSelectedN": 3767,
+        "_source_krSelfSelected": "https://testmoa.com/korea-mbti-statistics/ (2023.3~8, n=104,484, 자가선택 표본; 비율열 ISTP/INTJ 전치 오류를 count열로 재산출)",
+        "_confidence_krSelfSelected": "P2-corrected"
+      },
+      {
+        "code": "ESTJ",
+        "aliasKo": "실행하는 사령탑",
+        "_source_aliasKo": "자체 작성(본 프로젝트 저작물)",
+        "_confidence_aliasKo": "D",
+        "temperament": "SJ",
+        "_source_temperament": "자체 작성(본 프로젝트 저작물)",
+        "_confidence_temperament": "D",
+        "stack": [
+          "Te",
+          "Si",
+          "Ne",
+          "Fi"
+        ],
+        "_source_stack": "https://www.myersbriggs.org/unique-features-of-myers-briggs/type-dynamics-processes/ + Grant 모델",
+        "_confidence_stack": "P1-rule",
+        "usFrequencyPct": 8.7,
+        "usFrequencyRangePct": [
+          8,
+          12
+        ],
+        "_source_usFrequency": "https://www.myersbriggs.org/my-mbti-personality-type/my-mbti-results/how-frequent-is-my-type.htm (Wayback 20230417084849, estimated_frequency_table.gif 판독)",
+        "_confidence_usFrequency": "P1-archived",
+        "krSelfSelectedPct": 6.11,
+        "krSelfSelectedN": 6381,
+        "_source_krSelfSelected": "https://testmoa.com/korea-mbti-statistics/ (2023.3~8, n=104,484, 자가선택 표본; 비율열 ISTP/INTJ 전치 오류를 count열로 재산출)",
+        "_confidence_krSelfSelected": "P2-corrected"
+      },
+      {
+        "code": "ESFJ",
+        "aliasKo": "살뜰한 살림꾼",
+        "_source_aliasKo": "자체 작성(본 프로젝트 저작물)",
+        "_confidence_aliasKo": "D",
+        "temperament": "SJ",
+        "_source_temperament": "자체 작성(본 프로젝트 저작물)",
+        "_confidence_temperament": "D",
+        "stack": [
+          "Fe",
+          "Si",
+          "Ne",
+          "Ti"
+        ],
+        "_source_stack": "https://www.myersbriggs.org/unique-features-of-myers-briggs/type-dynamics-processes/ + Grant 모델",
+        "_confidence_stack": "P1-rule",
+        "usFrequencyPct": 12.3,
+        "usFrequencyRangePct": [
+          9,
+          13
+        ],
+        "_source_usFrequency": "https://www.myersbriggs.org/my-mbti-personality-type/my-mbti-results/how-frequent-is-my-type.htm (Wayback 20230417084849, estimated_frequency_table.gif 판독)",
+        "_confidence_usFrequency": "P1-archived",
+        "krSelfSelectedPct": 6.31,
+        "krSelfSelectedN": 6598,
+        "_source_krSelfSelected": "https://testmoa.com/korea-mbti-statistics/ (2023.3~8, n=104,484, 자가선택 표본; 비율열 ISTP/INTJ 전치 오류를 count열로 재산출)",
+        "_confidence_krSelfSelected": "P2-corrected"
+      },
+      {
+        "code": "ENFJ",
+        "aliasKo": "사람의 리더",
+        "_source_aliasKo": "자체 작성(본 프로젝트 저작물)",
+        "_confidence_aliasKo": "D",
+        "temperament": "NF",
+        "_source_temperament": "자체 작성(본 프로젝트 저작물)",
+        "_confidence_temperament": "D",
+        "stack": [
+          "Fe",
+          "Ni",
+          "Se",
+          "Ti"
+        ],
+        "_source_stack": "https://www.myersbriggs.org/unique-features-of-myers-briggs/type-dynamics-processes/ + Grant 모델",
+        "_confidence_stack": "P1-rule",
+        "usFrequencyPct": 2.5,
+        "usFrequencyRangePct": [
+          2,
+          5
+        ],
+        "_source_usFrequency": "https://www.myersbriggs.org/my-mbti-personality-type/my-mbti-results/how-frequent-is-my-type.htm (Wayback 20230417084849, estimated_frequency_table.gif 판독)",
+        "_confidence_usFrequency": "P1-archived",
+        "krSelfSelectedPct": 6.61,
+        "krSelfSelectedN": 6910,
+        "_source_krSelfSelected": "https://testmoa.com/korea-mbti-statistics/ (2023.3~8, n=104,484, 자가선택 표본; 비율열 ISTP/INTJ 전치 오류를 count열로 재산출)",
+        "_confidence_krSelfSelected": "P2-corrected"
+      },
+      {
+        "code": "ENTJ",
+        "aliasKo": "목표의 지휘관",
+        "_source_aliasKo": "자체 작성(본 프로젝트 저작물)",
+        "_confidence_aliasKo": "D",
+        "temperament": "NT",
+        "_source_temperament": "자체 작성(본 프로젝트 저작물)",
+        "_confidence_temperament": "D",
+        "stack": [
+          "Te",
+          "Ni",
+          "Se",
+          "Fi"
+        ],
+        "_source_stack": "https://www.myersbriggs.org/unique-features-of-myers-briggs/type-dynamics-processes/ + Grant 모델",
+        "_confidence_stack": "P1-rule",
+        "usFrequencyPct": 1.8,
+        "usFrequencyRangePct": [
+          2,
+          5
+        ],
+        "_source_usFrequency": "https://www.myersbriggs.org/my-mbti-personality-type/my-mbti-results/how-frequent-is-my-type.htm (Wayback 20230417084849, estimated_frequency_table.gif 판독)",
+        "_confidence_usFrequency": "P1-archived",
+        "krSelfSelectedPct": 4.87,
+        "krSelfSelectedN": 5084,
+        "_source_krSelfSelected": "https://testmoa.com/korea-mbti-statistics/ (2023.3~8, n=104,484, 자가선택 표본; 비율열 ISTP/INTJ 전치 오류를 count열로 재산출)",
+        "_confidence_krSelfSelected": "P2-corrected"
+      }
+    ]
+  },
+  "bloodTypes": [
+    {
+      "code": "A",
+      "labelKo": "A형",
+      "krPopulationPct": 34,
+      "_source_krPopulationPct": "https://bloodinfo.net/knrcbs/cm/cntnts/cntntsView.do?mi=1056&cntntsId=1129",
+      "_confidence_krPopulationPct": "P1",
+      "krSelfReportedPct": 34,
+      "_source_krSelfReportedPct": "https://www.gallup.co.kr/gallupdb/reportContent.asp?seqNo=870 (2017.7.6~26, n=1,500, ±2.5%p)",
+      "_confidence_krSelfReportedPct": "P1",
+      "keywordsKo": [
+        "꼼꼼함",
+        "배려심",
+        "성실",
+        "책임감",
+        "완벽주의"
+      ],
+      "_source_keywordsKo": "https://ko.wikipedia.org/wiki/%ED%98%88%EC%95%A1%ED%98%95_%EC%84%B1%EA%B2%A9%EC%84%A4 장단점 표 확장",
+      "_confidence_keywordsKo": "P2/U-mixed",
+      "strengthsKo": [
+        "세심한 관찰력",
+        "약속을 지킴",
+        "팀 내 조율자 역할"
+      ],
+      "_source_strengthsKo": "자체 작성(본 프로젝트 저작물)",
+      "_confidence_strengthsKo": "D",
+      "weaknessesKo": [
+        "소심함",
+        "지나친 눈치",
+        "집단주의적 자기검열",
+        "스트레스 내재화"
+      ],
+      "_source_weaknessesKo": "자체 작성(본 프로젝트 저작물)",
+      "_confidence_weaknessesKo": "D"
+    },
+    {
+      "code": "B",
+      "labelKo": "B형",
+      "krPopulationPct": 27,
+      "_source_krPopulationPct": "https://bloodinfo.net/knrcbs/cm/cntnts/cntntsView.do?mi=1056&cntntsId=1129",
+      "_confidence_krPopulationPct": "P1",
+      "krSelfReportedPct": 28,
+      "_source_krSelfReportedPct": "https://www.gallup.co.kr/gallupdb/reportContent.asp?seqNo=870 (2017.7.6~26, n=1,500, ±2.5%p)",
+      "_confidence_krSelfReportedPct": "P1",
+      "keywordsKo": [
+        "리더십",
+        "호기심",
+        "자유분방",
+        "마이페이스",
+        "창의"
+      ],
+      "_source_keywordsKo": "https://ko.wikipedia.org/wiki/%ED%98%88%EC%95%A1%ED%98%95_%EC%84%B1%EA%B2%A9%EC%84%A4 장단점 표 확장",
+      "_confidence_keywordsKo": "P2/U-mixed",
+      "strengthsKo": [
+        "새로운 것에 빠른 적응",
+        "솔직한 화법",
+        "발상 전환"
+      ],
+      "_source_strengthsKo": "자체 작성(본 프로젝트 저작물)",
+      "_confidence_strengthsKo": "D",
+      "weaknessesKo": [
+        "자만",
+        "무례하게 보일 수 있음",
+        "싫증",
+        "규칙 경시"
+      ],
+      "_source_weaknessesKo": "자체 작성(본 프로젝트 저작물)",
+      "_confidence_weaknessesKo": "D"
+    },
+    {
+      "code": "O",
+      "labelKo": "O형",
+      "krPopulationPct": 28,
+      "_source_krPopulationPct": "https://bloodinfo.net/knrcbs/cm/cntnts/cntntsView.do?mi=1056&cntntsId=1129",
+      "_confidence_krPopulationPct": "P1",
+      "krSelfReportedPct": 27,
+      "_source_krSelfReportedPct": "https://www.gallup.co.kr/gallupdb/reportContent.asp?seqNo=870 (2017.7.6~26, n=1,500, ±2.5%p)",
+      "_confidence_krSelfReportedPct": "P1",
+      "keywordsKo": [
+        "열정",
+        "노력",
+        "사교성",
+        "목표지향",
+        "현실감각"
+      ],
+      "_source_keywordsKo": "https://ko.wikipedia.org/wiki/%ED%98%88%EC%95%A1%ED%98%95_%EC%84%B1%EA%B2%A9%EC%84%A4 장단점 표 확장",
+      "_confidence_keywordsKo": "P2/U-mixed",
+      "strengthsKo": [
+        "추진력",
+        "분위기 메이커",
+        "위기 상황에서 결정"
+      ],
+      "_source_strengthsKo": "자체 작성(본 프로젝트 저작물)",
+      "_confidence_strengthsKo": "D",
+      "weaknessesKo": [
+        "과장",
+        "모방",
+        "승부욕 과잉",
+        "고집"
+      ],
+      "_source_weaknessesKo": "자체 작성(본 프로젝트 저작물)",
+      "_confidence_weaknessesKo": "D"
+    },
+    {
+      "code": "AB",
+      "labelKo": "AB형",
+      "krPopulationPct": 11,
+      "_source_krPopulationPct": "https://bloodinfo.net/knrcbs/cm/cntnts/cntntsView.do?mi=1056&cntntsId=1129",
+      "_confidence_krPopulationPct": "P1",
+      "krSelfReportedPct": 11,
+      "_source_krSelfReportedPct": "https://www.gallup.co.kr/gallupdb/reportContent.asp?seqNo=870 (2017.7.6~26, n=1,500, ±2.5%p)",
+      "_confidence_krSelfReportedPct": "P1",
+      "keywordsKo": [
+        "지능",
+        "판단력",
+        "합리",
+        "이중성",
+        "거리두기"
+      ],
+      "_source_keywordsKo": "https://ko.wikipedia.org/wiki/%ED%98%88%EC%95%A1%ED%98%95_%EC%84%B1%EA%B2%A9%EC%84%A4 장단점 표 확장",
+      "_confidence_keywordsKo": "P2/U-mixed",
+      "strengthsKo": [
+        "객관적 분석",
+        "감정에 휘둘리지 않음",
+        "중재 능력"
+      ],
+      "_source_strengthsKo": "자체 작성(본 프로젝트 저작물)",
+      "_confidence_strengthsKo": "D",
+      "weaknessesKo": [
+        "이기적으로 보임",
+        "속을 알 수 없음",
+        "관계 온도차"
+      ],
+      "_source_weaknessesKo": "자체 작성(본 프로젝트 저작물)",
+      "_confidence_weaknessesKo": "D"
+    }
+  ],
+  "bloodCompatibility": {
+    "_canon": "docs/research/calc/C08-4체계-통합-점수화-궁합-알고리즘설계.md §4·§7",
+    "_confidence": "D",
+    "symmetricBase": {
+      "A": {
+        "A": 78,
+        "B": 45,
+        "O": 85,
+        "AB": 62
+      },
+      "B": {
+        "A": 45,
+        "B": 68,
+        "O": 80,
+        "AB": 82
+      },
+      "O": {
+        "A": 85,
+        "B": 80,
+        "O": 70,
+        "AB": 66
+      },
+      "AB": {
+        "A": 62,
+        "B": 82,
+        "O": 66,
+        "AB": 76
+      }
+    },
+    "genderMod": {
+      "O_A": 8,
+      "B_AB": 6,
+      "A_O": 2,
+      "A_AB": -8,
+      "AB_B": 4,
+      "B_A": -4,
+      "A_B": 2,
+      "O_O": -3
+    },
+    "finalMaleRowFemaleCol": {
+      "A": {
+        "A": 78,
+        "B": 47,
+        "O": 87,
+        "AB": 54
+      },
+      "B": {
+        "A": 41,
+        "B": 68,
+        "O": 80,
+        "AB": 88
+      },
+      "O": {
+        "A": 93,
+        "B": 80,
+        "O": 67,
+        "AB": 66
+      },
+      "AB": {
+        "A": 62,
+        "B": 86,
+        "O": 66,
+        "AB": 76
+      }
+    },
+    "fallback": "성별 미입력 시 symmetricBase 사용",
+    "popWeighted": {
+      "mean": 71.029,
+      "sd": 16.022,
+      "min": 41,
+      "max": 93
+    }
+  },
+  "zodiacSigns": [
+    {
+      "index": 0,
+      "id": "aries",
+      "ko": "양자리",
+      "en": "Aries",
+      "glyph": "♈",
+      "lonStart": 0,
+      "lonEnd": 30,
+      "startMMDD": "03-21",
+      "endMMDD": "04-19",
+      "_source_dates": "https://en.wikipedia.org/wiki/Astrological_sign (국내 통용 경계일 채택, 위키 기준과 최대 1일 차)",
+      "_confidence_dates": "P2",
+      "element": "fire",
+      "modality": "cardinal",
+      "polarity": "+",
+      "rulerModern": "mars",
+      "rulerTraditional": "mars",
+      "_source_attrs": "https://en.wikipedia.org/wiki/Astrological_sign",
+      "_confidence_attrs": "P1",
+      "symbolKo": "숫양",
+      "_source_symbolKo": "https://en.wikipedia.org/wiki/Astrological_sign",
+      "_confidence_symbolKo": "P2"
+    },
+    {
+      "index": 1,
+      "id": "taurus",
+      "ko": "황소자리",
+      "en": "Taurus",
+      "glyph": "♉",
+      "lonStart": 30,
+      "lonEnd": 60,
+      "startMMDD": "04-20",
+      "endMMDD": "05-20",
+      "_source_dates": "https://en.wikipedia.org/wiki/Astrological_sign (국내 통용 경계일 채택, 위키 기준과 최대 1일 차)",
+      "_confidence_dates": "P2",
+      "element": "earth",
+      "modality": "fixed",
+      "polarity": "-",
+      "rulerModern": "venus",
+      "rulerTraditional": "venus",
+      "_source_attrs": "https://en.wikipedia.org/wiki/Astrological_sign",
+      "_confidence_attrs": "P1",
+      "symbolKo": "황소",
+      "_source_symbolKo": "https://en.wikipedia.org/wiki/Astrological_sign",
+      "_confidence_symbolKo": "P2"
+    },
+    {
+      "index": 2,
+      "id": "gemini",
+      "ko": "쌍둥이자리",
+      "en": "Gemini",
+      "glyph": "♊",
+      "lonStart": 60,
+      "lonEnd": 90,
+      "startMMDD": "05-21",
+      "endMMDD": "06-21",
+      "_source_dates": "https://en.wikipedia.org/wiki/Astrological_sign (국내 통용 경계일 채택, 위키 기준과 최대 1일 차)",
+      "_confidence_dates": "P2",
+      "element": "air",
+      "modality": "mutable",
+      "polarity": "+",
+      "rulerModern": "mercury",
+      "rulerTraditional": "mercury",
+      "_source_attrs": "https://en.wikipedia.org/wiki/Astrological_sign",
+      "_confidence_attrs": "P1",
+      "symbolKo": "쌍둥이",
+      "_source_symbolKo": "https://en.wikipedia.org/wiki/Astrological_sign",
+      "_confidence_symbolKo": "P2"
+    },
+    {
+      "index": 3,
+      "id": "cancer",
+      "ko": "게자리",
+      "en": "Cancer",
+      "glyph": "♋",
+      "lonStart": 90,
+      "lonEnd": 120,
+      "startMMDD": "06-22",
+      "endMMDD": "07-22",
+      "_source_dates": "https://en.wikipedia.org/wiki/Astrological_sign (국내 통용 경계일 채택, 위키 기준과 최대 1일 차)",
+      "_confidence_dates": "P2",
+      "element": "water",
+      "modality": "cardinal",
+      "polarity": "-",
+      "rulerModern": "moon",
+      "rulerTraditional": "moon",
+      "_source_attrs": "https://en.wikipedia.org/wiki/Astrological_sign",
+      "_confidence_attrs": "P1",
+      "symbolKo": "게",
+      "_source_symbolKo": "https://en.wikipedia.org/wiki/Astrological_sign",
+      "_confidence_symbolKo": "P2"
+    },
+    {
+      "index": 4,
+      "id": "leo",
+      "ko": "사자자리",
+      "en": "Leo",
+      "glyph": "♌",
+      "lonStart": 120,
+      "lonEnd": 150,
+      "startMMDD": "07-23",
+      "endMMDD": "08-22",
+      "_source_dates": "https://en.wikipedia.org/wiki/Astrological_sign (국내 통용 경계일 채택, 위키 기준과 최대 1일 차)",
+      "_confidence_dates": "P2",
+      "element": "fire",
+      "modality": "fixed",
+      "polarity": "+",
+      "rulerModern": "sun",
+      "rulerTraditional": "sun",
+      "_source_attrs": "https://en.wikipedia.org/wiki/Astrological_sign",
+      "_confidence_attrs": "P1",
+      "symbolKo": "사자",
+      "_source_symbolKo": "https://en.wikipedia.org/wiki/Astrological_sign",
+      "_confidence_symbolKo": "P2"
+    },
+    {
+      "index": 5,
+      "id": "virgo",
+      "ko": "처녀자리",
+      "en": "Virgo",
+      "glyph": "♍",
+      "lonStart": 150,
+      "lonEnd": 180,
+      "startMMDD": "08-23",
+      "endMMDD": "09-22",
+      "_source_dates": "https://en.wikipedia.org/wiki/Astrological_sign (국내 통용 경계일 채택, 위키 기준과 최대 1일 차)",
+      "_confidence_dates": "P2",
+      "element": "earth",
+      "modality": "mutable",
+      "polarity": "-",
+      "rulerModern": "mercury",
+      "rulerTraditional": "mercury",
+      "_source_attrs": "https://en.wikipedia.org/wiki/Astrological_sign",
+      "_confidence_attrs": "P1",
+      "symbolKo": "처녀",
+      "_source_symbolKo": "https://en.wikipedia.org/wiki/Astrological_sign",
+      "_confidence_symbolKo": "P2"
+    },
+    {
+      "index": 6,
+      "id": "libra",
+      "ko": "천칭자리",
+      "en": "Libra",
+      "glyph": "♎",
+      "lonStart": 180,
+      "lonEnd": 210,
+      "startMMDD": "09-23",
+      "endMMDD": "10-22",
+      "_source_dates": "https://en.wikipedia.org/wiki/Astrological_sign (국내 통용 경계일 채택, 위키 기준과 최대 1일 차)",
+      "_confidence_dates": "P2",
+      "element": "air",
+      "modality": "cardinal",
+      "polarity": "+",
+      "rulerModern": "venus",
+      "rulerTraditional": "venus",
+      "_source_attrs": "https://en.wikipedia.org/wiki/Astrological_sign",
+      "_confidence_attrs": "P1",
+      "symbolKo": "저울",
+      "_source_symbolKo": "https://en.wikipedia.org/wiki/Astrological_sign",
+      "_confidence_symbolKo": "P2"
+    },
+    {
+      "index": 7,
+      "id": "scorpio",
+      "ko": "전갈자리",
+      "en": "Scorpio",
+      "glyph": "♏",
+      "lonStart": 210,
+      "lonEnd": 240,
+      "startMMDD": "10-23",
+      "endMMDD": "11-21",
+      "_source_dates": "https://en.wikipedia.org/wiki/Astrological_sign (국내 통용 경계일 채택, 위키 기준과 최대 1일 차)",
+      "_confidence_dates": "P2",
+      "element": "water",
+      "modality": "fixed",
+      "polarity": "-",
+      "rulerModern": "pluto",
+      "rulerTraditional": "mars",
+      "_source_attrs": "https://en.wikipedia.org/wiki/Astrological_sign",
+      "_confidence_attrs": "P1",
+      "symbolKo": "전갈",
+      "_source_symbolKo": "https://en.wikipedia.org/wiki/Astrological_sign",
+      "_confidence_symbolKo": "P2"
+    },
+    {
+      "index": 8,
+      "id": "sagittarius",
+      "ko": "사수자리",
+      "en": "Sagittarius",
+      "glyph": "♐",
+      "lonStart": 240,
+      "lonEnd": 270,
+      "startMMDD": "11-22",
+      "endMMDD": "12-21",
+      "_source_dates": "https://en.wikipedia.org/wiki/Astrological_sign (국내 통용 경계일 채택, 위키 기준과 최대 1일 차)",
+      "_confidence_dates": "P2",
+      "element": "fire",
+      "modality": "mutable",
+      "polarity": "+",
+      "rulerModern": "jupiter",
+      "rulerTraditional": "jupiter",
+      "_source_attrs": "https://en.wikipedia.org/wiki/Astrological_sign",
+      "_confidence_attrs": "P1",
+      "symbolKo": "궁수",
+      "_source_symbolKo": "https://en.wikipedia.org/wiki/Astrological_sign",
+      "_confidence_symbolKo": "P2"
+    },
+    {
+      "index": 9,
+      "id": "capricorn",
+      "ko": "염소자리",
+      "en": "Capricorn",
+      "glyph": "♑",
+      "lonStart": 270,
+      "lonEnd": 300,
+      "startMMDD": "12-22",
+      "endMMDD": "01-19",
+      "_source_dates": "https://en.wikipedia.org/wiki/Astrological_sign (국내 통용 경계일 채택, 위키 기준과 최대 1일 차)",
+      "_confidence_dates": "P2",
+      "element": "earth",
+      "modality": "cardinal",
+      "polarity": "-",
+      "rulerModern": "saturn",
+      "rulerTraditional": "saturn",
+      "_source_attrs": "https://en.wikipedia.org/wiki/Astrological_sign",
+      "_confidence_attrs": "P1",
+      "symbolKo": "염소",
+      "_source_symbolKo": "https://en.wikipedia.org/wiki/Astrological_sign",
+      "_confidence_symbolKo": "P2"
+    },
+    {
+      "index": 10,
+      "id": "aquarius",
+      "ko": "물병자리",
+      "en": "Aquarius",
+      "glyph": "♒",
+      "lonStart": 300,
+      "lonEnd": 330,
+      "startMMDD": "01-20",
+      "endMMDD": "02-18",
+      "_source_dates": "https://en.wikipedia.org/wiki/Astrological_sign (국내 통용 경계일 채택, 위키 기준과 최대 1일 차)",
+      "_confidence_dates": "P2",
+      "element": "air",
+      "modality": "fixed",
+      "polarity": "+",
+      "rulerModern": "uranus",
+      "rulerTraditional": "saturn",
+      "_source_attrs": "https://en.wikipedia.org/wiki/Astrological_sign",
+      "_confidence_attrs": "P1",
+      "symbolKo": "물병",
+      "_source_symbolKo": "https://en.wikipedia.org/wiki/Astrological_sign",
+      "_confidence_symbolKo": "P2"
+    },
+    {
+      "index": 11,
+      "id": "pisces",
+      "ko": "물고기자리",
+      "en": "Pisces",
+      "glyph": "♓",
+      "lonStart": 330,
+      "lonEnd": 360,
+      "startMMDD": "02-19",
+      "endMMDD": "03-20",
+      "_source_dates": "https://en.wikipedia.org/wiki/Astrological_sign (국내 통용 경계일 채택, 위키 기준과 최대 1일 차)",
+      "_confidence_dates": "P2",
+      "element": "water",
+      "modality": "mutable",
+      "polarity": "-",
+      "rulerModern": "neptune",
+      "rulerTraditional": "jupiter",
+      "_source_attrs": "https://en.wikipedia.org/wiki/Astrological_sign",
+      "_confidence_attrs": "P1",
+      "symbolKo": "물고기",
+      "_source_symbolKo": "https://en.wikipedia.org/wiki/Astrological_sign",
+      "_confidence_symbolKo": "P2"
+    }
+  ],
+  "zodiacCompatibility": {
+    "_canon": "docs/research/calc/C00-계산엔진-통합명세서.md §S8-2 / docs/research/calc/C08-4체계-통합-점수화-궁합-알고리즘설계.md §4·§7",
+    "_confidence": "D",
+    "formula": "k=min(|i-j|%12, 12-|i-j|%12); score=clamp(50+A[k]+E+M+P,0,100)",
+    "aspectK": {
+      "0": 79,
+      "1": 37,
+      "2": 83,
+      "3": 23,
+      "4": 95,
+      "5": 35,
+      "6": 79
+    },
+    "aspectName": {
+      "0": "conjunction",
+      "1": "semisextile",
+      "2": "sextile",
+      "3": "square",
+      "4": "trine",
+      "5": "quincunx",
+      "6": "opposition"
+    },
+    "uniqueValues": [
+      23,
+      35,
+      37,
+      79,
+      83,
+      95
+    ],
+    "symmetric": true
+  },
+  "monthBirthstones": {
+    "_note": "양력 '월' 기준. 별자리(사인)와 1:1 대응하지 않는다. 사인 경계는 황경 30° 구간이라 한 사인이 두 달에 걸친다.",
+    "_source": "https://www.americangemsociety.org/birthstones/ / https://en.wikipedia.org/wiki/Birthstone",
+    "_confidence": "P2",
+    "byMonth": {
+      "1": [
+        "가넷"
+      ],
+      "2": [
+        "자수정"
+      ],
+      "3": [
+        "아쿠아마린",
+        "블러드스톤"
+      ],
+      "4": [
+        "다이아몬드"
+      ],
+      "5": [
+        "에메랄드"
+      ],
+      "6": [
+        "진주",
+        "문스톤",
+        "알렉산드라이트"
+      ],
+      "7": [
+        "루비"
+      ],
+      "8": [
+        "페리도트",
+        "스피넬",
+        "사도닉스"
+      ],
+      "9": [
+        "사파이어"
+      ],
+      "10": [
+        "오팔",
+        "투르말린"
+      ],
+      "11": [
+        "토파즈",
+        "시트린"
+      ],
+      "12": [
+        "탄자나이트",
+        "터키석",
+        "지르콘"
+      ]
+    }
+  },
+  "zodiacToEarthlyBranch": {
+    "_note": "방위 대응이며 '띠' 대응이 아니다.",
+    "_source": "https://encykorea.aks.ac.kr/Article/E0065113",
+    "_confidence": "P1",
+    "map": {
+      "aries": {
+        "hanja": "白羊宮",
+        "branch": "戌"
+      },
+      "taurus": {
+        "hanja": "金牛宮",
+        "branch": "酉"
+      },
+      "gemini": {
+        "hanja": "陰陽宮",
+        "branch": "申"
+      },
+      "cancer": {
+        "hanja": "巨蟹宮",
+        "branch": "未"
+      },
+      "leo": {
+        "hanja": "獅子宮",
+        "branch": "午"
+      },
+      "virgo": {
+        "hanja": "雙女宮",
+        "branch": "巳"
+      },
+      "libra": {
+        "hanja": "天秤宮",
+        "branch": "辰"
+      },
+      "scorpio": {
+        "hanja": "天蠍宮",
+        "branch": "卯"
+      },
+      "sagittarius": {
+        "hanja": "人馬宮",
+        "branch": "寅"
+      },
+      "capricorn": {
+        "hanja": "磨羯宮",
+        "branch": "丑"
+      },
+      "aquarius": {
+        "hanja": "寶甁宮",
+        "branch": "子"
+      },
+      "pisces": {
+        "hanja": "雙魚宮",
+        "branch": "亥"
+      }
+    }
+  },
+  "disclaimer": {
+    "blood": "혈액형 성격론은 대규모 연구로 반증됨. https://news.mynavi.jp/article/20140722-a253/ (縄田健悟 2014, 心理学研究, n=11,729, 68문항)",
+    "mbti": "본 서비스는 공인 성격유형 검사를 제공하지 않으며 Myers & Briggs Foundation / The Myers-Briggs Company / (주)어세스타 / NERIS Analytics Limited 와 무관하다.",
+    "zodiac": "엔터테인먼트 목적."
+  }
+}

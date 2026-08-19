@@ -1,0 +1,1747 @@
+{
+  "$id": "compat-params.json",
+  "version": "1.0.0",
+  "engine": "C08 + C18",
+  "generatedBy": "docs/research/calc/C18-궁합-배점-근거확보와-검증.md",
+  "note": "궁합 전 배점의 단일 출처. C08 §3~§8 의 하드코딩을 대체한다.",
+  "evidenceGradeLegend": {
+    "A": "1차 사료 또는 표준 규격에 명시된 값",
+    "B": "복수(≥2)의 독립 실구현체/공개매트릭스와 순위·구조가 일치하며 크기는 그 범위 안",
+    "C": "단일 외부 구현체에서 확인되나 교차검증 없음",
+    "D": "저자 창작 · 캘리브레이션 산물 (외부 근거 없음)"
+  },
+  "weights": {
+    "saju": 0.5,
+    "zodiac": 0.2,
+    "mbti": 0.2,
+    "blood": 0.1,
+    "evidenceGrade": "D",
+    "rationale": "ai-saju2 MARRIAGE 프리셋(사주0.4+오행0.2=0.6) 과 같은 자릿수. 분산기여 실측 사주70.71/별12.94/MBTI12.95/혈2.93%.",
+    "missingInputPolicy": "미입력 체계는 가중치를 나머지에 비례 재분배",
+    "sensitivity_gradeChangeRate": {
+      "saju±15": [
+        0.1272,
+        0.193
+      ],
+      "zodiac±15": [
+        0.273,
+        0.3646
+      ],
+      "mbti±15": [
+        0.2777,
+        0.3598
+      ],
+      "blood±15": [
+        0.2785,
+        0.2045
+      ]
+    },
+    "sources": [
+      "https://raw.githubusercontent.com/tnalsqkr1234-beep/ai-saju2/main/compatibility-system.js",
+      "https://raw.githubusercontent.com/honghyunwoo/SajuFortune/main/shared/compatibility-calculator.ts"
+    ]
+  },
+  "saju": {
+    "total": 100,
+    "structureEvidenceGrade": "B",
+    "structureNote": "일간/일지/오행/띠 4항 구조는 sajucheck·sandbar 2개 독립 구현과 동일. 용신·십신 추가는 cheonmyeong 이 선례.",
+    "categoryWeightComparison": {
+      "OURS": {
+        "ilgan": 20,
+        "ilji": 20,
+        "ohaeng": 20,
+        "yongsin": 15,
+        "sipsin": 15,
+        "tti": 10
+      },
+      "sajucheck": {
+        "ilgan": 30,
+        "ilji": 25,
+        "ohaeng": 25,
+        "tti": 20
+      },
+      "sandbar": {
+        "ilgan": 25,
+        "ilji": 25,
+        "ohaeng": 25,
+        "tti": 25
+      },
+      "SajuFortune": {
+        "ilgan": 30,
+        "ilji": 40,
+        "ohaeng": 20,
+        "geokguk": 10
+      },
+      "cheonmyeong": {
+        "ilgan": 40,
+        "ohaeng": 30,
+        "sipsin": 20,
+        "yongsin": 10
+      }
+    },
+    "S1_dayStem": {
+      "cap": 20,
+      "evidenceGrade": "B",
+      "rankOrderSpearmanVsExternals": 1.0,
+      "lookup": {
+        "천간합": 20,
+        "상생": 17,
+        "동오행음양상보": 14,
+        "비화": 10,
+        "상극": 8,
+        "천간충": 4
+      },
+      "externalLookups": {
+        "sandbar/25": {
+          "천간합": 25,
+          "상생": 22,
+          "동오행": 16,
+          "중립": 13,
+          "상극": 7,
+          "천간충": 5
+        },
+        "SajuFortune/25": {
+          "천간합": 25,
+          "상생": 20,
+          "중립": 15,
+          "상극": 10,
+          "천간충": 5
+        },
+        "cheonmyeong/40": {
+          "상생(내가생)": 38,
+          "상생(상대가생)": 36,
+          "동오행": 28,
+          "피극": 18,
+          "극": 15
+        },
+        "ai-saju2/100": {
+          "상생": 90,
+          "지원": 85,
+          "동오행": 75,
+          "제약": 70,
+          "상극": 65
+        }
+      },
+      "sources": [
+        "https://raw.githubusercontent.com/HwangJiMinn/sandbar/main/app/lib/gunghap-calc.ts",
+        "https://raw.githubusercontent.com/honghyunwoo/SajuFortune/main/shared/compatibility-calculator.ts",
+        "https://raw.githubusercontent.com/Gangnamhaha/cheonmyeong/master/src/lib/gunghap.ts",
+        "https://raw.githubusercontent.com/tnalsqkr1234-beep/ai-saju2/main/compatibility-system.js",
+        "https://sajucheck.com/gunghap.html"
+      ]
+    },
+    "S2_dayBranch": {
+      "cap": 20,
+      "base": 10,
+      "clamp": [
+        0,
+        20
+      ],
+      "evidenceGrade": "B",
+      "delta": {
+        "육합": 8,
+        "삼합": 6,
+        "방합": 3,
+        "동일": 2,
+        "파": -2,
+        "해": -4,
+        "형": -5,
+        "원진": -6,
+        "충": -9
+      },
+      "independentApplication": [
+        "원진",
+        "해"
+      ],
+      "externalDelta_idolSCORING": {
+        "육합": 14,
+        "삼합": 11,
+        "방합": 6,
+        "비화": 4,
+        "평": 0,
+        "해": -6,
+        "충": -14
+      },
+      "scaleRatio_idol_over_ours": {
+        "mean": 1.773,
+        "sd": 0.195,
+        "range": [
+          1.5,
+          2.0
+        ]
+      },
+      "rankOrderSpearmanVsExternals": {
+        "sandbar": 1.0,
+        "SajuFortune": 1.0,
+        "idolSCORING": 1.0,
+        "sajuEngine": 0.991
+      },
+      "sources": [
+        "https://raw.githubusercontent.com/gyu2301/saju-idol-match-claude-idol-saju-matching-app/main/docs/SCORING.md",
+        "https://raw.githubusercontent.com/HwangJiMinn/sandbar/main/app/lib/gunghap-calc.ts",
+        "https://raw.githubusercontent.com/honghyunwoo/SajuFortune/main/shared/compatibility-calculator.ts",
+        "https://raw.githubusercontent.com/adminhelper/saju-engine/main/mcp/lib/saju.mjs",
+        "https://raw.githubusercontent.com/china-testing/bazi/master/ganzhi.py"
+      ]
+    },
+    "S3_elementComplement": {
+      "cap": 20,
+      "evidenceGrade": "D",
+      "formula": "clamp(8 + improve*22 + fill*2.5, 0, 20)",
+      "improveCoef": 22,
+      "fillCoef": 2.5,
+      "base": 8,
+      "calibrationTarget": "시뮬 평균이 배점의 60% 근처",
+      "externalAnalogues": {
+        "cheonmyeong": "결핍(0개)&상대≥2 → +8 / 부족(≤1)&상대≥2 → +4, cap 30",
+        "saju-fortune(npm)": "보완오행 1건당 +10, 공통강세 1건당 +8 (base 50)",
+        "saju-engine": "보완 1건당 +3 (base 70)",
+        "sandbar": "일간오행관계 base(15/21/13/7) + max(0, 4−stdev) 균형보너스, cap 25"
+      },
+      "sources": [
+        "https://raw.githubusercontent.com/Gangnamhaha/cheonmyeong/master/src/lib/gunghap.ts",
+        "https://registry.npmjs.org/saju-fortune  (src/index.js checkCompatibility)",
+        "https://raw.githubusercontent.com/adminhelper/saju-engine/main/mcp/lib/saju.mjs",
+        "https://raw.githubusercontent.com/HwangJiMinn/sandbar/main/app/lib/gunghap-calc.ts"
+      ]
+    },
+    "S4_yongsinFulfillment": {
+      "cap": 15,
+      "evidenceGrade": "D",
+      "formula": "clamp((oneWay(A,B)+oneWay(B,A))*3.6, 0, 15)",
+      "rankWeights": [
+        3.0,
+        2.0,
+        1.0
+      ],
+      "johuWeight": 2.5,
+      "scaleCoef": 3.6,
+      "yongsinEngine": "C05-STD (C00 §H4)",
+      "externalAnalogue": {
+        "cheonmyeong": "내 용신 오행이 상대 원국에 2개 이상 → +5 (양방향, cap 10)"
+      },
+      "sources": [
+        "https://raw.githubusercontent.com/Gangnamhaha/cheonmyeong/master/src/lib/gunghap.ts",
+        "https://raw.githubusercontent.com/adminhelper/saju-engine/main/mcp/lib/saju.mjs"
+      ]
+    },
+    "S5_tenGodCross": {
+      "cap": 15,
+      "evidenceGrade": "C",
+      "lookup": {
+        "정재": 15,
+        "정관": 15,
+        "정인": 13,
+        "식신": 13,
+        "편재": 11,
+        "편관": 9,
+        "비견": 9,
+        "상관": 7,
+        "편인": 7,
+        "겁재": 5
+      },
+      "externalAnalogues": {
+        "idolSCORING(덕질관점 40점 스케일)": {
+          "상관": 40,
+          "식신": 38,
+          "정인": 33,
+          "편인": 30,
+          "정재": 24,
+          "편재": 22,
+          "겁재": 15,
+          "비견": 13,
+          "정관": 8,
+          "편관": 6
+        },
+        "cheonmyeong(20점 스케일)": "식신×정재 +5, 정관×정인 +5, 상관×편관 −3"
+      },
+      "conflictNote": "idolSCORING 은 '덕질(팬심)' 관점이라 식상 최상위·관성 최하위로 본 설계와 순위가 무상관이다(r=−0.0015, ρ=−0.0552). 연애·결혼 궁합 관점(정재/정관 최상위)은 cheonmyeong 과 정합.",
+      "sources": [
+        "https://raw.githubusercontent.com/gyu2301/saju-idol-match-claude-idol-saju-matching-app/main/docs/SCORING.md",
+        "https://raw.githubusercontent.com/Gangnamhaha/cheonmyeong/master/src/lib/gunghap.ts"
+      ]
+    },
+    "S6_yearBranch": {
+      "cap": 10,
+      "base": 5,
+      "clamp": [
+        0,
+        10
+      ],
+      "evidenceGrade": "B",
+      "delta": {
+        "육합": 4,
+        "삼합": 3,
+        "동일": 1,
+        "해": -2,
+        "원진": -3,
+        "충": -4
+      },
+      "relativeWeightVsS2": 0.5,
+      "externalRelativeWeight": {
+        "idolSCORING": 0.4,
+        "sandbar": 1.0,
+        "sajucheck": 0.8
+      },
+      "sources": [
+        "https://raw.githubusercontent.com/gyu2301/saju-idol-match-claude-idol-saju-matching-app/main/docs/SCORING.md",
+        "https://raw.githubusercontent.com/HwangJiMinn/sandbar/main/app/lib/gunghap-calc.ts",
+        "https://sajucheck.com/gunghap.html"
+      ]
+    }
+  },
+  "zodiac": {
+    "model": "aspect + element + modality + polarity",
+    "evidenceGrade": "B",
+    "aspects": [
+      {
+        "name": "합 Conjunction",
+        "angle": 0,
+        "orb": 8,
+        "points": 12,
+        "orbSource": "Discepolo 8"
+      },
+      {
+        "name": "세미섹스타일",
+        "angle": 30,
+        "orb": 2,
+        "points": -6,
+        "orbSource": "Discepolo 2"
+      },
+      {
+        "name": "세미스퀘어",
+        "angle": 45,
+        "orb": 2,
+        "points": 0,
+        "orbSource": "Discepolo 2 (태양궁 격자와 불일치 → 0)"
+      },
+      {
+        "name": "섹스타일 Sextile",
+        "angle": 60,
+        "orb": 4,
+        "points": 14,
+        "orbSource": "Discepolo 4"
+      },
+      {
+        "name": "스퀘어 Square",
+        "angle": 90,
+        "orb": 5,
+        "points": -12,
+        "orbSource": "Discepolo 5"
+      },
+      {
+        "name": "트라인 Trine",
+        "angle": 120,
+        "orb": 7,
+        "points": 20,
+        "orbSource": "Discepolo 7"
+      },
+      {
+        "name": "세스퀴쿼드레이트",
+        "angle": 135,
+        "orb": 2,
+        "points": 0,
+        "orbSource": "Discepolo 2 (태양궁 격자와 불일치 → 0)"
+      },
+      {
+        "name": "퀸컹크스 Quincunx",
+        "angle": 150,
+        "orb": 1,
+        "points": -8,
+        "orbSource": "kerykeion 전체목록 1"
+      },
+      {
+        "name": "오포지션 Opposition",
+        "angle": 180,
+        "orb": 8,
+        "points": 18,
+        "orbSource": "Discepolo 8"
+      }
+    ],
+    "orbSource": "https://pypi.org/pypi/kerykeion/json  (5.12.9 kerykeion/settings/config_constants.py, relationship_score_factory.py)",
+    "element": {
+      "same": 18,
+      "complementary": 12,
+      "adjacent": -8,
+      "evidenceGrade": "D"
+    },
+    "modality": {
+      "adopted": "M-B",
+      "M-A_current_C08": {
+        "same": -4,
+        "different": 4
+      },
+      "M-B_discepolo": {
+        "same": 5,
+        "different": 0
+      },
+      "evidenceGrade": "B",
+      "rationale": "kerykeion RelationshipScoreFactory DESTINY_SIGN_POINTS=5 (동일 quality 가산). M-B 가 mybias.app 144칸과 r=+0.9927 로 M-A(+0.9869) 보다 적합.",
+      "sources": [
+        "https://pypi.org/pypi/kerykeion/json  (5.12.9 kerykeion/settings/config_constants.py, relationship_score_factory.py)",
+        "https://mybias.app/zodiac-compatibility"
+      ]
+    },
+    "polarity": {
+      "same": 3,
+      "different": -3,
+      "evidenceGrade": "D"
+    },
+    "matrix_MA": [
+      [
+        79.0,
+        37.0,
+        83.0,
+        23.0,
+        95.0,
+        35.0,
+        79.0,
+        35.0,
+        95.0,
+        23.0,
+        83.0,
+        37.0
+      ],
+      [
+        37.0,
+        79.0,
+        37.0,
+        83.0,
+        23.0,
+        95.0,
+        35.0,
+        79.0,
+        35.0,
+        95.0,
+        23.0,
+        83.0
+      ],
+      [
+        83.0,
+        37.0,
+        79.0,
+        37.0,
+        83.0,
+        23.0,
+        95.0,
+        35.0,
+        79.0,
+        35.0,
+        95.0,
+        23.0
+      ],
+      [
+        23.0,
+        83.0,
+        37.0,
+        79.0,
+        37.0,
+        83.0,
+        23.0,
+        95.0,
+        35.0,
+        79.0,
+        35.0,
+        95.0
+      ],
+      [
+        95.0,
+        23.0,
+        83.0,
+        37.0,
+        79.0,
+        37.0,
+        83.0,
+        23.0,
+        95.0,
+        35.0,
+        79.0,
+        35.0
+      ],
+      [
+        35.0,
+        95.0,
+        23.0,
+        83.0,
+        37.0,
+        79.0,
+        37.0,
+        83.0,
+        23.0,
+        95.0,
+        35.0,
+        79.0
+      ],
+      [
+        79.0,
+        35.0,
+        95.0,
+        23.0,
+        83.0,
+        37.0,
+        79.0,
+        37.0,
+        83.0,
+        23.0,
+        95.0,
+        35.0
+      ],
+      [
+        35.0,
+        79.0,
+        35.0,
+        95.0,
+        23.0,
+        83.0,
+        37.0,
+        79.0,
+        37.0,
+        83.0,
+        23.0,
+        95.0
+      ],
+      [
+        95.0,
+        35.0,
+        79.0,
+        35.0,
+        95.0,
+        23.0,
+        83.0,
+        37.0,
+        79.0,
+        37.0,
+        83.0,
+        23.0
+      ],
+      [
+        23.0,
+        95.0,
+        35.0,
+        79.0,
+        35.0,
+        95.0,
+        23.0,
+        83.0,
+        37.0,
+        79.0,
+        37.0,
+        83.0
+      ],
+      [
+        83.0,
+        23.0,
+        95.0,
+        35.0,
+        79.0,
+        35.0,
+        95.0,
+        23.0,
+        83.0,
+        37.0,
+        79.0,
+        37.0
+      ],
+      [
+        37.0,
+        83.0,
+        23.0,
+        95.0,
+        35.0,
+        79.0,
+        35.0,
+        95.0,
+        23.0,
+        83.0,
+        37.0,
+        79.0
+      ]
+    ],
+    "matrix_MB": [
+      [
+        88.0,
+        33.0,
+        79.0,
+        32.0,
+        91.0,
+        31.0,
+        88.0,
+        31.0,
+        91.0,
+        32.0,
+        79.0,
+        33.0
+      ],
+      [
+        33.0,
+        88.0,
+        33.0,
+        79.0,
+        32.0,
+        91.0,
+        31.0,
+        88.0,
+        31.0,
+        91.0,
+        32.0,
+        79.0
+      ],
+      [
+        79.0,
+        33.0,
+        88.0,
+        33.0,
+        79.0,
+        32.0,
+        91.0,
+        31.0,
+        88.0,
+        31.0,
+        91.0,
+        32.0
+      ],
+      [
+        32.0,
+        79.0,
+        33.0,
+        88.0,
+        33.0,
+        79.0,
+        32.0,
+        91.0,
+        31.0,
+        88.0,
+        31.0,
+        91.0
+      ],
+      [
+        91.0,
+        32.0,
+        79.0,
+        33.0,
+        88.0,
+        33.0,
+        79.0,
+        32.0,
+        91.0,
+        31.0,
+        88.0,
+        31.0
+      ],
+      [
+        31.0,
+        91.0,
+        32.0,
+        79.0,
+        33.0,
+        88.0,
+        33.0,
+        79.0,
+        32.0,
+        91.0,
+        31.0,
+        88.0
+      ],
+      [
+        88.0,
+        31.0,
+        91.0,
+        32.0,
+        79.0,
+        33.0,
+        88.0,
+        33.0,
+        79.0,
+        32.0,
+        91.0,
+        31.0
+      ],
+      [
+        31.0,
+        88.0,
+        31.0,
+        91.0,
+        32.0,
+        79.0,
+        33.0,
+        88.0,
+        33.0,
+        79.0,
+        32.0,
+        91.0
+      ],
+      [
+        91.0,
+        31.0,
+        88.0,
+        31.0,
+        91.0,
+        32.0,
+        79.0,
+        33.0,
+        88.0,
+        33.0,
+        79.0,
+        32.0
+      ],
+      [
+        32.0,
+        91.0,
+        31.0,
+        88.0,
+        31.0,
+        91.0,
+        32.0,
+        79.0,
+        33.0,
+        88.0,
+        33.0,
+        79.0
+      ],
+      [
+        79.0,
+        32.0,
+        91.0,
+        31.0,
+        88.0,
+        31.0,
+        91.0,
+        32.0,
+        79.0,
+        33.0,
+        88.0,
+        33.0
+      ],
+      [
+        33.0,
+        79.0,
+        32.0,
+        91.0,
+        31.0,
+        88.0,
+        31.0,
+        91.0,
+        32.0,
+        79.0,
+        33.0,
+        88.0
+      ]
+    ],
+    "signOrder": [
+      "양자리",
+      "황소자리",
+      "쌍둥이자리",
+      "게자리",
+      "사자자리",
+      "처녀자리",
+      "천칭자리",
+      "전갈자리",
+      "사수자리",
+      "염소자리",
+      "물병자리",
+      "물고기자리"
+    ],
+    "externalMatrix_mybias_byAngularDistance": [
+      88,
+      35,
+      83,
+      32,
+      92,
+      40,
+      85,
+      40,
+      92,
+      32,
+      83,
+      35
+    ],
+    "rejectedVariants": {
+      "Z-C_orbContinuous_withEMP": "부호경계 불연속 최대 40점 → 기각",
+      "Z-E_orbContinuous_pureAspect": "불연속 0, r vs mybias +0.9846, 그러나 등급변경률 44.77% → v2 후보"
+    }
+  },
+  "mbti": {
+    "generation": "rule",
+    "evidenceGrade": "B",
+    "typeOrder": [
+      "INFP",
+      "ENFP",
+      "INFJ",
+      "ENFJ",
+      "INTJ",
+      "ENTJ",
+      "INTP",
+      "ENTP",
+      "ISFP",
+      "ESFP",
+      "ISTP",
+      "ESTP",
+      "ISFJ",
+      "ESFJ",
+      "ISTJ",
+      "ESTJ"
+    ],
+    "positionWeights": [
+      4,
+      3,
+      2,
+      1
+    ],
+    "partnerFunction": {
+      "Ne": "Ni",
+      "Ni": "Ne",
+      "Se": "Si",
+      "Si": "Se",
+      "Te": "Ti",
+      "Ti": "Te",
+      "Fe": "Fi",
+      "Fi": "Fe"
+    },
+    "temperamentMatrix": {
+      "NF|NF": 6,
+      "NF|NT": 5,
+      "NF|SP": -1,
+      "NF|SJ": 0,
+      "NT|NT": 5,
+      "NT|SP": 1,
+      "NT|SJ": 1,
+      "SP|SP": 4,
+      "SP|SJ": 3,
+      "SJ|SJ": 6
+    },
+    "preferenceAxis": {
+      "v1_C08": {
+        "EI": [
+          3,
+          6
+        ],
+        "SN": [
+          12,
+          -8
+        ],
+        "TF": [
+          4,
+          5
+        ],
+        "JP": [
+          3,
+          5
+        ]
+      },
+      "v3_adopted": {
+        "EI": [
+          3,
+          6
+        ],
+        "SN": [
+          6,
+          -4
+        ],
+        "TF": [
+          6,
+          3
+        ],
+        "JP": [
+          3,
+          5
+        ]
+      },
+      "calibration": "외부 2개 독립 매트릭스(Pomettini, mycompatibility.org)와의 평균 Pearson r 최대화 그리드서치 64점",
+      "meanR": {
+        "v1": 0.7656,
+        "v3": 0.8049
+      }
+    },
+    "sharedCoef": 1.6,
+    "complementCoef": 14,
+    "mirrorFull": 10,
+    "mirrorDom": 6,
+    "base": 50,
+    "rescale": {
+      "to": [
+        25,
+        95
+      ]
+    },
+    "matrix_v1": [
+      [
+        83,
+        83,
+        92,
+        92,
+        76,
+        77,
+        74,
+        78,
+        32,
+        34,
+        25,
+        31,
+        33,
+        52,
+        34,
+        39
+      ],
+      [
+        83,
+        83,
+        92,
+        92,
+        95,
+        76,
+        78,
+        77,
+        34,
+        30,
+        31,
+        25,
+        35,
+        33,
+        39,
+        34
+      ],
+      [
+        92,
+        92,
+        83,
+        83,
+        77,
+        78,
+        76,
+        95,
+        31,
+        33,
+        33,
+        38,
+        31,
+        35,
+        27,
+        33
+      ],
+      [
+        92,
+        92,
+        83,
+        83,
+        78,
+        74,
+        77,
+        76,
+        50,
+        31,
+        38,
+        33,
+        35,
+        34,
+        33,
+        27
+      ],
+      [
+        76,
+        95,
+        77,
+        78,
+        81,
+        81,
+        91,
+        90,
+        36,
+        41,
+        34,
+        36,
+        28,
+        34,
+        33,
+        37
+      ],
+      [
+        77,
+        76,
+        78,
+        74,
+        81,
+        81,
+        90,
+        91,
+        41,
+        36,
+        54,
+        34,
+        34,
+        28,
+        37,
+        35
+      ],
+      [
+        74,
+        78,
+        76,
+        77,
+        91,
+        90,
+        81,
+        81,
+        28,
+        34,
+        35,
+        37,
+        36,
+        41,
+        34,
+        54
+      ],
+      [
+        78,
+        77,
+        95,
+        76,
+        90,
+        91,
+        81,
+        81,
+        34,
+        28,
+        37,
+        33,
+        41,
+        36,
+        36,
+        34
+      ],
+      [
+        32,
+        34,
+        31,
+        50,
+        36,
+        41,
+        28,
+        34,
+        80,
+        79,
+        73,
+        77,
+        87,
+        87,
+        72,
+        74
+      ],
+      [
+        34,
+        30,
+        33,
+        31,
+        41,
+        36,
+        34,
+        28,
+        79,
+        80,
+        77,
+        75,
+        87,
+        87,
+        92,
+        72
+      ],
+      [
+        25,
+        31,
+        33,
+        38,
+        34,
+        54,
+        35,
+        37,
+        73,
+        77,
+        80,
+        79,
+        72,
+        74,
+        87,
+        87
+      ],
+      [
+        31,
+        25,
+        38,
+        33,
+        36,
+        34,
+        37,
+        33,
+        77,
+        75,
+        79,
+        80,
+        92,
+        72,
+        87,
+        87
+      ],
+      [
+        33,
+        35,
+        31,
+        35,
+        28,
+        34,
+        36,
+        41,
+        87,
+        87,
+        72,
+        92,
+        83,
+        83,
+        78,
+        80
+      ],
+      [
+        52,
+        33,
+        35,
+        34,
+        34,
+        28,
+        41,
+        36,
+        87,
+        87,
+        74,
+        72,
+        83,
+        83,
+        80,
+        76
+      ],
+      [
+        34,
+        39,
+        27,
+        33,
+        33,
+        37,
+        34,
+        36,
+        72,
+        92,
+        87,
+        87,
+        78,
+        80,
+        83,
+        83
+      ],
+      [
+        39,
+        34,
+        33,
+        27,
+        37,
+        35,
+        54,
+        34,
+        74,
+        72,
+        87,
+        87,
+        80,
+        76,
+        83,
+        83
+      ]
+    ],
+    "matrix_v3": [
+      [
+        83,
+        83,
+        95,
+        94,
+        67,
+        69,
+        65,
+        70,
+        41,
+        44,
+        25,
+        32,
+        43,
+        66,
+        36,
+        42
+      ],
+      [
+        83,
+        83,
+        94,
+        95,
+        90,
+        67,
+        70,
+        68,
+        44,
+        39,
+        32,
+        25,
+        45,
+        43,
+        42,
+        36
+      ],
+      [
+        95,
+        94,
+        83,
+        83,
+        68,
+        70,
+        67,
+        90,
+        40,
+        43,
+        34,
+        40,
+        41,
+        46,
+        27,
+        34
+      ],
+      [
+        94,
+        95,
+        83,
+        83,
+        70,
+        65,
+        69,
+        67,
+        64,
+        40,
+        40,
+        34,
+        46,
+        44,
+        34,
+        27
+      ],
+      [
+        67,
+        90,
+        68,
+        70,
+        81,
+        81,
+        93,
+        92,
+        38,
+        44,
+        45,
+        47,
+        29,
+        36,
+        43,
+        48
+      ],
+      [
+        69,
+        67,
+        70,
+        65,
+        81,
+        81,
+        92,
+        93,
+        44,
+        38,
+        68,
+        45,
+        36,
+        29,
+        48,
+        46
+      ],
+      [
+        65,
+        70,
+        67,
+        69,
+        93,
+        92,
+        81,
+        81,
+        29,
+        36,
+        46,
+        48,
+        38,
+        44,
+        45,
+        68
+      ],
+      [
+        70,
+        68,
+        90,
+        67,
+        92,
+        93,
+        81,
+        81,
+        36,
+        29,
+        48,
+        43,
+        44,
+        38,
+        47,
+        45
+      ],
+      [
+        41,
+        44,
+        40,
+        64,
+        38,
+        44,
+        29,
+        36,
+        79,
+        79,
+        63,
+        68,
+        89,
+        88,
+        63,
+        65
+      ],
+      [
+        44,
+        39,
+        43,
+        40,
+        44,
+        38,
+        36,
+        29,
+        79,
+        79,
+        68,
+        66,
+        88,
+        89,
+        86,
+        63
+      ],
+      [
+        25,
+        32,
+        34,
+        40,
+        45,
+        68,
+        46,
+        48,
+        63,
+        68,
+        79,
+        79,
+        63,
+        65,
+        89,
+        88
+      ],
+      [
+        32,
+        25,
+        40,
+        34,
+        47,
+        45,
+        48,
+        43,
+        68,
+        66,
+        79,
+        79,
+        86,
+        63,
+        88,
+        89
+      ],
+      [
+        43,
+        45,
+        41,
+        46,
+        29,
+        36,
+        38,
+        44,
+        89,
+        88,
+        63,
+        86,
+        83,
+        83,
+        70,
+        72
+      ],
+      [
+        66,
+        43,
+        46,
+        44,
+        36,
+        29,
+        44,
+        38,
+        88,
+        89,
+        65,
+        63,
+        83,
+        83,
+        72,
+        67
+      ],
+      [
+        36,
+        42,
+        27,
+        34,
+        43,
+        48,
+        45,
+        47,
+        63,
+        86,
+        89,
+        88,
+        70,
+        72,
+        83,
+        83
+      ],
+      [
+        42,
+        36,
+        34,
+        27,
+        48,
+        46,
+        68,
+        45,
+        65,
+        63,
+        88,
+        89,
+        72,
+        67,
+        83,
+        83
+      ]
+    ],
+    "externalAgreement": {
+      "v1_vs_Pomettini": 0.7599,
+      "v1_vs_mycompatibility": 0.7712,
+      "v3_vs_Pomettini": 0.7439,
+      "v3_vs_mycompatibility": 0.8659,
+      "Pomettini_vs_mycompatibility": 0.5567,
+      "Pomettini_vs_mbtiMatrix": 0.9644,
+      "note": "Pomettini 와 mbti-matrix(npm) 는 256칸 중 255칸이 단일 사상으로 일치 → 동일 원본. 독립 출처 2개는 (Pomettini계, mycompatibility) 뿐."
+    },
+    "etaSquared": {
+      "v1": {
+        "EI": 0.009,
+        "SN": 0.936,
+        "TF": 0.011,
+        "JP": 0.012
+      },
+      "v3": {
+        "EI": 0.018,
+        "SN": 0.781,
+        "TF": 0.116,
+        "JP": 0.024
+      },
+      "Pomettini": {
+        "EI": 0.029,
+        "SN": 0.495,
+        "TF": 0.002,
+        "JP": 0.022
+      },
+      "mycompatibility": {
+        "EI": 0.044,
+        "SN": 0.482,
+        "TF": 0.334,
+        "JP": 0.068
+      }
+    },
+    "sources": [
+      "https://raw.githubusercontent.com/Pomettini/mbti/master/src/lib.rs",
+      "https://registry.npmjs.org/mbti-matrix  (0.0.4 src/mbtiMatrix.ts)",
+      "https://mycompatibility.org/mbti/"
+    ]
+  },
+  "blood": {
+    "evidenceGrade": "D",
+    "scientificBasis": {
+      "verdict": "없음",
+      "nawata2014": {
+        "n": ">10000",
+        "etaSquared": "<0.003",
+        "claim": "혈액형이 성격분산의 0.3% 미만 설명",
+        "url": "https://www.jstage.jst.go.jp/article/jjpsy/85/2/85_85.13016/_article"
+      },
+      "tsuchimine2015": {
+        "n": 1427,
+        "partialEtaSquared": [
+          0.006,
+          0.01
+        ],
+        "claim": "Persistence 1개 특성만 미약한 유의차, 저자도 preliminary 로 한정",
+        "url": "https://journals.plos.org/plosone/article?id=10.1371%2Fjournal.pone.0126983"
+      },
+      "jaypromaxSelfStatement": "혈액형 궁합은 과학적으로 검증된 이론이 아니며"
+    },
+    "base_symmetric": {
+      "A|A": 78,
+      "A|B": 45,
+      "A|O": 85,
+      "A|AB": 62,
+      "B|B": 68,
+      "B|O": 80,
+      "B|AB": 82,
+      "O|O": 70,
+      "O|AB": 66,
+      "AB|AB": 76
+    },
+    "genderMod": {
+      "O|A": 8,
+      "B|AB": 6,
+      "A|O": 2,
+      "A|AB": -8,
+      "AB|B": 4,
+      "B|A": -4,
+      "A|B": 2,
+      "O|O": -3
+    },
+    "externalMatrices": {
+      "jaypromax_stars": {
+        "A|A": 4,
+        "A|B": 2,
+        "A|O": 4,
+        "A|AB": 3,
+        "B|B": 3,
+        "B|O": 4,
+        "B|AB": 4,
+        "O|O": 3,
+        "O|AB": 3,
+        "AB|AB": 4
+      },
+      "cheonmyeong_sym": {
+        "A|A": 79,
+        "A|B": 62,
+        "A|O": 85.5,
+        "A|AB": 71,
+        "B|B": 74,
+        "B|O": 81,
+        "B|AB": 67.5,
+        "O|O": 77,
+        "O|AB": 64.5,
+        "AB|AB": 73
+      }
+    },
+    "interSourceAgreement": {
+      "ours_vs_jaypromax": 0.9549,
+      "ours_vs_cheonmyeong": 0.7144,
+      "jaypromax_vs_cheonmyeong": 0.6447
+    },
+    "recommendation": {
+      "adopt": "UNIFORM",
+      "uniformValue": 70,
+      "effect": "최종 점수 분포·등급 비율 변화 0.00%p (ECDF 앵커가 분포를 고정). 등급이 바뀌는 사람 20.45%.",
+      "alternative": "가중치를 0.10 → 0.02 로 축소하고 UI 는 '참고' 배지로 강등",
+      "keepIfBusinessRequires": "유지 시 evidenceGrade D 를 UI 면책 문구에 명시"
+    },
+    "sources": [
+      "https://jaypromax.com/compatibility/혈액형-궁합-완전분석/",
+      "https://raw.githubusercontent.com/Gangnamhaha/cheonmyeong/master/src/data/bloodtype-compatibility.ts",
+      "https://www.jstage.jst.go.jp/article/jjpsy/85/2/85_85.13016/_article",
+      "https://journals.plos.org/plosone/article?id=10.1371%2Fjournal.pone.0126983"
+    ]
+  },
+  "normalization": {
+    "z2p": "100 / (1 + exp(-0.82 * (x - mu) / sd))",
+    "logisticK": 0.82,
+    "evidenceGrade": "D",
+    "POP_C08_seed20260811": {
+      "saju": [
+        60.268,
+        8.909
+      ],
+      "zodiac": [
+        58.655,
+        27.764
+      ],
+      "mbti": [
+        58.27,
+        24.178
+      ],
+      "blood": [
+        70.973,
+        16.036
+      ]
+    },
+    "POP_C18_seed20260812": {
+      "saju": [
+        60.247,
+        8.915
+      ],
+      "zodiac_MA": [
+        58.634,
+        27.772
+      ],
+      "zodiac_MB": [
+        58.985,
+        27.228
+      ],
+      "mbti_v1": [
+        58.359,
+        24.143
+      ],
+      "mbti_v3": [
+        59.584,
+        20.789
+      ],
+      "blood_ours": [
+        70.561,
+        13.957
+      ],
+      "blood_uniform": [
+        70.0,
+        0.0
+      ]
+    },
+    "sdZeroRule": "sd < 1e-9 이면 z2p = 50 (균등 매트릭스 채택 시 필수)"
+  },
+  "anchor": {
+    "evidenceGrade": "D",
+    "table": [
+      [
+        0.0,
+        32
+      ],
+      [
+        0.05,
+        45
+      ],
+      [
+        0.15,
+        54
+      ],
+      [
+        0.3,
+        61
+      ],
+      [
+        0.5,
+        68
+      ],
+      [
+        0.7,
+        75
+      ],
+      [
+        0.85,
+        82
+      ],
+      [
+        0.95,
+        89
+      ],
+      [
+        0.99,
+        95
+      ],
+      [
+        1.0,
+        99
+      ]
+    ],
+    "invariance": "최종 점수의 주변분포는 ANCHOR 만으로 결정된다. 가중치·서브매트릭스를 바꿔도 등급 비율은 불변이며 순위만 바뀐다(실측 Δ=0.00%p)."
+  },
+  "bands": [
+    {
+      "min": 93,
+      "tag": "S",
+      "name": "천생연분",
+      "observed": 0.0267
+    },
+    {
+      "min": 85,
+      "tag": "A+",
+      "name": "찰떡궁합",
+      "observed": 0.0876
+    },
+    {
+      "min": 76,
+      "tag": "A",
+      "name": "아주 좋은 인연",
+      "observed": 0.175
+    },
+    {
+      "min": 67,
+      "tag": "B+",
+      "name": "좋은 궁합",
+      "observed": 0.2536
+    },
+    {
+      "min": 57,
+      "tag": "B",
+      "name": "무난한 궁합",
+      "observed": 0.2536
+    },
+    {
+      "min": 46,
+      "tag": "C+",
+      "name": "노력이 필요한 사이",
+      "observed": 0.148
+    },
+    {
+      "min": 34,
+      "tag": "C",
+      "name": "조율이 많이 필요",
+      "observed": 0.0498
+    },
+    {
+      "min": 0,
+      "tag": "D",
+      "name": "많이 다른 두 사람",
+      "observed": 0.0058
+    }
+  ],
+  "sources": {
+    "sajucheck": "https://sajucheck.com/gunghap.html",
+    "sandbar": "https://raw.githubusercontent.com/HwangJiMinn/sandbar/main/app/lib/gunghap-calc.ts",
+    "sajufortune": "https://raw.githubusercontent.com/honghyunwoo/SajuFortune/main/shared/compatibility-calculator.ts",
+    "cheonmyeong": "https://raw.githubusercontent.com/Gangnamhaha/cheonmyeong/master/src/lib/gunghap.ts",
+    "cheonmyeong_blood": "https://raw.githubusercontent.com/Gangnamhaha/cheonmyeong/master/src/data/bloodtype-compatibility.ts",
+    "idolscoring": "https://raw.githubusercontent.com/gyu2301/saju-idol-match-claude-idol-saju-matching-app/main/docs/SCORING.md",
+    "sajuengine": "https://raw.githubusercontent.com/adminhelper/saju-engine/main/mcp/lib/saju.mjs",
+    "aisaju2": "https://raw.githubusercontent.com/tnalsqkr1234-beep/ai-saju2/main/compatibility-system.js",
+    "sajufortune_npm": "https://registry.npmjs.org/saju-fortune  (src/index.js checkCompatibility)",
+    "bazi_ganzhi": "https://raw.githubusercontent.com/china-testing/bazi/master/ganzhi.py",
+    "kerykeion": "https://pypi.org/pypi/kerykeion/json  (5.12.9 kerykeion/settings/config_constants.py, relationship_score_factory.py)",
+    "discepolo": "http://www.cirodiscepolo.it/Articoli/Discepoloele.htm  [미검증 — kerykeion 소스가 인용한 원문]",
+    "mybias": "https://mybias.app/zodiac-compatibility",
+    "cafeastrology": "https://cafeastrology.com/synastry-2.html",
+    "pomettini": "https://raw.githubusercontent.com/Pomettini/mbti/master/src/lib.rs",
+    "mbtimatrix": "https://registry.npmjs.org/mbti-matrix  (0.0.4 src/mbtiMatrix.ts)",
+    "mycompat": "https://mycompatibility.org/mbti/",
+    "jaypromax": "https://jaypromax.com/compatibility/혈액형-궁합-완전분석/",
+    "nawata": "https://www.jstage.jst.go.jp/article/jjpsy/85/2/85_85.13016/_article",
+    "tsuchimine": "https://journals.plos.org/plosone/article?id=10.1371%2Fjournal.pone.0126983"
+  }
+}
