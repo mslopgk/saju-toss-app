@@ -118,7 +118,7 @@ export function DetailPage({ chart, selfReport = NO_SELF_REPORT, onBack }: Detai
   return (
     <main>
       <Top
-        title="당신의 사주 네 기둥"
+        title="깊이 읽기"
         subtitleBottom={`${pillars.sajuYear}년 ${jie.prev.ko}(${jie.prev.hanja}) 이후 · ${pillars.gz8}`}
       />
 
@@ -146,6 +146,30 @@ export function DetailPage({ chart, selfReport = NO_SELF_REPORT, onBack }: Detai
       )}
 
       <Spacing size={16} />
+
+      {/*
+        읽을 거리가 먼저다. 예전에는 여덟 글자 표가 화면 맨 위였는데, 깊이읽기에 들어온 사람이
+        가장 먼저 만나는 것이 만세력 표면 **읽으러 온 글이 표 아래 어딘가에 묻힌다.**
+        표는 근거이지 본문이 아니므로 아래로 내렸다.
+
+        리포트가 비면(카드 미매칭) 이 블록 전체가 사라진다.
+      */}
+      {hasReportContent(report) && (
+        <>
+          <Spacing size={12} />
+          <ReportView report={report} />
+        </>
+      )}
+
+      <Spacing size={28} />
+
+      <div style={{ padding: '0 24px' }}>
+        <Paragraph typography="st12" fontWeight="bold">
+          사주 네 기둥
+        </Paragraph>
+      </div>
+
+      <Spacing size={12} />
 
       {/* 네 기둥. 삼주 모드면 시주 칸은 '—' 로 비운다 — 채워 넣지 않는다. */}
       <div style={{ padding: '0 24px' }}>
@@ -192,13 +216,6 @@ export function DetailPage({ chart, selfReport = NO_SELF_REPORT, onBack }: Detai
         </Paragraph>
       </div>
 
-      {/* 읽을 거리를 표보다 앞에 둔다. 리포트가 비면(카드 미매칭) 이 블록 전체가 사라진다. */}
-      {hasReportContent(report) && (
-        <>
-          <Spacing size={28} />
-          <ReportView report={report} />
-        </>
-      )}
 
       <Spacing size={28} />
 

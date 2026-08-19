@@ -15,7 +15,9 @@
  *   1) 온보딩이 뜨고 날짜 시트가 열린다
  *   2) 세 휠(년·월·일)이 **펼쳐져 있다** — 중앙 항목 높이 > 임계값, 서로 다른 값이 여러 줄 보인다
  *   3) 터치 스와이프로 값이 실제로 바뀌고 폼에 반영된다
- *   4) 결과 화면이 계산 결과로 채워진다
+ *   4) 홈 화면이 AI 없이도 채워진다
+ *   5) 깊이읽기 카드가 접혀 있고 펼쳐진다
+ *   6) 뒤로 가기가 홈으로 모인다
  *   5) 출처 표기에 저장소 파일 경로가 없다
  *
  * ## 어떻게 도는가
@@ -260,24 +262,133 @@ async function main() {
     await page.waitForTimeout(200);
     await shot('shot-1-onboarding');
 
-    /* 4) 결과 화면 */
+    /* 4) 홈 화면 — AI 서버 없이도 채워진다 */
     await page.getByRole('button', { name: '결과 보기' }).click();
     await page.waitForTimeout(2800);
-    const report = await page.locator('body').innerText();
-    check(report.includes('당신의 사주 네 기둥'), '결과 화면이 뜬다');
-    check(/[甲乙丙丁戊己庚辛壬癸]/.test(report), '계산된 천간이 화면에 있다');
-    check(report.includes('이 리포트가 참고한 자료'), '근거 목록이 나온다');
+    const home = await page.locator('body').innerText();
 
-    /* 5) 출처 표기에 저장소 경로가 없다 */
-    check(!/\.md\b/.test(report), '출처에 .md 파일명이 없다');
-    check(!/tables\.json|personality-data\.json/.test(report), '출처에 데이터 파일명이 없다');
+    // 이 스모크는 `VITE_INTERPRET_API_BASE` 없이 빌드한 번들을 돌린다. 즉 여기 보이는 글은
+    // **전부 규칙 기반**이다 — 서버가 없는 배포에서 홈이 비지 않는다는 것을 이 검사가 고정한다.
+    check(home.includes('한 단어로 말하면'), '홈이 뜬다');
+    check(/(뻗는|밝히는|품는|벼리는|스미는)\s(결|사람|힘)/.test(home), 'AI 없이 한 단어가 채워진다');
+    check(home.includes('타고난 기운의 분포'), '오행 분포가 나온다');
+    for (const label of ['나무', '불', '흙', '쇠', '물']) {
+      check(home.includes(label), `오행 막대 ${label} 가 있다`);
+    }
 
-    await shot('shot-2-report-top');
-    for (const [n, dy] of [[3, 850], [4, 950], [5, 950]]) {
+    // 퍼센트 다섯 개가 실제 숫자로 나온다. `{percent}%` 를 SSR 이 쪼개던 종류의 사고를
+    // 실브라우저에서도 한 번 더 막는다.
+    const percents = home.match(/\d+%/g) ?? [];
+    check(percents.length >= 5, '오행 퍼센트 다섯 개가 찍힌다', percents.join(' '));
+
+    // 오브젝트 그림. 없으면 텍스트만 그리는 것이 정상이므로 실패가 아니라 기록만 남긴다.
+    const objectCount = await page.locator('img[alt*="오브젝트"]').count();
+    notes.push(`   · 오행 오브젝트 이미지 ${objectCount}장`);
+
+    await shot('shot-2-home');
+    await page.mouse.wheel(0, 700);
+    await page.waitForTimeout(700);
+    await shot('shot-3-home-bars');
+
+    /*
+      맨 아래 버튼이 하단 CTA 뒤에 깔리지 않는가.
+
+      `position: fixed` 인 CTA 는 문서 흐름에서 빠져 있어 아무리 스크롤해도 그 뒤의 내용은
+      드러나지 않는다 — 본문 아래 패딩으로만 피할 수 있다. 이 관계가 깨지면 아무 예외도 나지
+      않고 버튼만 조용히 사라지므로, 눈으로 보는 것 말고는 잡을 방법이 없어 여기에 둔다.
+    */
+    // **문서 맨 아래까지** 내린다. `scrollIntoViewIfNeeded()` 는 요소를 화면 가운데로 가져와서
+    // 패딩이 모자라도 CTA 위에 놓이고 만다 — 그렇게 짠 첫 판은 패딩을 60 으로 줄여도 통과했다.
+    // 잘리는 자리는 "더 내릴 수 없는 지점"이므로 거기서 재야 한다.
+    // **작은 화면에서, 문서 맨 아래까지 내린 뒤에** 잰다. 조작용 뷰포트(390×860)는 세로가
+    // 넉넉하고 `scrollIntoViewIfNeeded()` 는 요소를 화면 가운데로 가져오므로, 둘 중 하나라도
+    // 빠지면 패딩이 모자라도 통과하는 헛검사가 된다(실제로 두 번 그렇게 썼다).
+    const restart = page.getByRole('button', { name: '다시 입력하기' });
+    await page.setViewportSize(SHOT);
+    await page.evaluate(() => { window.scrollTo(0, document.documentElement.scrollHeight); });
+    await page.waitForTimeout(600);
+    const restartBox = await restart.boundingBox();
+    const ctaBox = await page.getByRole('button', { name: '자세히 보기' }).boundingBox();
+    check(
+      restartBox !== null && ctaBox !== null && restartBox.y + restartBox.height <= ctaBox.y,
+      '맨 아래 버튼이 하단 CTA 에 가리지 않는다',
+      restartBox === null || ctaBox === null
+        ? '요소를 못 찾았다'
+        : `버튼 하단 ${Math.round(restartBox.y + restartBox.height)} / CTA 상단 ${Math.round(ctaBox.y)}`,
+    );
+    await page.setViewportSize(DRIVE);
+    await page.waitForTimeout(300);
+
+    /* 5) 깊이읽기 — 카드가 접혀 있고 펼치면 본문이 나온다 */
+    await page.getByRole('button', { name: '자세히 보기' }).click();
+    await page.waitForTimeout(2500);
+    const detail = await page.locator('body').innerText();
+    check(detail.includes('깊이 읽기'), '깊이읽기가 뜬다');
+    // 읽을 거리가 표보다 위에 있어야 한다. 위치로 확인한다 — 둘 다 존재하는 것만으로는
+    // 예전처럼 표가 맨 위에 있는 상태와 구분되지 않는다.
+    check(
+      detail.indexOf('이 리포트가 참고한 자료') > 0 &&
+        detail.indexOf('사주 네 기둥') > detail.indexOf('오늘 해볼 만한 한 가지'),
+      '깊이읽기는 읽을 거리로 시작한다',
+    );
+    check(/[甲乙丙丁戊己庚辛壬癸]/.test(detail), '계산된 천간이 화면에 있다');
+    check(detail.includes('이 리포트가 참고한 자료'), '근거 목록이 나온다');
+
+    /* 6) 출처 표기에 저장소 경로가 없다 */
+    check(!/\.md\b/.test(detail), '출처에 .md 파일명이 없다');
+    check(!/tables\.json|personality-data\.json/.test(detail), '출처에 데이터 파일명이 없다');
+
+    await shot('shot-4-detail-top');
+
+    /*
+      카드 펼치기.
+
+      **위치로 집는다(nth), 문구로 집지 않는다.** `getByRole({name:/더 보기/}).first()` 를 쓰면
+      클릭 뒤 그 카드의 문구가 "접기"로 바뀌면서 `.first()` 가 **다음 카드로 옮겨간다** —
+      그러면 길이 비교가 서로 다른 두 카드를 재게 되고, 실제로 그렇게 해서 "52자 → 34자"라는
+      거짓 실패를 봤다. 아래 로케이터는 DOM 순서에 묶여 있어 클릭 뒤에도 같은 카드를 가리킨다.
+    */
+    const toggles = page.locator('button[aria-expanded]');
+    const cardCount = await toggles.count();
+    check(cardCount > 1, '섹션이 카드로 쪼개져 있다', `카드 ${cardCount}개`);
+
+    // 첫 장은 펼쳐 둔다(defaultOpen). 전부 접혀 있으면 읽을 것이 없어 보인다.
+    check(
+      (await toggles.first().getAttribute('aria-expanded')) === 'true',
+      '첫 카드는 펼쳐진 채로 시작한다',
+    );
+
+    if (cardCount > 1) {
+      const target = toggles.nth(1);
+      const card = target.locator('xpath=..');
+      check(
+        (await target.getAttribute('aria-expanded')) === 'false',
+        '둘째 카드부터는 접혀 있다',
+      );
+      const beforeOpen = (await card.innerText()).length;
+      await target.click();
+      await page.waitForTimeout(500);
+      const afterOpen = (await card.innerText()).length;
+      check(afterOpen > beforeOpen, '카드를 누르면 본문이 펼쳐진다', `${beforeOpen}자 → ${afterOpen}자`);
+      check(
+        (await target.getAttribute('aria-expanded')) === 'true',
+        '펼친 카드는 aria-expanded 가 true 다',
+      );
+      await shot('shot-5-detail-expanded');
+    }
+
+    for (const [n, dy] of [[6, 950], [7, 950]]) {
       await page.mouse.wheel(0, dy);
       await page.waitForTimeout(900);
-      await shot(`shot-${n}-report`);
+      await shot(`shot-${n}-detail`);
     }
+
+    /* 7) 뒤로 가기는 한 칸씩이다 */
+    await page.getByRole('button', { name: '홈으로' }).click();
+    await page.waitForTimeout(1200);
+    const back = await page.locator('body').innerText();
+    check(back.includes('한 단어로 말하면'), '깊이읽기에서 나오면 홈으로 온다');
+    check(!back.includes('언제 태어났는지'), '온보딩까지 되돌아가지 않는다');
   } finally {
     await browser.close();
     server.stop();

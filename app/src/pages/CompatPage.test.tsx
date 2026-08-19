@@ -109,7 +109,8 @@ describe('DetailPage — 궁합 진입점', () => {
     expect(() => {
       html = render(<DetailPage chart={SELF} onBack={() => {}} />)
     }).not.toThrow()
-    expect(html).toContain('당신의 사주 네 기둥')
+    expect(html).toContain('깊이 읽기')
+    expect(html).toContain('사주 네 기둥')
     expect(html).toContain('계산 근거')
   })
 

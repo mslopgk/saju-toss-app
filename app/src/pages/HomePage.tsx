@@ -127,6 +127,9 @@ export function HomePage({ chart, selfReport, client, onOpenDetail, onRestart }:
         minHeight: '100vh',
         // 배경 이미지가 없으면 색만 깐다 — 에셋 한 장 없다고 화면이 무너지지 않는다.
         background: backdropUrl === null ? '#101736' : `#101736 url(${backdropUrl}) center/cover no-repeat`,
+        // 하단 CTA(FixedBottomCTA)는 `position: fixed` 라 문서 흐름에서 빠져 있다. 그 높이만큼
+        // 아래를 비워 두지 않으면 마지막 내용이 아무리 스크롤해도 드러나지 않는다.
+        // 96 은 CTA(56) + 여백보다 크다 — `ui-smoke` 가 가장 작은 화면에서 이 관계를 잰다.
         paddingBottom: 96,
       }}
     >
@@ -137,7 +140,15 @@ export function HomePage({ chart, selfReport, client, onOpenDetail, onRestart }:
           <img
             src={objectUrl}
             alt={`${ELEMENT_LABEL[dayElement]} 기운을 나타내는 오브젝트`}
-            style={{ width: '72%', maxWidth: 320, aspectRatio: '1 / 1', objectFit: 'contain' }}
+            style={{
+              width: '72%',
+              maxWidth: 320,
+              aspectRatio: '1 / 1',
+              objectFit: 'contain',
+              // 생성 에셋은 제 배경을 달고 온다. 모서리를 깎지 않으면 backdrop 위에 네모가
+              // 얹힌 티가 난다 — 두 파란색이 미묘하게 달라서 더 그렇다.
+              borderRadius: 28,
+            }}
           />
         </div>
       )}
