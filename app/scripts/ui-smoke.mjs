@@ -267,8 +267,9 @@ async function main() {
     await page.waitForTimeout(2800);
     const home = await page.locator('body').innerText();
 
-    // 이 스모크는 `VITE_INTERPRET_API_BASE` 없이 빌드한 번들을 돌린다. 즉 여기 보이는 글은
-    // **전부 규칙 기반**이다 — 서버가 없는 배포에서 홈이 비지 않는다는 것을 이 검사가 고정한다.
+    // 번들에는 해석 서버 주소가 들어 있지만, 이 스모크는 localhost 에서 띄우므로 서버가
+    // 오리진을 거부한다(403). 즉 여기 보이는 글은 **전부 규칙 기반**이고, 이 검사는
+    // "서버가 요청을 거절해도 홈이 비지 않는다"를 고정한다 — 폴백 경로 그 자체다.
     check(home.includes('한 단어로 말하면'), '홈이 뜬다');
     check(/(뻗는|밝히는|품는|벼리는|스미는)\s(결|사람|힘)/.test(home), 'AI 없이 한 단어가 채워진다');
     check(home.includes('타고난 기운의 분포'), '오행 분포가 나온다');
