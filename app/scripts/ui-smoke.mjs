@@ -487,6 +487,68 @@ async function main() {
     const back = await page.locator('body').innerText();
     check(back.includes('한 단어로 말하면'), '깊이읽기에서 나오면 홈으로 온다');
     check(!back.includes('언제 태어났는지'), '온보딩까지 되돌아가지 않는다');
+
+    /*
+      8) 궁합 — 지금까지 스모크가 한 번도 들어가 보지 않은 화면이다.
+
+      궁합은 지연 청크(`CompatPage`) 뒤에 있고 상대방 입력 폼을 한 번 더 거친다.
+      여기가 비어 있었다는 것은 그 경로 전체가 실브라우저에서 검증된 적이 없었다는 뜻이다.
+    */
+    await page.getByRole('button', { name: '자세히 보기' }).click();
+    await page.waitForTimeout(1800);
+    await page.getByRole('button', { name: '궁합 보기' }).click();
+    await page.waitForTimeout(2200);
+
+    const partner = await page.locator('body').innerText();
+    check(partner.includes('상대방은 언제 태어났나요'), '상대방 입력 화면이 뜬다');
+    await shot('shot-8-partner');
+
+    // 날짜·성별 둘 다 계산 입력이라 없으면 제출이 잠긴다. 잠금이 실제로 걸리는지도 함께 본다.
+    const submit = page.getByRole('button', { name: '궁합 보기' });
+    check(await submit.isDisabled(), '입력 전에는 제출이 잠긴다');
+
+    /*
+      상대방 폼은 온보딩과 달리 날짜·시각이 **비어서 시작한다**(`missingPartnerFields`:
+      date / time / gender 셋). 시트를 두 번 거쳐야 제출이 열린다 — 시각을 빼먹었더니
+      "제출이 열린다" 검사가 조용히 실패하고 그 다음 클릭이 30초를 기다리다 죽었다.
+    */
+    await page.getByRole('button', { name: /태어난 날/ }).click();
+    await page.waitForTimeout(900);
+    await page.getByRole('button', { name: '선택 완료' }).click();
+    await page.waitForTimeout(700);
+
+    await page.getByRole('button', { name: /태어난 시각/ }).click();
+    await page.waitForTimeout(900);
+    await page.getByRole('button', { name: '선택 완료' }).click();
+    await page.waitForTimeout(700);
+
+    await page.getByRole('button', { name: '여성', exact: true }).click();
+    await page.waitForTimeout(400);
+    check(!(await submit.isDisabled()), '날짜·시각·성별을 채우면 제출이 열린다');
+
+    await submit.click();
+    await page.waitForTimeout(2500);
+    const compat = await page.locator('body').innerText();
+    check(/\d+점/.test(compat), '궁합 점수가 나온다', (compat.match(/\d+점/) ?? [''])[0]);
+    check(compat.includes('사주 궁합'), '항목별 배점이 나온다');
+    check(compat.includes('이 리포트가 참고한 자료'), '궁합 근거 목록이 나온다');
+    check(!/\.md/.test(compat), '궁합 출처에 .md 파일명이 없다');
+    await shot('shot-9-compat');
+  } catch (error) {
+    /*
+      여기까지 통과한 검사를 **버리지 않는다.**
+      예전에는 예외가 나면 `notes` 를 출력하기 전에 스택만 뱉고 끝나서, 어느 단계에서
+      멈췄는지 알 수 없었다 — 궁합 단계를 추가하다 실제로 그 벽에 부딪혔다.
+    */
+    for (const line of notes) console.log(line);
+    // 실패한 검사는 notes 에 들어가지 않는다. 중단 시에도 함께 보여야 원인이 보인다.
+    for (const line of failures) console.log(line);
+    // 첫 줄만 찍으면 '무엇을 기다리다 멈췄는지'가 사라진다. 앞 세 줄을 남긴다.
+    const first = error instanceof Error ? error.message.split(String.fromCharCode(10)).slice(0, 3).join(' | ') : String(error);
+    console.log('');
+    console.log('  중단: ' + first);
+    process.exitCode = 1;
+    return;
   } finally {
     await browser.close();
     server.stop();

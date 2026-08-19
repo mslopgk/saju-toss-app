@@ -6,8 +6,8 @@
 export { buildCompatReport } from './buildCompatReport';
 export type { CompatReport, CompatReportOptions, CompatReportSection } from './buildCompatReport';
 
-export { COMPAT_DISCLAIMERS, COMPAT_SECTION_TITLES } from './copy';
-export type { CompatSectionId } from './copy';
+export { COMPAT_DISCLAIMERS, COMPAT_MOOD_ACCENT, COMPAT_SECTION_TITLES, compatMoodOf } from './copy';
+export type { CompatMoodTag, CompatSectionId } from './copy';
 
 export { PartnerForm } from './components/PartnerForm';
 export type { PartnerFormProps } from './components/PartnerForm';

@@ -1,17 +1,17 @@
 import { useReducer, useState } from 'react'
 import type { ChangeEvent } from 'react'
+import { BottomSheet, Button, Paragraph, Spacing, TextButton, Wheel } from '@toss/tds-mobile'
 import {
-  BottomSheet,
-  Button,
-  FixedBottomCTA,
-  List,
-  ListRow,
-  Paragraph,
-  Spacing,
-  TextButton,
-  Top,
-  Wheel,
-} from '@toss/tds-mobile'
+  BottomCTA,
+  ChipGroup,
+  FieldGroup,
+  FieldRow,
+  Hint,
+  Screen,
+  ScreenTitle,
+  SectionLabel,
+} from '../../../shared/design'
+import { MOTION, stagger } from '../../../shared/motion'
 import type { CalendarType, RawBirthInput } from '../../../shared/lib/saju/types'
 import type { CompatBloodType, CompatProfile } from '../../../shared/lib/compat/types'
 import { MBTI_TYPE_ORDER } from '../../../shared/lib/compat/params'
@@ -55,6 +55,9 @@ type SheetKind = 'date' | 'time' | 'mbti'
 
 const NOT_SELECTED = '선택해 주세요'
 const UNKNOWN_LABEL = '모름'
+/** 성별 두 값. 대운 방향과 혈액형 남녀 보정에 쓰이는 **계산 입력**이라 필수다. */
+const PARTNER_GENDER_OPTIONS = ['M', 'F'] as const
+
 const MBTI_UNKNOWN = '__unknown__'
 const BLOOD_OPTIONS: readonly CompatBloodType[] = ['A', 'B', 'O', 'AB']
 
@@ -110,166 +113,130 @@ export function PartnerForm({ onSubmit, engineError = null, onBack }: PartnerFor
   }
 
   return (
-    <main>
-      <Top
+    <Screen bottomInset={168}>
+      <Spacing size={20} />
+
+      <ScreenTitle
+        index={0}
         title="상대방은 언제 태어났나요?"
-        subtitleBottom="두 사람의 사주를 나란히 놓고 궁합을 봐요. 내 정보는 이미 받았으니 다시 묻지 않아요."
+        subtitle="두 사람의 사주를 나란히 놓고 궁합을 봐요. 내 정보는 이미 받았으니 다시 묻지 않아요."
       />
 
-      <Spacing size={8} />
+      <Spacing size={20} />
 
-      <List>
-        <ListRow
-          withTouchEffect
-          arrowType="right"
+      <FieldGroup index={1}>
+        <FieldRow
+          index={1}
+          label="태어난 날"
+          value={
+            draft.date === null ? NOT_SELECTED : describePartnerDate(draft.calendarType, draft.date)
+          }
+          muted={draft.date === null}
           onClick={() => openSheetOf('date')}
-          contents={
-            <ListRow.Texts
-              type="2RowTypeA"
-              top="태어난 날"
-              bottom={
-                draft.date === null ? NOT_SELECTED : describePartnerDate(draft.calendarType, draft.date)
-              }
-            />
-          }
         />
-        <ListRow
-          withTouchEffect
-          arrowType="right"
+        <FieldRow
+          index={2}
+          label="태어난 시각"
+          value={describePartnerTime(draft)}
+          muted={draft.time === null && !draft.timeUnknown}
           onClick={() => openSheetOf('time')}
-          contents={
-            <ListRow.Texts type="2RowTypeA" top="태어난 시각" bottom={describePartnerTime(draft)} />
-          }
         />
-      </List>
+      </FieldGroup>
 
       {draft.timeUnknown && (
-        <div style={{ padding: '4px 24px 0' }}>
-          <Paragraph typography="st12">
-            시각을 몰라도 연·월·일 세 기둥은 그대로 나와요. 시주만 빼고 계산해요.
-          </Paragraph>
-        </div>
+        <>
+          <Spacing size={10} />
+          <Hint>시각을 몰라도 연·월·일 세 기둥은 그대로 나와요. 시주만 빼고 계산해요.</Hint>
+        </>
       )}
 
-      <div style={{ padding: '8px 24px 0' }}>
-        <Paragraph typography="st12" color="var(--adaptiveGrey700)">
-          태어난 곳은 서울 기준으로 계산해요. 국내에서는 진태양시 보정 차이가 최대 8분대라 시주
-          경계에 걸리지 않는 한 결과가 달라지지 않아요.
-        </Paragraph>
-      </div>
+      <Spacing size={10} />
+      <Hint>
+        태어난 곳은 서울 기준으로 계산해요. 국내에서는 진태양시 보정 차이가 최대 8분대라 시주
+        경계에 걸리지 않는 한 결과가 달라지지 않아요.
+      </Hint>
 
-      <Spacing size={24} />
-
-      <div style={{ padding: '0 24px' }}>
-        <Paragraph typography="st11" fontWeight="bold">
-          성별
-        </Paragraph>
-        <Spacing size={8} />
-        <div style={{ display: 'flex', gap: 8 }}>
-          {(['M', 'F'] as const).map((gender) => (
-            <div key={gender} style={{ flex: 1 }}>
-              <Button
-                display="block"
-                size="large"
-                color={draft.gender === gender ? 'primary' : 'dark'}
-                variant={draft.gender === gender ? 'fill' : 'weak'}
-                aria-pressed={draft.gender === gender}
-                onClick={() => dispatch({ type: 'setGender', gender })}
-              >
-                {gender === 'M' ? '남성' : '여성'}
-              </Button>
-            </div>
-          ))}
-        </div>
-        <Spacing size={8} />
-        <Paragraph typography="st12">
-          대운 방향 판정에 필요하고, 혈액형 궁합의 남녀 보정에도 써요.
-        </Paragraph>
-      </div>
-
-      <Spacing size={24} />
+      <Spacing size={26} />
 
       <div style={{ padding: '0 24px' }}>
-        <Paragraph typography="st11" fontWeight="bold">
-          상대방의 MBTI와 혈액형 (선택)
-        </Paragraph>
-        <Spacing size={4} />
-        <Paragraph typography="st12">
-          모르면 비워 두세요. 비운 항목은 배점에서 빼고 그 몫을 나머지에 비율대로 나눠 담아요.
-        </Paragraph>
+        <SectionLabel index={3}>성별</SectionLabel>
+        <Spacing size={10} />
+        <ChipGroup
+          index={3}
+          options={PARTNER_GENDER_OPTIONS}
+          value={draft.gender}
+          onChange={(gender) => dispatch({ type: 'setGender', gender })}
+          label={(g) => (g === 'M' ? '남성' : '여성')}
+        />
       </div>
+      <Spacing size={10} />
+      <Hint>대운 방향 판정에 필요하고, 혈액형 궁합의 남녀 보정에도 써요.</Hint>
 
-      <Spacing size={8} />
+      <Spacing size={26} />
 
-      <List>
-        <ListRow
-          withTouchEffect
-          arrowType="right"
+      <div style={{ padding: '0 24px' }}>
+        <SectionLabel index={4}>상대방의 MBTI와 혈액형 (선택)</SectionLabel>
+      </div>
+      <Spacing size={6} />
+      <Hint>
+        모르면 비워 두세요. 비운 항목은 배점에서 빼고 그 몫을 나머지에 비율대로 나눠 담아요.
+      </Hint>
+
+      <Spacing size={12} />
+
+      <FieldGroup index={4}>
+        <FieldRow
+          index={4}
+          label="MBTI 유형"
+          value={draft.mbti ?? UNKNOWN_LABEL}
+          muted={draft.mbti === null}
           onClick={() => openSheetOf('mbti')}
-          contents={
-            <ListRow.Texts type="2RowTypeA" top="MBTI 유형" bottom={draft.mbti ?? UNKNOWN_LABEL} />
+        />
+      </FieldGroup>
+
+      <Spacing size={18} />
+
+      <div style={{ padding: '0 24px' }}>
+        <SectionLabel index={5}>혈액형</SectionLabel>
+        <Spacing size={10} />
+        <ChipGroup
+          index={5}
+          options={BLOOD_OPTIONS}
+          value={draft.blood}
+          // 같은 값을 다시 누르면 해제된다 — "모름"으로 돌아갈 길이 없으면 잘못 누른 사용자가 갇힌다.
+          onChange={(blood) =>
+            dispatch({ type: 'setBlood', blood: draft.blood === blood ? null : blood })
           }
         />
-      </List>
-
-      <div style={{ padding: '8px 24px 0' }}>
-        <Paragraph typography="st11" fontWeight="bold">
-          혈액형
-        </Paragraph>
-        <Spacing size={8} />
-        <div style={{ display: 'flex', gap: 8 }}>
-          {BLOOD_OPTIONS.map((blood) => (
-            <div key={blood} style={{ flex: 1 }}>
-              <Button
-                display="block"
-                size="medium"
-                color={draft.blood === blood ? 'primary' : 'dark'}
-                variant={draft.blood === blood ? 'fill' : 'weak'}
-                aria-pressed={draft.blood === blood}
-                // 같은 값을 다시 누르면 해제된다 — "모름"으로 돌아갈 길이 없으면 잘못 누른 사용자가 갇힌다.
-                onClick={() =>
-                  dispatch({ type: 'setBlood', blood: draft.blood === blood ? null : blood })
-                }
-              >
-                {blood}
-              </Button>
-            </div>
-          ))}
-        </div>
-        <Spacing size={8} />
-        <Paragraph typography="st12">
-          혈액형 궁합은 과학적 근거가 없어요. 배점에는 넣되 비중을 10%로 두고, 결과 화면에서 그
-          사실을 다시 밝혀요.
-        </Paragraph>
       </div>
+      <Spacing size={10} />
+      <Hint>
+        혈액형 궁합은 과학적 근거가 없어요. 배점에는 넣되 비중을 10%로 두고, 결과 화면에서 그
+        사실을 다시 밝혀요.
+      </Hint>
 
       {engineError !== null && (
-        <div style={{ padding: '16px 24px 0' }} role="alert">
-          <Paragraph typography="st12" color="var(--adaptiveRed500)">
-            {engineError}
-          </Paragraph>
+        <div role="alert">
+          <Spacing size={16} />
+          <Hint tone="warn">{engineError}</Hint>
         </div>
       )}
 
       {onBack !== undefined && (
-        <div style={{ display: 'flex', justifyContent: 'center', padding: '20px 24px 0' }}>
+        <div
+          className={MOTION.rise}
+          {...stagger(6)}
+          style={{ display: 'flex', justifyContent: 'center', padding: '22px 24px 0' }}
+        >
           <TextButton size="medium" variant="underline" onClick={onBack}>
             내 결과로 돌아가기
           </TextButton>
         </div>
       )}
 
-      <FixedBottomCTA
-        disabled={!built.ok}
-        onClick={handleSubmit}
-        topAccessory={
-          <Paragraph typography="st13" textAlign="center">
-            운세 콘텐츠예요. 두 사람의 관계를 예측하지 않아요.
-          </Paragraph>
-        }
-      >
+      <BottomCTA disabled={!built.ok} onClick={handleSubmit} caption="운세 콘텐츠예요. 두 사람의 관계를 예측하지 않아요.">
         궁합 보기
-      </FixedBottomCTA>
+      </BottomCTA>
 
       <PartnerDateSheet
         key={`date-${sheetSession}`}
@@ -321,7 +288,7 @@ export function PartnerForm({ onSubmit, engineError = null, onBack }: PartnerFor
           }}
         />
       </BottomSheet>
-    </main>
+    </Screen>
   )
 }
 

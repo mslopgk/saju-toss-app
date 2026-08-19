@@ -72,3 +72,29 @@ export const ADVICE_BY_WEAKEST_ITEM: Readonly<Record<string, string>> = {
 /** 6항목이 고르게 높을 때 (가장 낮은 항목도 배점의 70% 이상) */
 export const ADVICE_BALANCED =
   '여섯 항목이 고르게 채워진 조합이에요. 잘 맞는 부분을 확인하는 데 시간을 쓰기보다, 둘 다 하고 싶었던 일을 하나 정해서 이번 주에 해 보세요.';
+
+/**
+ * 궁합 등급 → 화면 분위기.
+ *
+ * **표시용 매핑이다.** 점수도 등급도 엔진이 이미 확정했고(`computeCompatibility`),
+ * 여기서는 그 등급에 그림 한 장과 색 하나를 붙일 뿐이다 — 판정을 다시 하지 않는다.
+ *
+ * 넷으로 접는 이유: 에셋이 네 종(harmony/complement/independent/tension)이고,
+ * 등급 이름을 그대로 그림으로 옮기면 "D 등급 전용 그림"이 생겨 낙인처럼 읽힌다.
+ */
+export type CompatMoodTag = 'harmony' | 'complement' | 'independent' | 'tension';
+
+export function compatMoodOf(bandTag: string): CompatMoodTag {
+  if (bandTag.startsWith('S') || bandTag.startsWith('A')) return 'harmony';
+  if (bandTag.startsWith('B')) return 'complement';
+  if (bandTag.startsWith('C')) return 'independent';
+  return 'tension';
+}
+
+/** 분위기별 강조색. 오행 색과 겹치지 않게 골라 두 화면이 서로 다른 축을 말하게 한다. */
+export const COMPAT_MOOD_ACCENT: Readonly<Record<CompatMoodTag, string>> = {
+  harmony: '#F472B6',
+  complement: '#A78BFA',
+  independent: '#38BDF8',
+  tension: '#FB923C',
+};

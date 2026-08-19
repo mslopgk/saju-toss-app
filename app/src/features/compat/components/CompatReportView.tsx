@@ -1,6 +1,7 @@
-import { Badge, List, ListRow, Paragraph, Spacing } from '@toss/tds-mobile'
 import { formatSourceLabel } from '../../../shared/knowledge'
 import type { CompatResult } from '../../../shared/lib/compat'
+import { Hint, NIGHT, SectionLabel, glassCard } from '../../../shared/design'
+import { MOTION, stagger } from '../../../shared/motion'
 import { COMPAT_SECTION_TITLES } from '../copy'
 import type { CompatReport } from '../buildCompatReport'
 
@@ -14,38 +15,47 @@ import type { CompatReport } from '../buildCompatReport'
 export interface CompatReportViewProps {
   result: CompatResult
   report: CompatReport
+  /** 세계관 강조색. 화면(`CompatPage`)이 등급에서 골라 넘긴다. */
+  accent: string
 }
 
 /** 배점 막대 하나. 항목별 `score / cap` 을 그대로 그린다 */
-function ItemBar({ label, score, cap }: { label: string; score: number; cap: number }) {
+function ItemBar({
+  label,
+  score,
+  cap,
+  accent,
+  index,
+}: {
+  label: string
+  score: number
+  cap: number
+  accent: string
+  index: number
+}) {
   const ratio = cap === 0 ? 0 : Math.max(0, Math.min(1, score / cap))
   return (
-    <div style={{ padding: '6px 0' }}>
+    <div className={MOTION.rise} {...stagger(index)} style={{ padding: '7px 0' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8 }}>
-        <Paragraph typography="st13" color="var(--adaptiveGrey700)">
-          {label}
-        </Paragraph>
-        <Paragraph typography="st13" fontWeight="bold">
-          {Number.isInteger(score) ? score : score.toFixed(1)} / {cap}
-        </Paragraph>
+        <span style={{ fontSize: 13, color: NIGHT.textDim }}>{label}</span>
+        <span style={{ fontSize: 13, fontWeight: 700, color: NIGHT.text }}>
+          {`${Number.isInteger(score) ? score : score.toFixed(1)} / ${cap}`}
+        </span>
       </div>
-      <Spacing size={4} />
+      <div style={{ height: 6 }} />
       <div
-        style={{
-          height: 6,
-          borderRadius: 3,
-          background: 'var(--adaptiveGrey200)',
-          overflow: 'hidden',
-        }}
+        style={{ height: 6, borderRadius: 3, background: NIGHT.track, overflow: 'hidden' }}
         role="img"
         aria-label={`${label} ${score} / ${cap}점`}
       >
         <div
+          className={MOTION.bar}
+          {...stagger(index)}
           style={{
             width: `${ratio * 100}%`,
             height: '100%',
             borderRadius: 3,
-            background: 'var(--adaptiveBlue500)',
+            background: accent,
           }}
         />
       </div>
@@ -53,105 +63,129 @@ function ItemBar({ label, score, cap }: { label: string; score: number; cap: num
   )
 }
 
-export function CompatReportView({ result, report }: CompatReportViewProps) {
+export function CompatReportView({ result, report, accent }: CompatReportViewProps) {
   return (
     <section>
       <div style={{ padding: '0 24px', textAlign: 'center' }}>
-        <Paragraph typography="st12" color="var(--adaptiveGrey700)">
-          두 사람의 궁합
-        </Paragraph>
-        <Spacing size={6} />
-        <Paragraph typography="t2" fontWeight="bold">
-          {result.score}점
-        </Paragraph>
-        <Spacing size={6} />
-        <Badge size="medium" variant="weak" color="blue">
-          {result.band.tag} · {result.band.name}
-        </Badge>
-        <Spacing size={10} />
-        <Paragraph typography="st12">{report.summary}</Paragraph>
+        <div className={MOTION.rise} {...stagger(1)}>
+          <span style={{ fontSize: 13, color: NIGHT.textDim }}>두 사람의 궁합</span>
+        </div>
+        <div style={{ height: 6 }} />
+        <div className={MOTION.pop} {...stagger(2)}>
+          <span
+            style={{
+              fontSize: 44,
+              fontWeight: 800,
+              color: NIGHT.text,
+              fontVariantNumeric: 'tabular-nums',
+            }}
+          >
+            {`${result.score}점`}
+          </span>
+        </div>
+        <div style={{ height: 8 }} />
+        <div className={MOTION.rise} {...stagger(3)}>
+          <span
+            style={{
+              display: 'inline-block',
+              padding: '5px 14px',
+              borderRadius: 999,
+              background: `${accent}26`,
+              border: `1px solid ${accent}`,
+              fontSize: 13,
+              fontWeight: 700,
+              color: NIGHT.text,
+            }}
+          >
+            {`${result.band.tag} · ${result.band.name}`}
+          </span>
+        </div>
+        <div style={{ height: 14 }} />
+        <div className={MOTION.rise} {...stagger(4)}>
+          <p style={{ margin: 0, fontSize: 14, lineHeight: 1.7, color: NIGHT.textSub }}>
+            {report.summary}
+          </p>
+        </div>
       </div>
 
       {report.missingAxisNote !== null && (
         <>
-          <Spacing size={12} />
-          <div style={{ padding: '0 24px' }}>
-            <Paragraph typography="st13" color="var(--adaptiveGrey700)">
-              {report.missingAxisNote}
-            </Paragraph>
-          </div>
+          <div style={{ height: 12 }} />
+          <Hint>{report.missingAxisNote}</Hint>
         </>
       )}
 
-      <Spacing size={24} />
+      <div style={{ height: 28 }} />
 
       {/* 사주 6항목. 점수는 전부 엔진 값 그대로다 */}
-      <div style={{ padding: '0 24px' }}>
-        <Paragraph typography="st11" fontWeight="bold">
-          사주 궁합 {Number(result.saju.total.toFixed(1))}점 / 100점
-        </Paragraph>
-        <Spacing size={6} />
-        {result.saju.items.map((item) => (
-          <ItemBar key={item.id} label={item.label} score={item.score} cap={item.cap} />
+      <div className={MOTION.rise} {...stagger(5)} style={{ margin: '0 20px', ...glassCard() }}>
+        <span style={{ fontSize: 15, fontWeight: 700, color: NIGHT.text }}>
+          {`사주 궁합 ${Number(result.saju.total.toFixed(1))}점 / 100점`}
+        </span>
+        <div style={{ height: 6 }} />
+        {result.saju.items.map((item, i) => (
+          <ItemBar
+            key={item.id}
+            label={item.label}
+            score={item.score}
+            cap={item.cap}
+            accent={accent}
+            index={i + 6}
+          />
         ))}
       </div>
 
-      {report.sections.map((section) => (
+      {report.sections.map((section, i) => (
         <div key={section.id}>
-          <Spacing size={20} />
-          <div style={{ padding: '0 24px' }}>
-            <Paragraph typography="st11" fontWeight="bold">
-              {COMPAT_SECTION_TITLES[section.id]}
-            </Paragraph>
-            <Spacing size={6} />
-            <Paragraph typography="st12">{section.body}</Paragraph>
+          <div style={{ height: 22 }} />
+          <div className={MOTION.rise} {...stagger(i + 7)} style={{ padding: '0 24px' }}>
+            <SectionLabel>{COMPAT_SECTION_TITLES[section.id]}</SectionLabel>
+            <div style={{ height: 8 }} />
+            <p style={{ margin: 0, fontSize: 14, lineHeight: 1.7, color: NIGHT.textSub }}>
+              {section.body}
+            </p>
           </div>
         </div>
       ))}
 
       {report.usedCards.length > 0 && (
         <>
-          <Spacing size={24} />
+          <div style={{ height: 28 }} />
           <div style={{ padding: '0 24px' }}>
-            <Paragraph typography="st12" fontWeight="bold">
-              이 리포트가 참고한 자료
-            </Paragraph>
+            <SectionLabel>이 리포트가 참고한 자료</SectionLabel>
           </div>
-          <List>
-            {report.usedCards.map((card) => (
-              <ListRow
+          <div style={{ height: 12 }} />
+          <div style={{ margin: '0 20px', ...glassCard() }}>
+            {report.usedCards.map((card, i) => (
+              <div
                 key={card.id}
-                verticalPadding="small"
-                contents={
-                  <ListRow.Texts
-                    type="2RowTypeA"
-                    top={card.title}
-                    bottom={`${formatSourceLabel(card.source)} · 근거등급 ${card.confidence}`}
-                  />
-                }
-              />
+                style={{
+                  padding: '10px 0',
+                  borderBottom:
+                    i === report.usedCards.length - 1 ? 'none' : `1px solid ${NIGHT.glassBorder}`,
+                }}
+              >
+                <div style={{ fontSize: 14, fontWeight: 600, color: NIGHT.text }}>{card.title}</div>
+                <div style={{ fontSize: 12, color: NIGHT.textDim, marginTop: 2 }}>
+                  {`${formatSourceLabel(card.source)} · 근거등급 ${card.confidence}`}
+                </div>
+              </div>
             ))}
-          </List>
+          </div>
         </>
       )}
 
-      <Spacing size={24} />
+      <div style={{ height: 28 }} />
 
       <div style={{ padding: '0 24px' }}>
-        <Paragraph typography="st12" fontWeight="bold">
-          알아두실 점
-        </Paragraph>
-        <Spacing size={8} />
-        {report.disclaimers.map((line) => (
-          <Paragraph key={line} typography="st13" color="var(--adaptiveGrey700)">
-            · {line}
-          </Paragraph>
-        ))}
-        <Spacing size={8} />
-        <Paragraph typography="st13" color="var(--adaptiveGrey700)">
-          궁합 엔진 {result.version}
-        </Paragraph>
+        <SectionLabel>알아두실 점</SectionLabel>
       </div>
+      <div style={{ height: 10 }} />
+      {report.disclaimers.map((line) => (
+        <Hint key={line}>· {line}</Hint>
+      ))}
+      <div style={{ height: 8 }} />
+      <Hint>궁합 엔진 {result.version}</Hint>
     </section>
   )
 }
