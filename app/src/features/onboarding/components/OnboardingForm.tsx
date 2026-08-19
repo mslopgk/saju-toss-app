@@ -1,5 +1,17 @@
 import { useEffect, useReducer, useState } from 'react'
-import { Button, FixedBottomCTA, List, ListRow, Paragraph, Spacing, Top } from '@toss/tds-mobile'
+import { Button, Spacing } from '@toss/tds-mobile'
+import {
+  BottomCTA,
+  ChipGroup,
+  FieldGroup,
+  FieldRow,
+  Hint,
+  NIGHT,
+  Screen,
+  ScreenTitle,
+  SectionLabel,
+} from '../../../shared/design'
+import { MOTION, stagger } from '../../../shared/motion'
 import type { OnboardingDraft } from '../formState'
 import {
   INITIAL_DRAFT,
@@ -65,6 +77,9 @@ const NOT_SELECTED = '선택해 주세요'
 const UNKNOWN_LABEL = '모름'
 
 const BLOOD_OPTIONS: readonly BloodTypeInput[] = ['A', 'B', 'O', 'AB']
+
+/** 성별 두 값. 대운 방향 판정에 쓰이는 **계산 입력**이라 선택이 아니라 필수다. */
+const GENDER_OPTIONS: readonly Gender[] = ['M', 'F']
 
 export function OnboardingForm({ onSubmit, engineError = null }: OnboardingFormProps) {
   const [draft, dispatch] = useReducer(onboardingReducer, INITIAL_DRAFT)
@@ -166,55 +181,46 @@ export function OnboardingForm({ onSubmit, engineError = null }: OnboardingFormP
   }
 
   const dateRow = (
-    <ListRow
-      withTouchEffect
-      arrowType="right"
+    <FieldRow
+      index={2}
+      label="태어난 날"
+      value={draft.date === null ? NOT_SELECTED : describeBirthDate(draft.calendarType, draft.date)}
+      muted={draft.date === null}
       onClick={() => openSheetOf('date')}
-      contents={
-        <ListRow.Texts
-          type="2RowTypeA"
-          top="태어난 날"
-          bottom={
-            draft.date === null ? NOT_SELECTED : describeBirthDate(draft.calendarType, draft.date)
-          }
-        />
-      }
     />
   )
 
   const timeRow = (
-    <ListRow
-      withTouchEffect
-      arrowType="right"
+    <FieldRow
+      index={3}
+      label="태어난 시각"
+      value={describeTime(draft)}
+      muted={draft.time === null && !draft.timeUnknown}
       onClick={() => openSheetOf('time')}
-      contents={<ListRow.Texts type="2RowTypeA" top="태어난 시각" bottom={describeTime(draft)} />}
     />
   )
 
   const placeRow = (
-    <ListRow
-      withTouchEffect
-      arrowType="right"
+    <FieldRow
+      index={4}
+      label="태어난 곳"
+      value={`${city.name} · ${city.source}`}
       onClick={() => openSheetOf('place')}
-      contents={
-        <ListRow.Texts type="2RowTypeA" top="태어난 곳" bottom={`${city.name} · ${city.source}`} />
-      }
     />
   )
 
   /**
    * 양력 확인. **프리필된 날짜에만** 붙인다 — 사용자가 시트에서 직접 고른 날짜는 이미 "양력"이라고
-   * 적힌 화면을 보고 고른 값이라 물을 것이 없다. TDS `List` 는 `ul` 이라 이 블록을 안에 넣을 수 없어,
-   * 확인 중일 때만 리스트를 둘로 나눠 날짜 행 바로 아래에 끼운다.
+   * 적힌 화면을 보고 고른 값이라 물을 것이 없다. 확인 중일 때만 유리판을 둘로 나눠 날짜 줄 바로 아래에 끼운다.
    */
   const solarConfirm = (
     <div style={{ padding: '12px 24px 4px' }} role="group" aria-label={SOLAR_CONFIRM_QUESTION}>
-      <Paragraph typography="st11" fontWeight="bold">
-        {SOLAR_CONFIRM_QUESTION}
-      </Paragraph>
-      <Spacing size={4} />
-      <Paragraph typography="st12">{SOLAR_CONFIRM_DESCRIPTION}</Paragraph>
-      <Spacing size={8} />
+      <SectionLabel>{SOLAR_CONFIRM_QUESTION}</SectionLabel>
+      <Spacing size={6} />
+      <p style={{ margin: 0, fontSize: 13, lineHeight: 1.55, color: NIGHT.textDim }}>
+        {SOLAR_CONFIRM_DESCRIPTION}
+      </p>
+      <Spacing size={10} />
       <div style={{ display: 'flex', gap: 8 }}>
         <div style={{ flex: 1 }}>
           <Button
@@ -237,22 +243,26 @@ export function OnboardingForm({ onSubmit, engineError = null }: OnboardingFormP
   )
 
   return (
-    <main>
-      <Top
+    <Screen bottomInset={150}>
+      <Spacing size={20} />
+
+      <ScreenTitle
+        index={0}
         title="언제 태어났는지 알려주세요"
-        subtitleBottom="사주 네 기둥을 계산하는 데만 써요. 양력·음력 모두 괜찮아요."
+        subtitle="사주 네 기둥을 계산하는 데만 써요. 양력·음력 모두 괜찮아요."
       />
 
-      <Spacing size={8} />
+      <Spacing size={20} />
 
       {/* 원터치 경로. 미지원·미설정이면 이 블록은 존재하지 않는다 — 실패를 토스트로 알리지 않는다. */}
       {prefillAvailable && showsPrefillButton(prefillPhase) && (
-        <div style={{ padding: '0 24px 8px' }}>
+        <div className={MOTION.rise} {...stagger(1)} style={{ padding: '0 20px 12px' }}>
           <Button
             display="block"
             size="large"
             color="primary"
             variant="weak"
+            className={MOTION.press}
             loading={prefillPhase === 'loading'}
             onClick={handlePrefill}
           >
@@ -261,167 +271,123 @@ export function OnboardingForm({ onSubmit, engineError = null }: OnboardingFormP
               : PREFILL_BUTTON_LABEL}
           </Button>
           <Spacing size={8} />
-          <Paragraph typography="st12">
-            생년월일과 성별만 가져와요. 이름·연락처·주소는 가져오지 않아요.
-          </Paragraph>
+          <Hint>생년월일과 성별만 가져와요. 이름·연락처·주소는 가져오지 않아요.</Hint>
         </div>
       )}
 
       {notice !== null && (
-        <div style={{ padding: '0 24px 8px' }}>
-          <Paragraph typography="st12">{notice}</Paragraph>
-        </div>
+        <>
+          <Hint>{notice}</Hint>
+          <Spacing size={12} />
+        </>
       )}
 
       {prefillPhase === 'confirmingSolar' ? (
         <>
-          <List>{dateRow}</List>
+          <FieldGroup index={2}>{dateRow}</FieldGroup>
           {solarConfirm}
-          <List>
+          <Spacing size={10} />
+          <FieldGroup index={3}>
             {timeRow}
             {placeRow}
-          </List>
+          </FieldGroup>
         </>
       ) : (
-        <List>
+        <FieldGroup index={2}>
           {dateRow}
           {timeRow}
           {placeRow}
-        </List>
+        </FieldGroup>
       )}
 
       {draft.timeUnknown && (
-        <div style={{ padding: '4px 24px 0' }}>
-          <Paragraph typography="st12">
+        <>
+          <Spacing size={10} />
+          <Hint>
             시각을 몰라도 사주 세 기둥(연·월·일)은 그대로 나와요. 시주와 상승궁만 빼고 계산해요.
-          </Paragraph>
-        </div>
+          </Hint>
+        </>
       )}
 
-      <Spacing size={24} />
+      <Spacing size={26} />
 
       <div style={{ padding: '0 24px' }}>
-        <Paragraph typography="st11" fontWeight="bold">
-          성별
-        </Paragraph>
-        <Spacing size={8} />
-        <div style={{ display: 'flex', gap: 8 }}>
-          <div style={{ flex: 1 }}>
-            <Button
-              display="block"
-              size="large"
-              color={draft.gender === 'M' ? 'primary' : 'dark'}
-              variant={draft.gender === 'M' ? 'fill' : 'weak'}
-              aria-pressed={draft.gender === 'M'}
-              onClick={() => handleGender('M')}
-            >
-              남성
-            </Button>
-          </div>
-          <div style={{ flex: 1 }}>
-            <Button
-              display="block"
-              size="large"
-              color={draft.gender === 'F' ? 'primary' : 'dark'}
-              variant={draft.gender === 'F' ? 'fill' : 'weak'}
-              aria-pressed={draft.gender === 'F'}
-              onClick={() => handleGender('F')}
-            >
-              여성
-            </Button>
-          </div>
-        </div>
-        <Spacing size={8} />
-        <Paragraph typography="st12">대운(大運)이 순행인지 역행인지를 성별로 판정해서 꼭 필요해요.</Paragraph>
+        <SectionLabel index={5}>성별</SectionLabel>
+        <Spacing size={10} />
+        <ChipGroup
+          index={5}
+          options={GENDER_OPTIONS}
+          value={draft.gender}
+          onChange={handleGender}
+          label={(g) => (g === 'M' ? '남성' : '여성')}
+        />
       </div>
+      <Spacing size={10} />
+      <Hint>대운(大運)이 순행인지 역행인지를 성별로 판정해서 꼭 필요해요.</Hint>
 
-      <Spacing size={24} />
+      <Spacing size={26} />
 
       {/* 자기신고 값. 사주 계산에는 전혀 쓰이지 않고 리포트 문장에만 쓴다 — 그래서 전부 선택 입력이다. */}
       <div style={{ padding: '0 24px' }}>
-        <Paragraph typography="st11" fontWeight="bold">
-          MBTI와 혈액형 (선택)
-        </Paragraph>
-        <Spacing size={4} />
-        <Paragraph typography="st12">
-          몰라도 괜찮아요. 사주 계산에는 쓰지 않고, 알려주시면 리포트에 항목이 하나씩 늘어나요.
-        </Paragraph>
+        <SectionLabel index={6}>MBTI와 혈액형 (선택)</SectionLabel>
       </div>
+      <Spacing size={6} />
+      <Hint>
+        몰라도 괜찮아요. 사주 계산에는 쓰지 않고, 알려주시면 리포트에 항목이 하나씩 늘어나요.
+      </Hint>
 
-      <Spacing size={8} />
+      <Spacing size={12} />
 
-      <List>
-        <ListRow
-          withTouchEffect
-          arrowType="right"
+      <FieldGroup index={6}>
+        <FieldRow
+          index={6}
+          label="MBTI 유형"
+          value={draft.mbti ?? UNKNOWN_LABEL}
+          muted={draft.mbti === null}
           onClick={() => openSheetOf('mbti')}
-          contents={
-            <ListRow.Texts type="2RowTypeA" top="MBTI 유형" bottom={draft.mbti ?? UNKNOWN_LABEL} />
-          }
         />
-      </List>
+      </FieldGroup>
 
-      <div style={{ padding: '8px 24px 0' }}>
-        <Paragraph typography="st11" fontWeight="bold">
-          혈액형
-        </Paragraph>
-        <Spacing size={8} />
-        <div style={{ display: 'flex', gap: 8 }}>
-          {BLOOD_OPTIONS.map((blood) => (
-            <div key={blood} style={{ flex: 1 }}>
-              <Button
-                display="block"
-                size="medium"
-                color={draft.blood === blood ? 'primary' : 'dark'}
-                variant={draft.blood === blood ? 'fill' : 'weak'}
-                aria-pressed={draft.blood === blood}
-                onClick={() => handleBlood(blood)}
-              >
-                {blood}
-              </Button>
-            </div>
-          ))}
-        </div>
-        <Spacing size={8} />
-        {/* 문서06 §A-2 / C18(縄田健悟 2014, n=11,729)이 반증을 확정했다. 입력 단계에서 미리 밝힌다. */}
-        <Paragraph typography="st12">
-          혈액형과 성격의 관계는 확인된 근거가 없어요. 이 앱에서 혈액형은 문장의 말투만 정해요.
-        </Paragraph>
+      <Spacing size={18} />
+
+      <div style={{ padding: '0 24px' }}>
+        <SectionLabel index={7}>혈액형</SectionLabel>
+        <Spacing size={10} />
+        <ChipGroup index={7} options={BLOOD_OPTIONS} value={draft.blood} onChange={handleBlood} />
       </div>
+      <Spacing size={10} />
+      {/* 문서06 §A-2 / C18(縄田健悟 2014, n=11,729)이 반증을 확정했다. 입력 단계에서 미리 밝힌다. */}
+      <Hint>혈액형과 성격의 관계는 확인된 근거가 없어요. 이 앱에서 혈액형은 문장의 말투만 정해요.</Hint>
 
       {!built.ok && built.reason === 'invalid' && (
-        <div style={{ padding: '16px 24px 0' }}>
+        <>
+          <Spacing size={16} />
           {built.messages.map((message) => (
-            <Paragraph key={message} typography="st12" color="var(--adaptiveRed500)">
+            <Hint key={message} tone="warn">
               {message}
-            </Paragraph>
+            </Hint>
           ))}
-        </div>
+        </>
       )}
 
       {/* 계산 엔진이 거절한 경우. 화면 검증을 통과했는데도 엔진이 막는 경우가 남아 있다
           (지원 범위 밖 연도·해외 출생 표준시 누락 등) — 그때 사용자를 빈 화면에 두지 않는다. */}
       {engineError !== null && (
-        <div style={{ padding: '16px 24px 0' }} role="alert">
-          <Paragraph typography="st12" color="var(--adaptiveRed500)">
-            {engineError}
-          </Paragraph>
+        <div role="alert">
+          <Spacing size={16} />
+          <Hint tone="warn">{engineError}</Hint>
         </div>
       )}
 
       {/* 양력 확인이 끝나지 않은 상태에서 제출을 막는 것이 이 기능의 안전장치다.
           여기서 막지 않으면 확인 문구만 있고 아무도 확인하지 않은 채 음력 생일이 엔진으로 넘어간다. */}
-      <FixedBottomCTA
+      <BottomCTA
         disabled={!built.ok || blocksSubmit(prefillPhase)}
         onClick={handleSubmit}
-        topAccessory={
-          <Paragraph typography="st13" textAlign="center">
-            운세 콘텐츠예요. 과학적 예측이 아니에요.
-          </Paragraph>
-        }
+        caption="운세 콘텐츠예요. 과학적 예측이 아니에요."
       >
         결과 보기
-      </FixedBottomCTA>
+      </BottomCTA>
 
       <BirthDateSheet
         key={`date-${sheetSession}`}
@@ -473,7 +439,7 @@ export function OnboardingForm({ onSubmit, engineError = null }: OnboardingFormP
           closeSheet()
         }}
       />
-    </main>
+    </Screen>
   )
 }
 
