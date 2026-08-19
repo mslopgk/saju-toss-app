@@ -3,6 +3,8 @@ export { BottomCTA } from './BottomCTA'
 export type { BottomCTAProps } from './BottomCTA'
 export { ChipGroup, FieldGroup, FieldRow, Hint, ScreenTitle, SectionLabel } from './Field'
 export type { ChipGroupProps, FieldRowProps } from './Field'
+export { ReadingScreen } from './ReadingScreen'
+export type { ReadingScreenProps } from './ReadingScreen'
 export { Screen } from './Screen'
 export type { ScreenProps } from './Screen'
 export {

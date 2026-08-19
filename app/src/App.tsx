@@ -1,6 +1,6 @@
 import { Suspense, lazy, useEffect, useState } from 'react'
-import { Loader } from '@toss/tds-mobile'
 import { OnboardingPage } from './pages/OnboardingPage'
+import { ReadingScreen } from './shared/design'
 import { EMPTY_SELF_REPORT, type BirthInput, type SelfReport } from './features/onboarding'
 import type { Chart, EngineError } from './shared/lib/saju'
 
@@ -80,21 +80,14 @@ const GENERIC_ERROR = '계산 중 문제가 생겼어요. 잠시 후 다시 시�
  *
  * 온보딩을 **언마운트하지 않고** 위에 얹는다. 언마운트하면 엔진이 입력을 거절했을 때
  * 사용자가 채워 둔 폼이 통째로 날아간다(폼 상태는 `OnboardingForm` 안의 `useReducer` 에 있다).
+ *
+ * 스피너 하나가 아니라 `ReadingScreen` 인 이유: 여기가 사용자가 화면을 실제로 응시하는
+ * 유일한 순간이고, 앞뒤가 심야 하늘인데 여기만 흰 바탕이면 전환이 두 번 튄다.
  */
 function LoadingOverlay() {
   return (
-    <div
-      style={{
-        position: 'fixed',
-        inset: 0,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        background: 'var(--adaptiveBackground)',
-        zIndex: 100,
-      }}
-    >
-      <Loader size="large" type="primary" />
+    <div style={{ position: 'fixed', inset: 0, zIndex: 100 }}>
+      <ReadingScreen />
     </div>
   )
 }

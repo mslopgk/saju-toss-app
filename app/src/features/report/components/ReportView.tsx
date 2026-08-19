@@ -118,7 +118,8 @@ export function ReportView({ report, client }: ReportViewProps) {
               >
                 <div style={{ fontSize: 14, fontWeight: 600, color: NIGHT.text }}>{card.title}</div>
                 <div style={{ fontSize: 12, color: NIGHT.textDim, marginTop: 2 }}>
-                  {formatSourceLabel(card.source)} · 근거등급 {card.confidence}
+                  {/* 한 덩어리로 넘긴다 — 나눠 쓰면 SSR 이 `근거등급 <!-- -->C` 로 쪼갠다. */}
+                  {`${formatSourceLabel(card.source)} · 근거등급 ${card.confidence}`}
                 </div>
               </div>
             ))}

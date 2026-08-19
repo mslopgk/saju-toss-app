@@ -1,5 +1,5 @@
 import { Suspense, lazy, useState } from 'react'
-import { Loader, Spacing } from '@toss/tds-mobile'
+import { Spacing } from '@toss/tds-mobile'
 import type { Chart, PillarKey, TenGod } from '../shared/lib/saju'
 import { DISCLAIMERS, elementOfStem } from '../shared/interpret/ui'
 import { branchUrl } from '../shared/assets'
@@ -8,6 +8,7 @@ import {
   ELEMENT_ACCENT,
   Hint,
   NIGHT,
+  ReadingScreen,
   Screen,
   ScreenTitle,
   SectionLabel,
@@ -116,23 +117,9 @@ export function DetailPage({ chart, selfReport = NO_SELF_REPORT, onBack }: Detai
   const accent = ELEMENT_ACCENT[dayElement]
 
   if (showCompat) {
+    // 궁합 청크를 받는 동안. 앱의 다른 대기 화면과 같은 연출을 쓴다 — 여기만 스피너면 튄다.
     return (
-      <Suspense
-        fallback={
-          <div
-            style={{
-              position: 'fixed',
-              inset: 0,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              background: NIGHT.ground,
-            }}
-          >
-            <Loader size="large" type="primary" />
-          </div>
-        }
-      >
+      <Suspense fallback={<ReadingScreen />}>
         {/* 자기신고 값은 온보딩의 좁은 타입이 그대로 대입되는 구조라 변환 없이 넘어간다. */}
         <CompatPage
           selfChart={chart}

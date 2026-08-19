@@ -11,7 +11,7 @@ import { renderToString } from 'react-dom/server'
 import { TDSMobileAITProvider } from '@toss/tds-mobile-ait'
 import { describe, expect, it } from 'vitest'
 import App from '../../src/App'
-import { ResultPage } from '../../src/pages/ResultPage'
+import { DetailPage } from '../../src/pages/DetailPage'
 import { buildRuleBasedReport } from '../../src/features/report'
 import type { SelfReport } from '../../src/features/onboarding'
 import { computeChart } from '../../src/shared/lib/saju'
@@ -44,7 +44,7 @@ describe('화면 스모크', () => {
       birthPlace: { longitude: 126.9784204, latitude: 37.5665, region: 'KR' },
     })
 
-    const html = render(<ResultPage chart={chart} onRestart={() => {}} />)
+    const html = render(<DetailPage chart={chart} onBack={() => {}} />)
 
     // 계산 결과가 실제로 DOM 문자열에 박혀 있어야 한다.
     // (배선이 끊기면 빈 셸만 렌더되고 이 단언이 깨진다.)
@@ -74,7 +74,7 @@ describe('화면 스모크', () => {
       birthPlace: { longitude: 126.9784204, latitude: 37.5665, region: 'KR' },
     })
 
-    const html = render(<ResultPage chart={chart} onRestart={() => {}} />)
+    const html = render(<DetailPage chart={chart} onBack={() => {}} />)
 
     // 법률 검토(연구문서 09)가 요구한 고지. 화면에서 사라지면 안 된다.
     expect(html).toMatch(/과학적|참고|재미/)
@@ -105,7 +105,7 @@ describe('리포트 렌더', () => {
   it('리포트 문장이 실제 HTML 에 들어간다', () => {
     const chart = computeChart(RAW)
     const report = buildRuleBasedReport(chart, SELF)
-    const html = render(<ResultPage chart={chart} selfReport={SELF} onRestart={() => {}} />)
+    const html = render(<DetailPage chart={chart} selfReport={SELF} onBack={() => {}} />)
 
     expect(report.interpretation.sections.length).toBeGreaterThan(0)
     expect(html).toContain(escapeHtml(report.interpretation.headline))
@@ -121,7 +121,7 @@ describe('리포트 렌더', () => {
   it('자기신고 값이 없으면 MBTI·혈액형 문장이 화면에 없다', () => {
     const chart = computeChart(RAW)
     const withProfile = buildRuleBasedReport(chart, SELF).interpretation
-    const html = render(<ResultPage chart={chart} onRestart={() => {}} />)
+    const html = render(<DetailPage chart={chart} onBack={() => {}} />)
 
     const mbtiBody = withProfile.sections.find((s) => s.id === 'mbti')?.body ?? ''
     const bloodBody = withProfile.sections.find((s) => s.id === 'blood')?.body ?? ''
@@ -136,7 +136,7 @@ describe('리포트 렌더', () => {
   it('신강신약·용신 섹션이 실제 HTML 에 들어간다', () => {
     const chart = computeChart(RAW)
     const report = buildRuleBasedReport(chart, SELF)
-    const html = render(<ResultPage chart={chart} selfReport={SELF} onRestart={() => {}} />)
+    const html = render(<DetailPage chart={chart} selfReport={SELF} onBack={() => {}} />)
 
     // 제목이 붙어 있다
     expect(html).toContain('신강신약과 용신')
@@ -165,7 +165,7 @@ describe('리포트 렌더', () => {
   it('신살·별자리·융합 섹션이 실제 HTML 에 들어간다', () => {
     const chart = computeChart(RAW)
     const report = buildRuleBasedReport(chart, SELF)
-    const html = render(<ResultPage chart={chart} selfReport={SELF} onRestart={() => {}} />)
+    const html = render(<DetailPage chart={chart} selfReport={SELF} onBack={() => {}} />)
 
     const ids = report.interpretation.sections.map((s) => s.id)
     // 1990-05-15 14:30 서울 남 · ENFP · O형 은 네 섹션이 모두 서는 입력이다.
@@ -219,7 +219,7 @@ describe('리포트 렌더', () => {
     for (const { raw, self } of cases) {
       const chart = computeChart(raw)
       const report = buildRuleBasedReport(chart, self)
-      const html = render(<ResultPage chart={chart} selfReport={self} onRestart={() => {}} />)
+      const html = render(<DetailPage chart={chart} selfReport={self} onBack={() => {}} />)
       for (const section of report.interpretation.sections) {
         const title = SECTION_TITLES[section.id]
         if (html.includes(escapeHtml(title)) && html.includes(escapeHtml(section.body))) {
@@ -238,7 +238,7 @@ describe('리포트 렌더', () => {
   it('근거 카드가 출처 문서와 근거등급까지 화면에 나온다', () => {
     const chart = computeChart(RAW)
     const report = buildRuleBasedReport(chart, SELF)
-    const html = render(<ResultPage chart={chart} selfReport={SELF} onRestart={() => {}} />)
+    const html = render(<DetailPage chart={chart} selfReport={SELF} onBack={() => {}} />)
 
     expect(report.usedCards.length).toBeGreaterThan(0)
     for (const card of report.usedCards) {
@@ -257,7 +257,7 @@ describe('리포트 렌더', () => {
   it('출처 표기에 파일 확장자·디렉터리가 새어 나오지 않는다', () => {
     const chart = computeChart(RAW)
     const report = buildRuleBasedReport(chart, SELF)
-    const html = render(<ResultPage chart={chart} selfReport={SELF} onRestart={() => {}} />)
+    const html = render(<DetailPage chart={chart} selfReport={SELF} onBack={() => {}} />)
 
     for (const card of report.usedCards) {
       expect(html, `${card.id} 원본 파일명 노출`).not.toContain(escapeHtml(card.source.doc))
@@ -272,7 +272,7 @@ describe('리포트 렌더', () => {
     const chart = computeChart({ ...RAW, year: 1993, month: 5, day: 16, timeUnknown: true, hour: undefined, minute: undefined })
     const self: SelfReport = { mbti: 'INTJ', blood: 'A' }
     const report = buildRuleBasedReport(chart, self)
-    const html = render(<ResultPage chart={chart} selfReport={self} onRestart={() => {}} />)
+    const html = render(<DetailPage chart={chart} selfReport={self} onBack={() => {}} />)
 
     const body = report.interpretation.sections.find((s) => s.id === 'intersection')?.body ?? ''
     expect(body).not.toBe('')

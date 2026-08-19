@@ -496,8 +496,33 @@ async function main() {
     */
     await page.getByRole('button', { name: '자세히 보기' }).click();
     await page.waitForTimeout(1800);
+    /*
+      궁합 청크를 늦춰 **계산 대기 화면**을 실제로 띄운다.
+
+      홈 청크로는 이 화면을 볼 수 없다 — `App` 이 첫 페인트 뒤에 미리 받아 두기 때문에
+      아무리 늦춰도 클릭 시점엔 이미 손에 있다(그렇게 짠 첫 판이 통과하지 못했다).
+      궁합은 미리 받지 않으므로 여기가 대기 화면이 사용자에게 실제로 보이는 자리다.
+    */
+    const CHUNK_DELAY_MS = 1600;
+    await page.route('**/CompatPage-*.js', async (route) => {
+      await new Promise((r) => setTimeout(r, CHUNK_DELAY_MS));
+      // 지연이 끝나기 전에 unroute 되면 이 호출이 "Route is already handled" 로 죽는다.
+      // 스모크 전체를 무너뜨릴 이유가 없는 자리라 삼킨다.
+      try {
+        await route.continue();
+      } catch {
+        /* 이미 처리됨 */
+      }
+    });
     await page.getByRole('button', { name: '궁합 보기' }).click();
-    await page.waitForTimeout(2200);
+    await page.waitForTimeout(700);
+    const reading = await page.locator('body').innerText();
+    check(reading.includes('중이에요'), '청크를 받는 동안 대기 화면이 뜬다', reading.slice(0, 40));
+    await shot('shot-7b-reading');
+    // 지연이 끝난 뒤에 푼다 — 진행 중인 핸들러를 걷어내면 그 요청이 영영 응답받지 못한다.
+    await page.waitForTimeout(CHUNK_DELAY_MS);
+    await page.unroute('**/CompatPage-*.js');
+    await page.waitForTimeout(1800);
 
     const partner = await page.locator('body').innerText();
     check(partner.includes('상대방은 언제 태어났나요'), '상대방 입력 화면이 뜬다');
