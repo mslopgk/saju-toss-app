@@ -2,6 +2,8 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { TDSMobileAITProvider } from '@toss/tds-mobile-ait'
 import './index.css'
+// 모션 규칙을 진입점에서 한 번만 싣는다. 화면마다 import 하면 순서가 갈려 규칙이 어긋난다.
+import './shared/motion/motion.css'
 import App from './App.tsx'
 
 // TDSMobileAITProvider 는 GlobalCSSVariables 와 SafeAreaInsets 를 내부에서 렌더한다.

@@ -292,33 +292,119 @@ async function main() {
     await shot('shot-3-home-bars');
 
     /*
-      맨 아래 버튼이 하단 CTA 뒤에 깔리지 않는가.
+      본문 마지막 줄이 하단 CTA 바 뒤에 깔리지 않는가.
 
-      `position: fixed` 인 CTA 는 문서 흐름에서 빠져 있어 아무리 스크롤해도 그 뒤의 내용은
-      드러나지 않는다 — 본문 아래 패딩으로만 피할 수 있다. 이 관계가 깨지면 아무 예외도 나지
-      않고 버튼만 조용히 사라지므로, 눈으로 보는 것 말고는 잡을 방법이 없어 여기에 둔다.
+      CTA 바는 `position: fixed` 라 문서 흐름에서 빠져 있어 아무리 스크롤해도 그 뒤의 내용은
+      드러나지 않는다 — 본문 아래 패딩(`Screen` 의 `bottomInset`)으로만 피할 수 있다.
+      깨져도 예외가 나지 않고 마지막 줄만 조용히 사라지므로 여기서 잡는다.
+
+      **작은 화면에서, 문서 맨 아래까지 내린 뒤에** 잰다. 조작용 뷰포트(390×860)는 세로가
+      넉넉하고 `scrollIntoViewIfNeeded()` 는 요소를 화면 가운데로 가져오므로, 둘 중 하나라도
+      빠지면 패딩이 모자라도 통과하는 헛검사가 된다(실제로 두 번 그렇게 썼다).
     */
-    // **문서 맨 아래까지** 내린다. `scrollIntoViewIfNeeded()` 는 요소를 화면 가운데로 가져와서
-    // 패딩이 모자라도 CTA 위에 놓이고 만다 — 그렇게 짠 첫 판은 패딩을 60 으로 줄여도 통과했다.
-    // 잘리는 자리는 "더 내릴 수 없는 지점"이므로 거기서 재야 한다.
-    // **작은 화면에서, 문서 맨 아래까지 내린 뒤에** 잰다. 조작용 뷰포트(390×860)는 세로가
-    // 넉넉하고 `scrollIntoViewIfNeeded()` 는 요소를 화면 가운데로 가져오므로, 둘 중 하나라도
-    // 빠지면 패딩이 모자라도 통과하는 헛검사가 된다(실제로 두 번 그렇게 썼다).
-    const restart = page.getByRole('button', { name: '다시 입력하기' });
+    /*
+      스크롤 최상단에서도 CTA 가 바닥에 붙어 있는가.
+
+      `position: fixed` 는 조상의 transform 아래에서 absolute 처럼 굴기 때문에, 화면 전환
+      애니메이션이 도는 동안·직후에 자리가 어긋날 수 있다. 맨 아래에서만 재면 그 순간을 놓친다.
+    */
     await page.setViewportSize(SHOT);
+    await page.evaluate(() => { window.scrollTo(0, 0); });
+    await page.waitForTimeout(400);
+    const atTop = await page.evaluate(() => {
+      const btn = [...document.querySelectorAll('button')].find((b) =>
+        b.textContent?.includes('자세히 보기'),
+      );
+      if (btn === undefined) return null;
+      const r = btn.getBoundingClientRect();
+      return { bottom: r.bottom, top: r.top, viewport: window.innerHeight };
+    });
+    check(
+      atTop !== null && atTop.viewport - atTop.bottom < 40 && atTop.top < atTop.viewport,
+      '최상단에서도 CTA 가 화면 안에 있다',
+      atTop === null
+        ? '버튼을 못 찾았다'
+        : `버튼 ${Math.round(atTop.top)}~${Math.round(atTop.bottom)} / 뷰포트 ${atTop.viewport}`,
+    );
+
+    const lastLine = page.getByText('다섯을 합치면 80점이 됩니다', { exact: false });
     await page.evaluate(() => { window.scrollTo(0, document.documentElement.scrollHeight); });
     await page.waitForTimeout(600);
-    const restartBox = await restart.boundingBox();
+    const lastBox = await lastLine.boundingBox();
     const ctaBox = await page.getByRole('button', { name: '자세히 보기' }).boundingBox();
+
+    /*
+      CTA 바가 뷰포트 바닥에 붙어 있는가.
+
+      `position: fixed` 는 조상에 `transform`·`filter`·`perspective` 가 걸리면 **조용히
+      absolute 처럼** 동작한다. 화면 전환 애니메이션(`m-screen`)이 `<main>` 에 transform 을
+      쓰므로 이 함정이 실재하고, 걸리면 CTA 가 화면 밖으로 밀려 눌리지 않는다.
+    */
+    const anchored = await page.evaluate(() => {
+      const btn = [...document.querySelectorAll('button')].find((b) =>
+        b.textContent?.includes('자세히 보기'),
+      );
+      if (btn === undefined) return null;
+      return { bottom: btn.getBoundingClientRect().bottom, viewport: window.innerHeight };
+    });
     check(
-      restartBox !== null && ctaBox !== null && restartBox.y + restartBox.height <= ctaBox.y,
-      '맨 아래 버튼이 하단 CTA 에 가리지 않는다',
-      restartBox === null || ctaBox === null
-        ? '요소를 못 찾았다'
-        : `버튼 하단 ${Math.round(restartBox.y + restartBox.height)} / CTA 상단 ${Math.round(ctaBox.y)}`,
+      anchored !== null && anchored.viewport - anchored.bottom < 40,
+      'CTA 바가 뷰포트 바닥에 붙어 있다',
+      anchored === null
+        ? '버튼을 못 찾았다'
+        : `버튼 하단 ${Math.round(anchored.bottom)} / 뷰포트 ${anchored.viewport}`,
     );
+    check(
+      lastBox !== null && ctaBox !== null && lastBox.y + lastBox.height <= ctaBox.y,
+      '본문 마지막 줄이 하단 CTA 에 가리지 않는다',
+      lastBox === null || ctaBox === null
+        ? '요소를 못 찾았다'
+        : `본문 하단 ${Math.round(lastBox.y + lastBox.height)} / CTA 상단 ${Math.round(ctaBox.y)}`,
+    );
+    await shot('shot-3b-home-bottom');
     await page.setViewportSize(DRIVE);
     await page.waitForTimeout(300);
+
+    /*
+      모션이 콘텐츠를 가두지 않는가.
+
+      진입 애니메이션은 전부 `from`-only 키프레임이라 종료 상태가 요소의 제 모습이다.
+      누군가 `to { opacity: 1 }` 이나 기본 스타일 `opacity: 0` 을 적으면 그 규칙이 깨지고,
+      모션을 끈 사용자에게는 **화면이 통째로 투명해진다.**
+
+      `emulateMedia` 는 즉시 반영된다 — 리로드하면 온보딩으로 돌아가 이후 단계가 전부 깨진다.
+    */
+    const readOpacity = () =>
+      page.evaluate(() => {
+        // 장식(aria-hidden)은 뺀다. 후광·배경은 일부러 반투명이라 여기 섞이면 헛경보가 난다.
+        const nodes = [
+          ...document.querySelectorAll('.m-rise, .m-pop, .m-fade, .m-screen'),
+        ].filter((n) => n.closest('[aria-hidden="true"]') === null);
+        return nodes.map((n) => Number(getComputedStyle(n).opacity));
+      });
+
+    /*
+      **값을 비교하지 않고 절대값을 본다.**
+      처음에는 "모션 켰을 때와 껐을 때가 같은가"로 짰는데, 기본 스타일에 `opacity: 0` 을 두는
+      실수는 **양쪽 모드 모두** 0 이라 비교로는 걸리지 않는다(실제로 그 실수를 심어 확인했다).
+      그 실수야말로 잡아야 할 것이므로, 내용을 가진 요소는 두 모드 모두에서 불투명해야 한다.
+
+      innerText 검사로는 못 잡는다 — `opacity: 0` 은 텍스트를 DOM 에서 지우지 않는다.
+    */
+    const settled = await readOpacity();
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await page.waitForTimeout(400);
+    const reduced = await readOpacity();
+    await page.emulateMedia({ reducedMotion: null });
+
+    const faded = [...settled, ...reduced].filter((o) => o < 0.9);
+    check(
+      settled.length > 0 && reduced.length === settled.length && faded.length === 0,
+      '모션이 콘텐츠를 투명하게 가두지 않는다',
+      faded.length === 0
+        ? `${settled.length}개 × 2모드 검사`
+        : `투명한 요소 ${faded.length}개 (최소 ${Math.min(...faded)})`,
+    );
 
     /* 5) 깊이읽기 — 카드가 접혀 있고 펼치면 본문이 나온다 */
     await page.getByRole('button', { name: '자세히 보기' }).click();
