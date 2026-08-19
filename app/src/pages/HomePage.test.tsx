@@ -83,11 +83,13 @@ describe('HomePage', () => {
   })
 
   /**
-   * TDS `FixedBottomCTA` 는 포털이라 SSR 에 본문이 실리지 않는다(`CompatPage.test.tsx` 에 같은 note).
-   * 그래서 여기서 볼 수 있는 것은 정적으로 그려지는 "다시 입력하기" 뿐이고,
-   * 깊이읽기 CTA 가 실제로 눌리는지는 실브라우저 `ui-smoke` 가 본다.
+   * 자체 `BottomCTA` 로 갈아 끼운 뒤로는 **두 갈래 모두** 정적 렌더에 실린다.
+   * TDS `FixedBottomCTA` 는 포털이라 SSR 에 본문이 없어 이 검사가 불가능했다.
+   * 실제로 눌리는지·화면 안에 있는지는 여전히 실브라우저 `ui-smoke` 몫이다.
    */
-  it('다시 입력 갈래가 정적으로 그려진다', () => {
-    expect(render(CHARTS[0]!)).toContain('다시 입력하기')
+  it('깊이읽기와 다시 입력 두 갈래를 모두 준다', () => {
+    const html = render(CHARTS[0]!)
+    expect(html).toContain('자세히 보기')
+    expect(html).toContain('다시 입력')
   })
 })
