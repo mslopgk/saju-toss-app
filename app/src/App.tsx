@@ -7,8 +7,12 @@ import type { Chart, EngineError } from './shared/lib/saju'
 /**
  * 화면 조합 계층.
  *
- * 2단계 상태만 둔다: `onboarding` → `result`. 라우터를 넣지 않는 이유는 되돌아갈 곳이 하나뿐이고,
- * 미니앱에서는 URL 이 사용자에게 보이지 않아 경로가 제품 가치를 만들지 않기 때문이다.
+ * 3단계 상태만 둔다: `onboarding` → `home` → `detail`. 라우터를 넣지 않는 이유는 되돌아갈 곳이
+ * 언제나 하나뿐이고(깊이읽기에서 뒤로 가면 홈, 홈에서 뒤로 가면 온보딩), 미니앱에서는 URL 이
+ * 사용자에게 보이지 않아 경로가 제품 가치를 만들지 않기 때문이다.
+ *
+ * 계산이 끝나면 **홈으로 간다.** 예전에는 곧장 깊이읽기(옛 `ResultPage`)로 보냈는데, 처음 보는
+ * 화면이 여덟 글자 표와 문단 열한 개였다. 홈은 세 덩어리만 보여 주고 나머지는 눌러야 나온다.
  *
  * ## 코드 스플리팅 경계가 여기 있는 이유
  *
@@ -25,14 +29,18 @@ type Screen =
    * 자기신고 값을 차트와 함께 들고 간다. 계산 입력이 아니므로 `Chart` 안에 섞지 않는다 —
    * 섞으면 "엔진 출력"과 "사용자가 적은 값"의 경계가 흐려지고 캐시 키에도 새어 든다.
    */
-  | { readonly name: 'result'; readonly chart: Chart; readonly selfReport: SelfReport }
+  | { readonly name: 'home'; readonly chart: Chart; readonly selfReport: SelfReport }
+  | { readonly name: 'detail'; readonly chart: Chart; readonly selfReport: SelfReport }
 
 /**
- * 결과 화면 청크. `features/report` → `shared/interpret/ui` → `cards.json`(174 kB)까지 전부
+ * 결과 쪽 화면 청크. `features/report` → `shared/interpret/ui` → `cards.json`(174 kB)까지 전부
  * 이 경계 뒤로 간다. 화면이 배럴(`shared/interpret`)을 import 하지 않는 규율은 그대로다 —
  * 경계는 **언제 받느냐**만 바꾸고 **무엇을 받느냐**는 바꾸지 않는다.
+ *
+ * 홈과 깊이읽기를 따로 쪼갠다. 홈만 보고 나가는 사용자에게 대운표·궁합 진입점까지 받게 하지 않는다.
  */
-const ResultPage = lazy(async () => ({ default: (await import('./pages/ResultPage')).ResultPage }))
+const HomePage = lazy(async () => ({ default: (await import('./pages/HomePage')).HomePage }))
+const DetailPage = lazy(async () => ({ default: (await import('./pages/DetailPage')).DetailPage }))
 
 /**
  * 계산 엔진 청크(`tables.json` · 절기 팩 · `strength-params.json` 포함).
@@ -100,8 +108,15 @@ function App() {
   // 첫 로딩은 그대로 가볍고, CTA 를 누를 때는 이미 손에 있다.
   useEffect(() => {
     void loadEngine()
-    void import('./pages/ResultPage')
+    void import('./pages/HomePage')
   }, [])
+
+  // 깊이읽기는 **홈이 그려진 뒤에** 받는다. 홈만 보고 나가는 사용자에게 대운표·궁합 진입점까지
+  // 내려보내지 않으면서, CTA 를 누를 때는 이미 손에 있게 한다.
+  const onHome = screen.name === 'home'
+  useEffect(() => {
+    if (onHome) void import('./pages/DetailPage')
+  }, [onHome])
 
   const handleComplete = (input: BirthInput, selfReport: SelfReport = EMPTY_SELF_REPORT) => {
     setComputing(true)
@@ -113,7 +128,7 @@ function App() {
           // 여기서부터는 전부 동기다 — 엔진은 프로미스를 반환하지 않는다.
           const chart = engine.computeChart(input)
           setEngineError(null)
-          setScreen({ name: 'result', chart, selfReport })
+          setScreen({ name: 'home', chart, selfReport })
         } catch (error) {
           // 엔진이 거절하면 온보딩에 머무르고 이유를 인라인으로 알린다. 화면을 갈아엎지 않는다.
           setEngineError(
@@ -135,10 +150,27 @@ function App() {
     setScreen({ name: 'onboarding' })
   }
 
-  if (screen.name === 'result') {
+  if (screen.name === 'home') {
     return (
       <Suspense fallback={<LoadingOverlay />}>
-        <ResultPage chart={screen.chart} selfReport={screen.selfReport} onRestart={handleRestart} />
+        <HomePage
+          chart={screen.chart}
+          selfReport={screen.selfReport}
+          onOpenDetail={() => setScreen({ ...screen, name: 'detail' })}
+          onRestart={handleRestart}
+        />
+      </Suspense>
+    )
+  }
+  if (screen.name === 'detail') {
+    return (
+      <Suspense fallback={<LoadingOverlay />}>
+        <DetailPage
+          chart={screen.chart}
+          selfReport={screen.selfReport}
+          // 뒤로 가기는 한 칸씩이다. 깊이읽기에서 나가면 온보딩이 아니라 홈으로 모인다.
+          onBack={() => setScreen({ ...screen, name: 'home' })}
+        />
       </Suspense>
     )
   }

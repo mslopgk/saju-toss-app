@@ -35,7 +35,8 @@ function staticValueImports(text: string): string[] {
 /** 초기 청크에 들어오면 안 되는 모듈(= 결과 화면에서만 필요한 것). */
 const LAZY_ONLY = [
   './shared/lib/saju',
-  './pages/ResultPage',
+  './pages/HomePage',
+  './pages/DetailPage',
   './features/report',
   './shared/interpret/ui',
   './shared/knowledge',
@@ -57,7 +58,8 @@ describe('App.tsx — 초기 청크 경계', () => {
   it('동적 경계가 실제로 걸려 있다', () => {
     // 문자열 검사인 이유: 정적 import 가 없다는 것만으로는 "지연됐다"가 아니라 "빠졌다"일 수도 있다.
     expect(APP_SOURCE).toContain("import('./shared/lib/saju')");
-    expect(APP_SOURCE).toContain("import('./pages/ResultPage')");
+    expect(APP_SOURCE).toContain("import('./pages/HomePage')");
+    expect(APP_SOURCE).toContain("import('./pages/DetailPage')");
   });
 });
 

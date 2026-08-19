@@ -22,7 +22,7 @@ import {
 import { ENGINE_WARNING_COPY } from './engineWarningCopy'
 
 /**
- * 계산 결과 화면.
+ * 깊이읽기 화면.
  *
  * 근거: C00 §S3(네 기둥) · §S4-1(십신) · §S6(대운) · §5.4(경고 코드) / docs/product.md 핵심 흐름 2단계.
  *
@@ -37,7 +37,7 @@ import { ENGINE_WARNING_COPY } from './engineWarningCopy'
  * 해석 문장은 이 파일이 쓰지 않는다. `features/report` 가 팩트팩 → 카드검색 → 규칙 렌더러를 통과시킨
  * 결과를 그대로 그린다(§H: 화면은 계산·서술 결과를 고치지 않는다).
  */
-export interface ResultPageProps {
+export interface DetailPageProps {
   chart: Chart
   /**
    * 자기신고 값(MBTI·혈액형). 선택 입력이라 없으면 해당 리포트 섹션이 빠진다.
@@ -47,8 +47,13 @@ export interface ResultPageProps {
    * 이 조합 계층의 일이고, `SelfReport` 는 이 타입에 그대로 대입된다.
    */
   selfReport?: ReportProfile
-  /** 입력을 다시 받으러 돌아간다. */
-  onRestart: () => void
+  /**
+   * 홈으로 돌아간다.
+   *
+   * 예전에는 이 자리가 온보딩으로 가는 "다시 입력하기"였다. 홈이 생긴 뒤로는 **한 칸씩** 물러난다 —
+   * 깊이읽기를 닫았다고 사용자가 방금 채운 생년월일까지 잃을 이유가 없다.
+   */
+  onBack: () => void
 }
 
 /**
@@ -75,7 +80,7 @@ function tenGodLabel(value: TenGod | '일간' | null): string {
   return value ?? '—'
 }
 
-export function ResultPage({ chart, selfReport = NO_SELF_REPORT, onRestart }: ResultPageProps) {
+export function DetailPage({ chart, selfReport = NO_SELF_REPORT, onBack }: DetailPageProps) {
   const { pillars, tenGods, luck, jie, warnings } = chart
   const daewoon = luck.daewoon.pillars.filter((p) => p.ganji !== null).slice(0, 8)
   // 순수함수이고 1ms 미만이라 메모이제이션 없이 렌더마다 계산한다(C00 §7.2: 계산이 캐시보다 싸다).
@@ -271,8 +276,8 @@ export function ResultPage({ chart, selfReport = NO_SELF_REPORT, onRestart }: Re
 
       <FixedBottomCTA.Double
         leftButton={
-          <Button display="block" size="large" color="dark" variant="weak" onClick={onRestart}>
-            다시 입력하기
+          <Button display="block" size="large" color="dark" variant="weak" onClick={onBack}>
+            홈으로
           </Button>
         }
         rightButton={

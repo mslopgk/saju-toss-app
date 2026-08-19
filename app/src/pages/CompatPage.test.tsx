@@ -15,7 +15,7 @@ import { computeChart, type Chart, type Gender } from '../shared/lib/saju'
 import { computeCompatibility } from '../shared/lib/compat'
 import { CompatReportView, buildCompatReport } from '../features/compat'
 import { CompatPage } from './CompatPage'
-import { ResultPage } from './ResultPage'
+import { DetailPage } from './DetailPage'
 
 const chartOf = (
   year: number,
@@ -97,7 +97,7 @@ describe('CompatReportView — 결과 표시', () => {
   })
 })
 
-describe('ResultPage — 궁합 진입점', () => {
+describe('DetailPage — 궁합 진입점', () => {
   /**
    * TDS `FixedBottomCTA` 는 SSR 에서 본문을 그리지 않는다(포털). 그래서 CTA **문구**는
    * 여기서 확인할 수 없고, 확인할 수 있는 것은 두 가지다:
@@ -107,14 +107,14 @@ describe('ResultPage — 궁합 진입점', () => {
   it('궁합 CTA 를 붙여도 결과 화면이 던지지 않는다', () => {
     let html = ''
     expect(() => {
-      html = render(<ResultPage chart={SELF} onRestart={() => {}} />)
+      html = render(<DetailPage chart={SELF} onBack={() => {}} />)
     }).not.toThrow()
     expect(html).toContain('당신의 사주 네 기둥')
     expect(html).toContain('계산 근거')
   })
 
   it('궁합 화면은 지연 경계 뒤에 있다 — 첫 렌더에 상대방 입력이 섞이지 않는다', () => {
-    const html = render(<ResultPage chart={SELF} onRestart={() => {}} />)
+    const html = render(<DetailPage chart={SELF} onBack={() => {}} />)
     expect(html).not.toContain('상대방은 언제 태어났나요?')
   })
 })

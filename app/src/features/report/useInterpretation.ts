@@ -48,7 +48,7 @@ export interface InterpretationView {
 /**
  * 요청이 달라지는지 판단하는 키.
  *
- * `ResultPage` 는 렌더마다 `buildRuleBasedReport()` 를 다시 부르므로 리포트 객체의 **동일성이
+ * `DetailPage` 는 렌더마다 `buildRuleBasedReport()` 를 다시 부르므로 리포트 객체의 **동일성이
  * 매번 바뀐다**. 그대로 이펙트 의존성에 넣으면 렌더마다 서버를 다시 부른다(원가 직결).
  * 그래서 "요청 내용이 실제로 달라졌는가"만 보는 문자열을 만든다.
  *

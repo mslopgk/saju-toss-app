@@ -61,7 +61,7 @@ export type ReportChart = ChartLike & { readonly input: { readonly gender: Gende
  *
  * `features/onboarding` 의 `SelfReport` 를 import 하지 않고 **구조적으로 같은 타입**을 따로 둔다 —
  * ARCHITECTURE.md 의 "features 끼리 직접 import 하지 않는다" 규칙 때문이다. 두 feature 를 잇는 것은
- * 조합 계층(`pages/ResultPage`)의 일이고, 그쪽에서 `SelfReport` 를 그대로 넘기면 대입이 성립한다.
+ * 조합 계층(`pages/DetailPage`)의 일이고, 그쪽에서 `SelfReport` 를 그대로 넘기면 대입이 성립한다.
  */
 export interface ReportProfile {
   readonly mbti: string | null
