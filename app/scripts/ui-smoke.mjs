@@ -266,10 +266,18 @@ async function main() {
     const submitHome = page.getByRole('button', { name: '결과 보기' });
     check(await submitHome.isDisabled(), 'MBTI·혈액형 전에는 제출이 잠긴다');
 
-    await page.getByRole('button', { name: /MBTI 유형/ }).click();
-    await page.waitForTimeout(900);
-    await page.getByRole('radio', { name: 'INFP' }).click();
-    await page.waitForTimeout(700);
+    /*
+      MBTI 는 16개 목록 시트가 아니라 **네 축 이지선다**다. 축을 하나라도 안 고르면 유형이
+      되지 않으므로, 세 축만 고른 상태에서도 제출이 잠겨 있는지 함께 본다.
+    */
+    await page.getByRole('button', { name: 'I 내향', exact: true }).click();
+    await page.getByRole('button', { name: 'N 직관', exact: true }).click();
+    await page.getByRole('button', { name: 'F 감정', exact: true }).click();
+    await page.waitForTimeout(300);
+    check(await submitHome.isDisabled(), '세 축만 골라도 제출은 잠긴 채다');
+
+    await page.getByRole('button', { name: 'P 인식', exact: true }).click();
+    await page.waitForTimeout(300);
 
     await page.getByRole('button', { name: 'A', exact: true }).click();
     await page.waitForTimeout(300);
@@ -570,11 +578,15 @@ async function main() {
     await page.getByRole('button', { name: '여성', exact: true }).click();
     await page.waitForTimeout(400);
 
-    // 상대방 쪽 MBTI·혈액형도 필수다.
-    await page.getByRole('button', { name: /MBTI 유형/ }).click();
-    await page.waitForTimeout(900);
-    await page.getByRole('radio', { name: 'ENFJ' }).click();
-    await page.waitForTimeout(700);
+    /*
+      상대방 쪽 MBTI·혈액형도 필수다. 온보딩만 필수로 바꾸고 여기 검증을 빠뜨린 판이 한 번
+      있었으므로(문구는 "필수" 인데 통과했다) 잠금을 여기서도 확인한다.
+    */
+    check(await submit.isDisabled(), '상대방 MBTI·혈액형 전에는 제출이 잠긴다');
+    await page.getByRole('button', { name: 'E 외향', exact: true }).click();
+    await page.getByRole('button', { name: 'N 직관', exact: true }).click();
+    await page.getByRole('button', { name: 'F 감정', exact: true }).click();
+    await page.getByRole('button', { name: 'J 판단', exact: true }).click();
     await page.getByRole('button', { name: 'B', exact: true }).click();
     await page.waitForTimeout(300);
 

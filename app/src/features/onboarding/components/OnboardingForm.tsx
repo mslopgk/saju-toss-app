@@ -12,6 +12,7 @@ import {
   SectionLabel,
 } from '../../../shared/design'
 import { MOTION, stagger } from '../../../shared/motion'
+import { MBTI_AXIS_SPECS } from '../mbtiAxes'
 import type { OnboardingDraft } from '../formState'
 import {
   INITIAL_DRAFT,
@@ -45,7 +46,6 @@ import {
 import { BirthDateSheet } from './BirthDateSheet'
 import { BirthPlaceSheet } from './BirthPlaceSheet'
 import { BirthTimeSheet } from './BirthTimeSheet'
-import { MbtiSheet } from './MbtiSheet'
 
 /**
  * 생년월일·출생시각·성별·출생지 입력 폼.
@@ -71,11 +71,9 @@ export interface OnboardingFormProps {
   engineError?: string | null
 }
 
-type SheetKind = 'date' | 'time' | 'place' | 'mbti'
+type SheetKind = 'date' | 'time' | 'place'
 
 const NOT_SELECTED = '선택해 주세요'
-/** MBTI 를 아직 고르지 않은 줄에 보이는 값. 필수가 된 뒤로는 "모름" 이 아니라 재촉이다. */
-const UNKNOWN_LABEL = '선택해 주세요'
 
 const BLOOD_OPTIONS: readonly BloodTypeInput[] = ['A', 'B', 'O', 'AB']
 
@@ -341,19 +339,35 @@ export function OnboardingForm({ onSubmit, engineError = null }: OnboardingFormP
         <SectionLabel index={6}>MBTI와 혈액형</SectionLabel>
       </div>
       <Spacing size={6} />
-      <Hint>사주 계산에는 쓰지 않고, 리포트의 두 항목을 만드는 데 써요.</Hint>
+      <Hint>사주 계산에는 쓰지 않고, 리포트의 두 항목을 만드는 데 써요. 네 줄에서 하나씩 골라 주세요.</Hint>
 
-      <Spacing size={12} />
+      <Spacing size={14} />
 
-      <FieldGroup index={6}>
-        <FieldRow
-          index={6}
-          label="MBTI 유형"
-          value={draft.mbti ?? UNKNOWN_LABEL}
-          muted={draft.mbti === null}
-          onClick={() => openSheetOf('mbti')}
-        />
-      </FieldGroup>
+      {/*
+        16개 목록 시트를 네 축 이지선다로 바꿨다. 목록은 스크롤이 필요했고 무엇보다
+        **자기 유형을 통째로 외우고 있어야** 답할 수 있었다. 축별로 물으면 "나는 I 쪽이고
+        T 쪽" 처럼 아는 사람도 답한다. 시트가 사라져 탭도 한 번 줄었다.
+      */}
+      <div style={{ padding: '0 24px' }}>
+        {MBTI_AXIS_SPECS.map((axis, i) => (
+          <div key={axis.key} style={{ paddingBottom: i === MBTI_AXIS_SPECS.length - 1 ? 0 : 12 }}>
+            <p
+              className={MOTION.rise}
+              {...stagger(6 + i)}
+              style={{ margin: '0 0 6px', fontSize: 13, color: NIGHT.textDim }}
+            >
+              {axis.title}
+            </p>
+            <ChipGroup
+              index={6 + i}
+              options={axis.options}
+              value={draft.mbtiAxes[axis.key]}
+              onChange={(value) => dispatch({ type: 'setMbtiAxis', patch: { [axis.key]: value } })}
+              label={(option) => axis.label[option] ?? option}
+            />
+          </div>
+        ))}
+      </div>
 
       <Spacing size={18} />
 
@@ -436,16 +450,6 @@ export function OnboardingForm({ onSubmit, engineError = null }: OnboardingFormP
         }}
       />
 
-      <MbtiSheet
-        key={`mbti-${sheetSession}`}
-        open={openSheet === 'mbti'}
-        selected={draft.mbti}
-        onClose={closeSheet}
-        onSelect={(mbti) => {
-          dispatch({ type: 'setMbti', mbti })
-          closeSheet()
-        }}
-      />
     </Screen>
   )
 }

@@ -1,5 +1,4 @@
 import { useReducer, useState } from 'react'
-import type { ChangeEvent } from 'react'
 import { BottomSheet, Button, Paragraph, Spacing, TextButton, Wheel } from '@toss/tds-mobile'
 import {
   BottomCTA,
@@ -7,14 +6,15 @@ import {
   FieldGroup,
   FieldRow,
   Hint,
+  NIGHT,
   Screen,
   ScreenTitle,
   SectionLabel,
 } from '../../../shared/design'
 import { MOTION, stagger } from '../../../shared/motion'
+import { MBTI_AXIS_SPECS } from '../../../shared/lib/mbti'
 import type { CalendarType, RawBirthInput } from '../../../shared/lib/saju/types'
 import type { CompatBloodType, CompatProfile } from '../../../shared/lib/compat/types'
-import { MBTI_TYPE_ORDER } from '../../../shared/lib/compat/params'
 import type { PartnerDraft, PartnerMonth } from '../partnerState'
 import {
   HOUR_OPTIONS,
@@ -51,21 +51,13 @@ export interface PartnerFormProps {
   onBack?: () => void
 }
 
-type SheetKind = 'date' | 'time' | 'mbti'
+type SheetKind = 'date' | 'time'
 
 const NOT_SELECTED = '선택해 주세요'
-/** MBTI 를 아직 고르지 않은 줄에 보이는 값. 필수가 된 뒤로는 "모름" 이 아니라 재촉이다. */
-const UNKNOWN_LABEL = '선택해 주세요'
 /** 성별 두 값. 대운 방향과 혈액형 남녀 보정에 쓰이는 **계산 입력**이라 필수다. */
 const PARTNER_GENDER_OPTIONS = ['M', 'F'] as const
 
-/** 아직 고르지 않은 상태. 선택지가 아니다 — MBTI 가 필수가 된 뒤로 "모르겠어요" 는 없앴다. */
-const MBTI_UNSELECTED = '__unselected__'
 const BLOOD_OPTIONS: readonly CompatBloodType[] = ['A', 'B', 'O', 'AB']
-
-const MBTI_OPTIONS = [
-  ...MBTI_TYPE_ORDER.map((type) => ({ name: type, value: type })),
-]
 
 /** 휠 한 칸. TDS `Wheel` 은 비제어라(`initialIndex` 만 읽는다) 되돌리려면 `key` 재마운트가 필요하다 */
 function WheelColumn({
@@ -179,19 +171,31 @@ export function PartnerForm({ onSubmit, engineError = null, onBack }: PartnerFor
         <SectionLabel index={4}>상대방의 MBTI와 혈액형</SectionLabel>
       </div>
       <Spacing size={6} />
-      <Hint>두 항목까지 채우면 MBTI·혈액형 궁합이 배점에 함께 들어가요.</Hint>
+      <Hint>MBTI·혈액형 궁합도 배점에 들어가요. 네 줄에서 하나씩 골라 주세요.</Hint>
 
-      <Spacing size={12} />
+      <Spacing size={14} />
 
-      <FieldGroup index={4}>
-        <FieldRow
-          index={4}
-          label="MBTI 유형"
-          value={draft.mbti ?? UNKNOWN_LABEL}
-          muted={draft.mbti === null}
-          onClick={() => openSheetOf('mbti')}
-        />
-      </FieldGroup>
+      {/* 온보딩과 같은 네 축 이지선다. 두 화면이 같은 방식으로 물어야 사용자가 헷갈리지 않는다. */}
+      <div style={{ padding: '0 24px' }}>
+        {MBTI_AXIS_SPECS.map((axis, i) => (
+          <div key={axis.key} style={{ paddingBottom: i === MBTI_AXIS_SPECS.length - 1 ? 0 : 12 }}>
+            <p
+              className={MOTION.rise}
+              {...stagger(4 + i)}
+              style={{ margin: '0 0 6px', fontSize: 13, color: NIGHT.textDim }}
+            >
+              {axis.title}
+            </p>
+            <ChipGroup
+              index={4 + i}
+              options={axis.options}
+              value={draft.mbtiAxes[axis.key]}
+              onChange={(value) => dispatch({ type: 'setMbtiAxis', patch: { [axis.key]: value } })}
+              label={(option) => axis.label[option] ?? option}
+            />
+          </div>
+        ))}
+      </div>
 
       <Spacing size={18} />
 
@@ -266,29 +270,6 @@ export function PartnerForm({ onSubmit, engineError = null, onBack }: PartnerFor
         }}
       />
 
-      <BottomSheet
-        key={`mbti-${sheetSession}`}
-        open={openSheet === 'mbti'}
-        onClose={closeSheet}
-        onDimmerClick={closeSheet}
-        maxHeight="72vh"
-        header={<BottomSheet.Header>상대방의 MBTI를 알고 있나요?</BottomSheet.Header>}
-        headerDescription={
-          <BottomSheet.HeaderDescription>
-            이미 아는 유형을 골라 주세요. 이 앱은 성격 검사를 제공하지 않아요.
-          </BottomSheet.HeaderDescription>
-        }
-      >
-        <BottomSheet.Select
-          options={MBTI_OPTIONS}
-          value={draft.mbti ?? MBTI_UNSELECTED}
-          onChange={(event: ChangeEvent<HTMLInputElement>) => {
-            const value = event.target.value
-            dispatch({ type: 'setMbti', mbti: value })
-            closeSheet()
-          }}
-        />
-      </BottomSheet>
     </Screen>
   )
 }

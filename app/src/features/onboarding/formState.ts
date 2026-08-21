@@ -12,7 +12,8 @@ import { isValidBirthDate } from './calendar'
 import { DEFAULT_CITY_ID, findCityOrDefault } from './cities'
 import type { BirthInput, SelfReportInput } from './schema'
 import { birthInputSchema, selfReportSchema } from './schema'
-import type { BloodTypeInput, CalendarType, Gender, MbtiType, SelfReport } from './types'
+import { EMPTY_MBTI_AXES, mbtiOf, type MbtiAxes } from './mbtiAxes'
+import type { BloodTypeInput, CalendarType, Gender, SelfReport } from './types'
 
 /**
  * 처음 서 있을 달력. 압도적 다수가 양력이고, 음력은 사용자가 명시적으로 고른다.
@@ -33,12 +34,15 @@ export interface OnboardingDraft {
    * 자기신고 값. **필수 입력**이다 — `collectMissingFields()` 가 이 둘도 보므로 비어 있으면
    * CTA 가 잠긴다.
    *
-   * `null` 이 타입에 남아 있는 이유: 화면은 "아직 고르지 않음"을 표현해야 하고, 리포트 계층
-   * (`buildFactPack`·`renderTemplateReport`)은 계속 `null` 을 다룰 수 있어야 한다 —
+   * MBTI 는 **네 축을 따로 담는다.** 4글자 문자열만으로는 "두 축만 고른 상태"를 표현할 수
+   * 없기 때문이다. 유형 문자열은 `mbtiOf(draft.mbtiAxes)` 로 파생한다 — 두 곳에 저장하면
+   * 언젠가 어긋난다.
+   *
+   * 리포트 계층(`buildFactPack`·`renderTemplateReport`)은 계속 `null` 을 다룰 수 있어야 한다 —
    * 궁합 엔진은 빈 항목의 배점을 재분배하는 경로를 갖고 있고 그 경로는 그대로 산다.
    * 달라진 것은 **이 화면이 빈 값을 통과시키지 않는다**는 것뿐이다.
    */
-  readonly mbti: MbtiType | null
+  readonly mbtiAxes: MbtiAxes
   readonly blood: BloodTypeInput | null
 }
 
@@ -56,7 +60,7 @@ export const INITIAL_DRAFT: OnboardingDraft = {
   timeUnknown: false,
   gender: null,
   cityId: DEFAULT_CITY_ID,
-  mbti: null,
+  mbtiAxes: EMPTY_MBTI_AXES,
   blood: null,
 }
 
@@ -75,7 +79,7 @@ export type OnboardingAction =
   | { readonly type: 'setGender'; readonly gender: Gender }
   | { readonly type: 'setCity'; readonly cityId: string }
   /** `null` = 모름. 되돌릴 수 있어야 하므로 해제도 같은 액션으로 받는다. */
-  | { readonly type: 'setMbti'; readonly mbti: MbtiType | null }
+  | { readonly type: 'setMbtiAxis'; readonly patch: Partial<MbtiAxes> }
   | { readonly type: 'setBlood'; readonly blood: BloodTypeInput | null }
 
 export function onboardingReducer(state: OnboardingDraft, action: OnboardingAction): OnboardingDraft {
@@ -98,8 +102,8 @@ export function onboardingReducer(state: OnboardingDraft, action: OnboardingActi
       return { ...state, gender: action.gender }
     case 'setCity':
       return { ...state, cityId: action.cityId }
-    case 'setMbti':
-      return { ...state, mbti: action.mbti }
+    case 'setMbtiAxis':
+      return { ...state, mbtiAxes: { ...state.mbtiAxes, ...action.patch } }
     case 'setBlood':
       return { ...state, blood: action.blood }
   }
@@ -110,7 +114,7 @@ export function onboardingReducer(state: OnboardingDraft, action: OnboardingActi
  * 검증에 실패하면 "모름"으로 떨어뜨린다 — 이 값은 계산에 쓰이지 않으므로 리포트 섹션 하나가 빠질 뿐이다.
  */
 export function buildSelfReport(draft: OnboardingDraft): SelfReport {
-  const parsed = selfReportSchema.safeParse({ mbti: draft.mbti, blood: draft.blood })
+  const parsed = selfReportSchema.safeParse({ mbti: mbtiOf(draft.mbtiAxes), blood: draft.blood })
   const value: SelfReportInput = parsed.success ? parsed.data : { mbti: null, blood: null }
   return { mbti: value.mbti, blood: value.blood }
 }
@@ -137,7 +141,8 @@ export function collectMissingFields(draft: OnboardingDraft): MissingField[] {
   }
   // MBTI·혈액형도 필수다. 계산에는 쓰이지 않지만 리포트의 항목 수를 좌우하므로,
   // 비운 채로 넘기면 사용자가 "왜 내 리포트는 짧지?" 를 알 길이 없다.
-  if (draft.mbti === null) {
+  // 네 축이 다 차야 유형이 된다. 두 축만 고른 상태는 "아직 안 고름" 과 같다.
+  if (mbtiOf(draft.mbtiAxes) === null) {
     missing.push('mbti')
   }
   if (draft.blood === null) {

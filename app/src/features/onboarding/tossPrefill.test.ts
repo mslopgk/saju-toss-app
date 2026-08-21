@@ -185,7 +185,7 @@ describe('프리필 → 온보딩 드래프트 (원터치 경로)', () => {
 
     const unknownTime = onboardingReducer(draft, { type: 'setTimeUnknown' })
     const withSelfReport = onboardingReducer(
-      onboardingReducer(unknownTime, { type: 'setMbti', mbti: 'INFP' }),
+      onboardingReducer(unknownTime, { type: 'setMbtiAxis', patch: { ei: 'I', sn: 'N', tf: 'F', jp: 'P' } }),
       { type: 'setBlood', blood: 'A' },
     )
     expect(collectMissingFields(withSelfReport)).toEqual([])
@@ -225,7 +225,7 @@ describe('프리필 → 온보딩 드래프트 (원터치 경로)', () => {
           onboardingReducer(lunar, { type: 'setGender', gender: 'F' }),
           { type: 'setTimeUnknown' },
         ),
-        { type: 'setMbti', mbti: 'INFP' },
+        { type: 'setMbtiAxis', patch: { ei: 'I', sn: 'N', tf: 'F', jp: 'P' } },
       ),
       { type: 'setBlood', blood: 'A' },
     )

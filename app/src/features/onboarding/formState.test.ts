@@ -17,7 +17,7 @@ function filled(overrides: Partial<OnboardingDraft> = {}): OnboardingDraft {
     date: { year: 1993, month: 5, day: 16 },
     time: { hour: 12, minute: 0 },
     gender: 'M',
-    mbti: 'INFP',
+    mbtiAxes: { ei: 'I', sn: 'N', tf: 'F', jp: 'P' },
     blood: 'A',
     ...overrides,
   }
@@ -31,9 +31,10 @@ describe('달력 정책', () => {
 
   it('드래프트 필드 목록을 고정한다', () => {
     // 목록을 정확히 고정한다 — 상태가 슬그머니 늘면 캐시 키·직렬화에 새어 들어간다.
-    // (`mbti`/`blood` 는 계산에 쓰이지 않지만 **필수 입력**이라 비어 있으면 CTA 가 잠긴다.)
+    // (`mbtiAxes`/`blood` 는 계산에 쓰이지 않지만 **필수 입력**이라 비어 있으면 CTA 가 잠긴다.
+    //  MBTI 는 네 축을 따로 담는다 — 4글자 문자열로는 "두 축만 고른 상태" 를 표현할 수 없다.)
     expect(Object.keys(INITIAL_DRAFT).sort()).toEqual(
-      ['blood', 'calendarType', 'cityId', 'date', 'gender', 'mbti', 'time', 'timeUnknown'].sort(),
+      ['blood', 'calendarType', 'cityId', 'date', 'gender', 'mbtiAxes', 'time', 'timeUnknown'].sort(),
     )
   })
 

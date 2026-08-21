@@ -12,6 +12,7 @@
  * 리듀서를 React 밖 순수 함수로 두는 이유는 테스트 때문이다.
  */
 
+import { EMPTY_MBTI_AXES, composeMbti, type MbtiAxes } from '../../shared/lib/mbti';
 import { isValidLunarDate, lunarMonthsOf } from '../../shared/lib/saju/lunar';
 import type { CalendarType, Gender, RawBirthInput } from '../../shared/lib/saju/types';
 import type { CompatBloodType, CompatProfile } from '../../shared/lib/compat/types';
@@ -39,7 +40,7 @@ export interface PartnerDraft {
   readonly time: PartnerTime | null;
   readonly timeUnknown: boolean;
   readonly gender: Gender | null;
-  readonly mbti: string | null;
+  readonly mbtiAxes: MbtiAxes;
   readonly blood: CompatBloodType | null;
 }
 
@@ -53,7 +54,7 @@ export const INITIAL_PARTNER_DRAFT: PartnerDraft = {
   time: null,
   timeUnknown: false,
   gender: null,
-  mbti: null,
+  mbtiAxes: EMPTY_MBTI_AXES,
   blood: null,
 };
 
@@ -62,7 +63,7 @@ export type PartnerAction =
   | { readonly type: 'setTime'; readonly time: PartnerTime }
   | { readonly type: 'setTimeUnknown' }
   | { readonly type: 'setGender'; readonly gender: Gender }
-  | { readonly type: 'setMbti'; readonly mbti: string | null }
+  | { readonly type: 'setMbtiAxis'; readonly patch: Partial<MbtiAxes> }
   | { readonly type: 'setBlood'; readonly blood: CompatBloodType | null };
 
 export function partnerReducer(state: PartnerDraft, action: PartnerAction): PartnerDraft {
@@ -76,8 +77,8 @@ export function partnerReducer(state: PartnerDraft, action: PartnerAction): Part
       return { ...state, time: null, timeUnknown: true };
     case 'setGender':
       return { ...state, gender: action.gender };
-    case 'setMbti':
-      return { ...state, mbti: action.mbti };
+    case 'setMbtiAxis':
+      return { ...state, mbtiAxes: { ...state.mbtiAxes, ...action.patch } };
     case 'setBlood':
       return { ...state, blood: action.blood };
   }
@@ -114,13 +115,22 @@ export function isValidPartnerDate(calendarType: CalendarType, date: PartnerDate
   return isValidLunarDate(date.year, date.month, date.day, calendarType === 'lunar_leap');
 }
 
-export type MissingPartnerField = 'date' | 'time' | 'gender';
+export type MissingPartnerField = 'date' | 'time' | 'gender' | 'mbti' | 'blood';
 
 export function missingPartnerFields(draft: PartnerDraft): MissingPartnerField[] {
   const missing: MissingPartnerField[] = [];
   if (draft.date === null) missing.push('date');
   if (!draft.timeUnknown && draft.time === null) missing.push('time');
   if (draft.gender === null) missing.push('gender');
+  /*
+    MBTI·혈액형도 필수다. 온보딩(나)만 필수로 바꾸고 **여기를 빠뜨린 판이 한 번 있었다** —
+    문구는 "필수" 인데 검증은 통과시켜, 상대방 정보가 비어도 제출되고 궁합 배점에서 두 축이
+    조용히 재분배됐다. 두 화면이 같은 규칙을 지켜야 사용자가 두 결과를 비교할 수 있다.
+
+    네 축이 다 차야 유형이 된다 — 두 축만 고른 상태는 "아직 안 고름" 과 같다.
+  */
+  if (composeMbti(draft.mbtiAxes) === null) missing.push('mbti');
+  if (draft.blood === null) missing.push('blood');
   return missing;
 }
 
@@ -156,7 +166,7 @@ export function buildPartnerInput(draft: PartnerDraft): BuildPartnerResult {
       gender,
       birthPlace: {},
     },
-    profile: { mbti: draft.mbti, blood: draft.blood },
+    profile: { mbti: composeMbti(draft.mbtiAxes), blood: draft.blood },
   };
 }
 

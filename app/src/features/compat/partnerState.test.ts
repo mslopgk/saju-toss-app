@@ -14,6 +14,7 @@ import {
   partnerReducer,
   type PartnerDraft,
 } from './partnerState';
+import { EMPTY_MBTI_AXES } from '../../shared/lib/mbti';
 
 const full: PartnerDraft = {
   calendarType: 'solar',
@@ -21,22 +22,42 @@ const full: PartnerDraft = {
   time: { hour: 22, minute: 10 },
   timeUnknown: false,
   gender: 'F',
-  mbti: 'INFJ',
+  mbtiAxes: { ei: 'I', sn: 'N', tf: 'F', jp: 'J' },
   blood: 'A',
 };
 
 describe('상대방 입력 상태', () => {
   it('처음에는 아무것도 채워지지 않았고 CTA 를 잠근다', () => {
-    expect(missingPartnerFields(INITIAL_PARTNER_DRAFT)).toEqual(['date', 'time', 'gender']);
+    expect(missingPartnerFields(INITIAL_PARTNER_DRAFT)).toEqual([
+      'date',
+      'time',
+      'gender',
+      'mbti',
+      'blood',
+    ]);
     expect(buildPartnerInput(INITIAL_PARTNER_DRAFT).ok).toBe(false);
   });
 
-  it('MBTI·혈액형은 선택 입력이라 CTA 를 막지 않는다', () => {
-    const draft = { ...full, mbti: null, blood: null };
-    expect(missingPartnerFields(draft)).toEqual([]);
-    const built = buildPartnerInput(draft);
+  /**
+   * MBTI·혈액형은 **필수**가 됐다. 온보딩(나)만 필수로 바꾸고 여기를 빠뜨린 판이 한 번
+   * 있었는데, 그때는 문구가 "필수" 인데 검증이 통과시켜 상대방 정보가 비어도 제출됐다.
+   */
+  it('MBTI·혈액형이 비면 CTA 를 막는다', () => {
+    const draft = { ...full, mbtiAxes: EMPTY_MBTI_AXES, blood: null };
+    expect(missingPartnerFields(draft)).toEqual(['mbti', 'blood']);
+    expect(buildPartnerInput(draft).ok).toBe(false);
+  });
+
+  /** 네 축 중 하나라도 비면 유형이 아니다 — 두 축만 고른 상태는 "아직 안 고름" 과 같다. */
+  it('MBTI 축이 하나라도 비면 막는다', () => {
+    const draft = { ...full, mbtiAxes: { ...full.mbtiAxes, tf: null } };
+    expect(missingPartnerFields(draft)).toEqual(['mbti']);
+  });
+
+  it('다 채우면 프로필에 유형 문자열이 실린다', () => {
+    const built = buildPartnerInput(full);
     expect(built.ok).toBe(true);
-    if (built.ok) expect(built.profile).toEqual({ mbti: null, blood: null });
+    if (built.ok) expect(built.profile).toEqual({ mbti: 'INFJ', blood: 'A' });
   });
 
   it('시각을 고르면 "모름"이 풀린다 — 두 값이 동시에 참일 수 없다', () => {
