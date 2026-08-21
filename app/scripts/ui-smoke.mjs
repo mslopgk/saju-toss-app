@@ -292,18 +292,13 @@ async function main() {
     // 번들에는 해석 서버 주소가 들어 있지만, 이 스모크는 localhost 에서 띄우므로 서버가
     // 오리진을 거부한다(403). 즉 여기 보이는 글은 **전부 규칙 기반**이고, 이 검사는
     // "서버가 요청을 거절해도 홈이 비지 않는다"를 고정한다 — 폴백 경로 그 자체다.
-    check(home.includes('한 단어로 말하면'), '홈이 뜬다');
+    /*
+      홈은 **네 덩어리**다: 간지 칩 · 오브젝트 · 한 단어 · 한 문장.
+      오행 분포는 깊이읽기로 옮겼다(방향으로 받은 Jamo 앱은 홈에 데이터 시각화를 두지 않는다).
+    */
     check(/(뻗는|밝히는|품는|벼리는|스미는)\s(결|사람|힘)/.test(home), 'AI 없이 한 단어가 채워진다');
-    // 분포 카드에 제목을 두지 않는다 — 막대와 퍼센트가 스스로 말한다.
-    check(home.includes('다섯을 합치면 80점이 됩니다'), '오행 분포가 나온다');
-    for (const label of ['나무', '불', '흙', '쇠', '물']) {
-      check(home.includes(label), `오행 막대 ${label} 가 있다`);
-    }
-
-    // 퍼센트 다섯 개가 실제 숫자로 나온다. `{percent}%` 를 SSR 이 쪼개던 종류의 사고를
-    // 실브라우저에서도 한 번 더 막는다.
-    const percents = home.match(/\d+%/g) ?? [];
-    check(percents.length >= 5, '오행 퍼센트 다섯 개가 찍힌다', percents.join(' '));
+    check(!/\d+%/.test(home), '오행 분포를 홈에 그리지 않는다');
+    check(!home.includes('다섯을 합치면'), '분포 캡션도 홈에 없다');
 
     // 오브젝트 그림. 없으면 텍스트만 그리는 것이 정상이므로 실패가 아니라 기록만 남긴다.
     const objectCount = await page.locator('img[alt*="오브젝트"]').count();
@@ -312,7 +307,7 @@ async function main() {
     await shot('shot-2-home');
     await page.mouse.wheel(0, 700);
     await page.waitForTimeout(700);
-    await shot('shot-3-home-bars');
+    await shot('shot-3-home-scrolled');
 
     /*
       본문 마지막 줄이 하단 CTA 바 뒤에 깔리지 않는가.
@@ -350,7 +345,8 @@ async function main() {
         : `버튼 ${Math.round(atTop.top)}~${Math.round(atTop.bottom)} / 뷰포트 ${atTop.viewport}`,
     );
 
-    const lastLine = page.getByText('다섯을 합치면 80점이 됩니다', { exact: false });
+    // 홈의 마지막 내용은 한 문장이다(분포는 깊이읽기로 옮겼다). 문장 문단을 기준으로 잰다.
+    const lastLine = page.locator('p').filter({ hasText: /니다\.|어요\./ }).last();
     await page.evaluate(() => { window.scrollTo(0, document.documentElement.scrollHeight); });
     await page.waitForTimeout(600);
     const lastBox = await lastLine.boundingBox();
@@ -514,7 +510,11 @@ async function main() {
     await page.getByRole('button', { name: '홈으로' }).click();
     await page.waitForTimeout(1200);
     const back = await page.locator('body').innerText();
-    check(back.includes('한 단어로 말하면'), '깊이읽기에서 나오면 홈으로 온다');
+    // 홈의 표식은 CTA 다. "한 단어로 말하면" 눈금글은 없앴다(홈을 네 덩어리로 줄이면서).
+    check(
+      back.includes('자세히 보기') && !back.includes('깊이 읽기'),
+      '깊이읽기에서 나오면 홈으로 온다',
+    );
     check(!back.includes('언제 태어났는지'), '온보딩까지 되돌아가지 않는다');
 
     /*

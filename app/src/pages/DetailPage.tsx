@@ -18,6 +18,7 @@ import {
 } from '../shared/design'
 import { MOTION, stagger } from '../shared/motion'
 import {
+  ElementBars,
   NO_SELF_REPORT,
   ReportView,
   buildRuleBasedReport,
@@ -184,9 +185,17 @@ export function DetailPage({ chart, selfReport = NO_SELF_REPORT, onBack }: Detai
 
         리포트가 비면(카드 미매칭) 이 블록 전체가 사라진다.
       */}
+      {/*
+        오행 분포. 홈에서 여기로 옮겼다 — 홈의 정보가 열두 덩어리가 되어 처음 만나는 화면이
+        대시보드처럼 보였다(방향으로 받은 Jamo 앱은 홈에 데이터 시각화를 두지 않는다).
+        읽을 준비가 된 사람에게 보여 준다.
+      */}
+      <Spacing size={22} />
+      <ElementBars chart={chart} selfReport={selfReport} />
+
       {hasReportContent(report) && (
         <>
-          <Spacing size={18} />
+          <Spacing size={30} />
           <ReportView report={report} />
         </>
       )}

@@ -18,5 +18,7 @@ export type {
 export { adoptSummary, useHomeSummary } from './useHomeSummary'
 export type { HomeSummaryView, SummaryClient, SummaryOrigin, SummaryState } from './useHomeSummary'
 
+export { ElementBars } from './components/ElementBars'
+export type { ElementBarsProps } from './components/ElementBars'
 export { ReportView } from './components/ReportView'
 export type { ReportViewProps } from './components/ReportView'

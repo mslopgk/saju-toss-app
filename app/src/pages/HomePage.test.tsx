@@ -55,40 +55,35 @@ describe('HomePage', () => {
   /** AI 응답이 없는 경로. 여기가 비면 서버가 죽는 날 사용자는 빈 화면을 본다. */
   it('AI 요약 없이도 한 단어와 한 문장이 나온다', () => {
     const html = render(CHARTS[0]!)
-    expect(html).toContain('한 단어로 말하면')
     // 규칙 기반 요약의 어휘(ELEMENT_WORD × GRADE_NOUN)가 실제로 문서에 실렸는지 본다.
     expect(html).toMatch(/뻗는|밝히는|품는|벼리는|스미는/)
-    // 분포 카드에는 제목을 두지 않는다 — 막대 다섯과 퍼센트가 이미 스스로 말한다.
-    // 대신 카드 아래 한 줄이 합계 규칙을 밝힌다.
-    expect(html).toContain('다섯을 합치면 80점이 됩니다')
+    // 오행 분포는 깊이읽기로 옮겼다 — 홈에는 없어야 한다.
+    expect(html).not.toContain('다섯을 합치면 80점이 됩니다')
   })
 
   /**
-   * **화면이 계산하지 않는다.** 퍼센트를 화면에서 다시 구하면 팩트팩과 어긋나고,
-   * 그 어긋남은 AI 가 인용하는 수치와 사용자가 보는 수치를 갈라놓는다.
+   * 홈은 **네 덩어리**다: 간지 칩 · 오브젝트 · 한 단어 · 한 문장.
+   *
+   * 앞 판은 여기에 오행 분포 막대 다섯과 퍼센트 다섯, 캡션까지 있어 정보가 열두 덩어리였고
+   * 처음 만나는 화면이 대시보드처럼 보였다. 방향으로 받은 Jamo 앱은 홈에 데이터 시각화를
+   * 두지 않는다. 이 검사가 그 결정을 고정한다 — 되돌아오면 여기서 먼저 걸린다.
    */
-  it('막대의 퍼센트가 팩트팩 값 그대로다', () => {
+  it('오행 분포를 홈에 그리지 않는다', () => {
+    // **보이는 글자만 본다.** HTML 전체에 `/\d+%/` 를 걸면 emotion 이 심은 CSS 의 `50%` 에
+    // 걸린다 — `ReadingScreen.test.tsx` 에서 같은 함정에 한 번 빠졌다.
+    const visible = render(CHARTS[0]!)
+      .replace(/<style[\s\S]*?<\/style>/g, '')
+      .replace(/<[^>]+>/g, '')
+    expect(visible).not.toMatch(/\d+%/)
+    expect(visible).not.toContain('나무')
+    expect(visible).not.toContain('다섯을 합치면')
+  })
+
+  it('일주 간지를 작은 칩으로 보여 준다', () => {
     const chart = CHARTS[0]!
-    const strength = buildFactPack(chart, { gender: 'M', mbti: null, blood: null }, 'fusion').saju.strength
-    expect(strength, '픽스처에 신강신약이 없다').not.toBeNull()
-    const html = render(chart)
-    for (const [element, percent] of Object.entries(strength!.elementPercent)) {
-      expect(html, `${element} ${percent}%`).toContain(`${percent}%`)
-    }
+    expect(render(chart)).toContain(chart.pillars.day.ganji)
   })
 
-  it('오행 다섯 개의 막대가 모두 그려진다', () => {
-    const html = render(CHARTS[0]!)
-    for (const label of ['나무', '불', '흙', '쇠', '물']) {
-      expect(html, label).toContain(label)
-    }
-  })
-
-  /**
-   * 자체 `BottomCTA` 로 갈아 끼운 뒤로는 **두 갈래 모두** 정적 렌더에 실린다.
-   * TDS `FixedBottomCTA` 는 포털이라 SSR 에 본문이 없어 이 검사가 불가능했다.
-   * 실제로 눌리는지·화면 안에 있는지는 여전히 실브라우저 `ui-smoke` 몫이다.
-   */
   it('깊이읽기와 다시 입력 두 갈래를 모두 준다', () => {
     const html = render(CHARTS[0]!)
     expect(html).toContain('자세히 보기')
