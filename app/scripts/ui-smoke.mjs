@@ -258,8 +258,22 @@ async function main() {
 
     await page.getByRole('button', { name: '남성', exact: true }).click();
     await page.waitForTimeout(200);
+
+    /*
+      MBTI·혈액형이 **필수**가 됐다. 채우기 전에는 제출이 잠겨 있어야 한다 —
+      선택 입력이던 시절로 되돌아가면 이 검사가 먼저 깨진다.
+    */
+    const submitHome = page.getByRole('button', { name: '결과 보기' });
+    check(await submitHome.isDisabled(), 'MBTI·혈액형 전에는 제출이 잠긴다');
+
+    await page.getByRole('button', { name: /MBTI 유형/ }).click();
+    await page.waitForTimeout(900);
+    await page.getByRole('radio', { name: 'INFP' }).click();
+    await page.waitForTimeout(700);
+
     await page.getByRole('button', { name: 'A', exact: true }).click();
-    await page.waitForTimeout(200);
+    await page.waitForTimeout(300);
+    check(!(await submitHome.isDisabled()), '둘 다 채우면 제출이 열린다');
     await shot('shot-1-onboarding');
 
     /* 4) 홈 화면 — AI 서버 없이도 채워진다 */
@@ -414,16 +428,22 @@ async function main() {
     // 읽을 거리가 표보다 위에 있어야 한다. 위치로 확인한다 — 둘 다 존재하는 것만으로는
     // 예전처럼 표가 맨 위에 있는 상태와 구분되지 않는다.
     check(
-      detail.indexOf('이 리포트가 참고한 자료') > 0 &&
+      detail.indexOf('오늘 해볼 만한 한 가지') > 0 &&
         detail.indexOf('사주 네 기둥') > detail.indexOf('오늘 해볼 만한 한 가지'),
       '깊이읽기는 읽을 거리로 시작한다',
     );
     check(/[甲乙丙丁戊己庚辛壬癸]/.test(detail), '계산된 천간이 화면에 있다');
-    check(detail.includes('이 리포트가 참고한 자료'), '근거 목록이 나온다');
 
-    /* 6) 출처 표기에 저장소 경로가 없다 */
-    check(!/\.md\b/.test(detail), '출처에 .md 파일명이 없다');
-    check(!/tables\.json|personality-data\.json/.test(detail), '출처에 데이터 파일명이 없다');
+    /*
+      근거 카드 목록을 그리지 않는다.
+
+      화면에서 뺐으므로 "출처에 저장소 경로가 없다" 는 검사는 **아무것도 지키지 않게 됐다**
+      (안 그리니 언제나 참이다). 그 가드는 표시 함수를 직접 보는 단위 테스트로 옮겼고
+      (`app-render.test.tsx` 의 "출처 표기 함수가 …"), 여기서는 목록이 되살아나지 않았는지만 본다.
+    */
+    check(!detail.includes('이 리포트가 참고한 자료'), '근거 목록을 그리지 않는다');
+    check(!detail.includes('근거등급'), '근거등급 표기가 없다');
+
 
     await shot('shot-4-detail-top');
 
@@ -549,15 +569,50 @@ async function main() {
 
     await page.getByRole('button', { name: '여성', exact: true }).click();
     await page.waitForTimeout(400);
-    check(!(await submit.isDisabled()), '날짜·시각·성별을 채우면 제출이 열린다');
 
+    // 상대방 쪽 MBTI·혈액형도 필수다.
+    await page.getByRole('button', { name: /MBTI 유형/ }).click();
+    await page.waitForTimeout(900);
+    await page.getByRole('radio', { name: 'ENFJ' }).click();
+    await page.waitForTimeout(700);
+    await page.getByRole('button', { name: 'B', exact: true }).click();
+    await page.waitForTimeout(300);
+
+    check(!(await submit.isDisabled()), '상대방 정보를 다 채우면 제출이 열린다');
+
+    /*
+      점수가 **올라가는지** 본다.
+
+      값이 애니메이션되는 동안 여러 값을 지나가므로, 짧은 간격으로 몇 번 읽어 서로 다른 값이
+      두 개 이상 나오면 움직인 것이다. "중간에 재서 최종값보다 작다" 로 짜면 타이밍이 조금
+      밀릴 때 거짓 실패가 나므로 그렇게 하지 않는다.
+
+      숫자는 CSS 로 전이되지 않아 이 앱에서 유일하게 자바스크립트가 도는 모션이다
+      (`useCountUp`). 깨져도 최종값은 마크업에 있어 화면은 멀쩡해 보인다 — 그래서 검사한다.
+    */
     await submit.click();
-    await page.waitForTimeout(2500);
+    const samples = new Set();
+    for (let i = 0; i < 14; i += 1) {
+      const text = await page.evaluate(() => {
+        const el = [...document.querySelectorAll('span')].find((n) =>
+          /^\d+(\.\d+)?점$/.test(n.textContent?.trim() ?? ''),
+        );
+        return el?.textContent?.trim() ?? null;
+      });
+      if (text !== null) samples.add(text);
+      await page.waitForTimeout(70);
+    }
+    check(
+      samples.size > 1,
+      '궁합 점수가 0 에서 올라간다',
+      `${samples.size}개 값 관측: ${[...samples].slice(0, 4).join(' → ')}`,
+    );
+
+    await page.waitForTimeout(2000);
     const compat = await page.locator('body').innerText();
     check(/\d+점/.test(compat), '궁합 점수가 나온다', (compat.match(/\d+점/) ?? [''])[0]);
     check(compat.includes('사주 궁합'), '항목별 배점이 나온다');
-    check(compat.includes('이 리포트가 참고한 자료'), '궁합 근거 목록이 나온다');
-    check(!/\.md/.test(compat), '궁합 출처에 .md 파일명이 없다');
+    check(!compat.includes('이 리포트가 참고한 자료'), '궁합도 근거 목록을 그리지 않는다');
     await shot('shot-9-compat');
   } catch (error) {
     /*

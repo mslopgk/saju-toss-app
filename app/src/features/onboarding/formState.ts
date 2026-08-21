@@ -30,8 +30,13 @@ export interface OnboardingDraft {
   readonly gender: Gender | null
   readonly cityId: string
   /**
-   * 자기신고 값. **선택 입력**이라 `null`("모름")이 완결 상태다 —
-   * `collectMissingFields()` 가 이 둘을 보지 않으므로 CTA 를 막지 않는다.
+   * 자기신고 값. **필수 입력**이다 — `collectMissingFields()` 가 이 둘도 보므로 비어 있으면
+   * CTA 가 잠긴다.
+   *
+   * `null` 이 타입에 남아 있는 이유: 화면은 "아직 고르지 않음"을 표현해야 하고, 리포트 계층
+   * (`buildFactPack`·`renderTemplateReport`)은 계속 `null` 을 다룰 수 있어야 한다 —
+   * 궁합 엔진은 빈 항목의 배점을 재분배하는 경로를 갖고 있고 그 경로는 그대로 산다.
+   * 달라진 것은 **이 화면이 빈 값을 통과시키지 않는다**는 것뿐이다.
    */
   readonly mbti: MbtiType | null
   readonly blood: BloodTypeInput | null
@@ -117,7 +122,7 @@ export type BuildBirthInputResult =
   /** 다 채웠는데 조합이 틀렸다 — 이건 사용자에게 알려야 한다. */
   | { readonly ok: false; readonly reason: 'invalid'; readonly messages: readonly string[] }
 
-export type MissingField = 'date' | 'time' | 'gender'
+export type MissingField = 'date' | 'time' | 'gender' | 'mbti' | 'blood'
 
 export function collectMissingFields(draft: OnboardingDraft): MissingField[] {
   const missing: MissingField[] = []
@@ -129,6 +134,14 @@ export function collectMissingFields(draft: OnboardingDraft): MissingField[] {
   }
   if (draft.gender === null) {
     missing.push('gender')
+  }
+  // MBTI·혈액형도 필수다. 계산에는 쓰이지 않지만 리포트의 항목 수를 좌우하므로,
+  // 비운 채로 넘기면 사용자가 "왜 내 리포트는 짧지?" 를 알 길이 없다.
+  if (draft.mbti === null) {
+    missing.push('mbti')
+  }
+  if (draft.blood === null) {
+    missing.push('blood')
   }
   return missing
 }

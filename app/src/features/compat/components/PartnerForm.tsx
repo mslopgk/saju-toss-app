@@ -54,15 +54,16 @@ export interface PartnerFormProps {
 type SheetKind = 'date' | 'time' | 'mbti'
 
 const NOT_SELECTED = '선택해 주세요'
-const UNKNOWN_LABEL = '모름'
+/** MBTI 를 아직 고르지 않은 줄에 보이는 값. 필수가 된 뒤로는 "모름" 이 아니라 재촉이다. */
+const UNKNOWN_LABEL = '선택해 주세요'
 /** 성별 두 값. 대운 방향과 혈액형 남녀 보정에 쓰이는 **계산 입력**이라 필수다. */
 const PARTNER_GENDER_OPTIONS = ['M', 'F'] as const
 
-const MBTI_UNKNOWN = '__unknown__'
+/** 아직 고르지 않은 상태. 선택지가 아니다 — MBTI 가 필수가 된 뒤로 "모르겠어요" 는 없앴다. */
+const MBTI_UNSELECTED = '__unselected__'
 const BLOOD_OPTIONS: readonly CompatBloodType[] = ['A', 'B', 'O', 'AB']
 
 const MBTI_OPTIONS = [
-  { name: '모르겠어요', value: MBTI_UNKNOWN },
   ...MBTI_TYPE_ORDER.map((type) => ({ name: type, value: type })),
 ]
 
@@ -175,12 +176,10 @@ export function PartnerForm({ onSubmit, engineError = null, onBack }: PartnerFor
       <Spacing size={26} />
 
       <div style={{ padding: '0 24px' }}>
-        <SectionLabel index={4}>상대방의 MBTI와 혈액형 (선택)</SectionLabel>
+        <SectionLabel index={4}>상대방의 MBTI와 혈액형</SectionLabel>
       </div>
       <Spacing size={6} />
-      <Hint>
-        모르면 비워 두세요. 비운 항목은 배점에서 빼고 그 몫을 나머지에 비율대로 나눠 담아요.
-      </Hint>
+      <Hint>두 항목까지 채우면 MBTI·혈액형 궁합이 배점에 함께 들어가요.</Hint>
 
       <Spacing size={12} />
 
@@ -199,14 +198,16 @@ export function PartnerForm({ onSubmit, engineError = null, onBack }: PartnerFor
       <div style={{ padding: '0 24px' }}>
         <SectionLabel index={5}>혈액형</SectionLabel>
         <Spacing size={10} />
+        {/*
+          재탭 해제를 없앴다. 예전에는 같은 칩을 다시 누르면 "모름"으로 돌아갔는데, 혈액형이
+          필수가 된 뒤로 그 동작은 **방금 열린 CTA 를 다시 잠그는 일**이 된다.
+          잘못 골랐으면 다른 칩을 누르면 되고, 넷 중 하나는 반드시 참이다.
+        */}
         <ChipGroup
           index={5}
           options={BLOOD_OPTIONS}
           value={draft.blood}
-          // 같은 값을 다시 누르면 해제된다 — "모름"으로 돌아갈 길이 없으면 잘못 누른 사용자가 갇힌다.
-          onChange={(blood) =>
-            dispatch({ type: 'setBlood', blood: draft.blood === blood ? null : blood })
-          }
+          onChange={(blood) => dispatch({ type: 'setBlood', blood })}
         />
       </div>
       <Spacing size={10} />
@@ -280,10 +281,10 @@ export function PartnerForm({ onSubmit, engineError = null, onBack }: PartnerFor
       >
         <BottomSheet.Select
           options={MBTI_OPTIONS}
-          value={draft.mbti ?? MBTI_UNKNOWN}
+          value={draft.mbti ?? MBTI_UNSELECTED}
           onChange={(event: ChangeEvent<HTMLInputElement>) => {
             const value = event.target.value
-            dispatch({ type: 'setMbti', mbti: value === MBTI_UNKNOWN ? null : value })
+            dispatch({ type: 'setMbti', mbti: value })
             closeSheet()
           }}
         />

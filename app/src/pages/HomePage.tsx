@@ -14,7 +14,7 @@ import {
   Screen,
   glassCard,
 } from '../shared/design'
-import { MOTION, cx, stagger } from '../shared/motion'
+import { MOTION, cx, stagger, useCountUp } from '../shared/motion'
 import type { Element } from '../shared/lib/saju/types'
 
 /**
@@ -72,6 +72,8 @@ function ElementBar({
   index: number
 }) {
   const ratio = Math.max(0, Math.min(100, (score / 80) * 100))
+  // 막대는 CSS 가 채우고 숫자는 anime.js 가 올린다. 둘이 같은 지연을 쓰므로 함께 움직인다.
+  const percentRef = useCountUp(percent, { suffix: '%', delayMs: 120 + index * 55 })
   return (
     <div
       className={MOTION.rise}
@@ -113,6 +115,7 @@ function ElementBar({
         />
       </div>
       <span
+        ref={percentRef}
         style={{
           width: 38,
           textAlign: 'right',

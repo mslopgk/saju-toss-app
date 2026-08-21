@@ -1,7 +1,6 @@
-import { formatSourceLabel } from '../../../shared/knowledge'
 import type { CompatResult } from '../../../shared/lib/compat'
 import { Hint, NIGHT, SectionLabel, glassCard } from '../../../shared/design'
-import { MOTION, stagger } from '../../../shared/motion'
+import { MOTION, stagger, useCountUp } from '../../../shared/motion'
 import { COMPAT_SECTION_TITLES } from '../copy'
 import type { CompatReport } from '../buildCompatReport'
 
@@ -64,6 +63,9 @@ function ItemBar({
 }
 
 export function CompatReportView({ result, report, accent }: CompatReportViewProps) {
+  // 이 화면의 결론이 되는 숫자. 올라가는 것이 보여야 "계산했다"로 읽힌다.
+  const scoreRef = useCountUp(result.score, { suffix: '점' })
+
   return (
     <section>
       <div style={{ padding: '0 24px', textAlign: 'center' }}>
@@ -73,10 +75,12 @@ export function CompatReportView({ result, report, accent }: CompatReportViewPro
         <div style={{ height: 6 }} />
         <div className={MOTION.pop} {...stagger(2)}>
           <span
+            ref={scoreRef}
             style={{
               fontSize: 44,
               fontWeight: 800,
               color: NIGHT.text,
+              // 자릿수가 바뀔 때 글자가 흔들리지 않게 고정폭 숫자를 쓴다 — 카운트업에서 특히 눈에 띈다.
               fontVariantNumeric: 'tabular-nums',
             }}
           >
@@ -148,33 +152,10 @@ export function CompatReportView({ result, report, accent }: CompatReportViewPro
         </div>
       ))}
 
-      {report.usedCards.length > 0 && (
-        <>
-          <div style={{ height: 28 }} />
-          <div style={{ padding: '0 24px' }}>
-            <SectionLabel>이 리포트가 참고한 자료</SectionLabel>
-          </div>
-          <div style={{ height: 12 }} />
-          <div style={{ margin: '0 20px', ...glassCard() }}>
-            {report.usedCards.map((card, i) => (
-              <div
-                key={card.id}
-                style={{
-                  padding: '10px 0',
-                  borderBottom:
-                    i === report.usedCards.length - 1 ? 'none' : `1px solid ${NIGHT.glassBorder}`,
-                }}
-              >
-                <div style={{ fontSize: 14, fontWeight: 600, color: NIGHT.text }}>{card.title}</div>
-                <div style={{ fontSize: 12, color: NIGHT.textDim, marginTop: 2 }}>
-                  {`${formatSourceLabel(card.source)} · 근거등급 ${card.confidence}`}
-                </div>
-              </div>
-            ))}
-          </div>
-        </>
-      )}
-
+      {/*
+        근거 카드 목록은 그리지 않는다 — `ReportView` 와 같은 이유다.
+        `report.usedCards` 는 그대로 만들어지고 QA 추적에 남는다.
+      */}
       <div style={{ height: 28 }} />
 
       <div style={{ padding: '0 24px' }}>

@@ -17,21 +17,24 @@ export interface MbtiSheetProps {
   /** null = 모름 */
   selected: MbtiType | null
   onClose: () => void
-  onSelect: (mbti: MbtiType | null) => void
+  onSelect: (mbti: MbtiType) => void
 }
 
-/** "모름"도 하나의 선택지로 둔다. 빈 값을 쓰면 라디오가 아무것도 선택되지 않은 상태로 보인다. */
-export const MBTI_UNKNOWN = '__unknown__'
+/**
+ * 아직 고르지 않은 상태를 나타내는 센티널.
+ *
+ * **선택지가 아니다.** MBTI 가 필수가 된 뒤로 "모르겠어요" 항목은 없앴다 — 남겨 두면
+ * 필수인데 빠져나갈 문이 있는 셈이 되고, 그 문을 통과한 값은 다시 CTA 를 잠근다.
+ * 이 값은 라디오가 "아무것도 선택되지 않음"으로 보이게 하는 데만 쓴다(빈 문자열은
+ * `BottomSheet.Select` 에서 첫 항목이 선택된 것처럼 보인다).
+ */
+export const MBTI_UNSELECTED = '__unselected__'
 
-const OPTIONS = [
-  { name: '모르겠어요', value: MBTI_UNKNOWN },
-  ...MBTI_TYPES.map((type) => ({ name: type, value: type })),
-]
+const OPTIONS = MBTI_TYPES.map((type) => ({ name: type, value: type }))
 
 export function MbtiSheet({ open, selected, onClose, onSelect }: MbtiSheetProps) {
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const value = event.target.value
-    onSelect(value === MBTI_UNKNOWN ? null : (value as MbtiType))
+    onSelect(event.target.value as MbtiType)
   }
 
   return (
@@ -40,7 +43,7 @@ export function MbtiSheet({ open, selected, onClose, onSelect }: MbtiSheetProps)
       onClose={onClose}
       onDimmerClick={onClose}
       maxHeight="72vh"
-      header={<BottomSheet.Header>MBTI 유형을 알고 있나요?</BottomSheet.Header>}
+      header={<BottomSheet.Header>MBTI 유형을 골라 주세요</BottomSheet.Header>}
       headerDescription={
         <BottomSheet.HeaderDescription>
           이미 아는 유형을 골라 주세요. 이 앱은 성격 검사를 제공하지 않고, 사주 계산에도 쓰지 않아요.
@@ -49,7 +52,7 @@ export function MbtiSheet({ open, selected, onClose, onSelect }: MbtiSheetProps)
     >
       <BottomSheet.Select
         options={OPTIONS}
-        value={selected ?? MBTI_UNKNOWN}
+        value={selected ?? MBTI_UNSELECTED}
         onChange={handleChange}
       />
     </BottomSheet>

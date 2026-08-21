@@ -164,7 +164,14 @@ describe('화면 규칙', () => {
 })
 
 describe('프리필 → 온보딩 드래프트 (원터치 경로)', () => {
-  it('프리필 뒤 남은 필수 입력은 출생시각뿐이다 (출생지는 서울 기본값)', () => {
+  /**
+   * 프리필이 채워 주는 것은 **생년월일과 성별뿐**이다(토스 동의 항목이 그 둘이다).
+   *
+   * MBTI·혈액형이 필수가 된 뒤로는 원터치 뒤에도 세 항목이 남는다 — 시각·MBTI·혈액형.
+   * 이 테스트가 그 사실을 고정한다: 프리필이 "다 끝났다"가 아니라 "두 칸 채워 줬다" 임을
+   * 화면 문구와 기대치가 같이 알고 있어야 한다.
+   */
+  it('프리필 뒤에도 시각·MBTI·혈액형이 남는다 (출생지는 서울 기본값)', () => {
     const applied = applyTossPrefill(OK)
     let draft = INITIAL_DRAFT
     if (applied.date !== null) {
@@ -174,12 +181,15 @@ describe('프리필 → 온보딩 드래프트 (원터치 경로)', () => {
     if (applied.gender !== null) {
       draft = onboardingReducer(draft, { type: 'setGender', gender: applied.gender })
     }
-    expect(collectMissingFields(draft)).toEqual(['time'])
+    expect(collectMissingFields(draft)).toEqual(['time', 'mbti', 'blood'])
 
-    // "시간 모름"만 누르면 곧바로 제출 가능해진다 → 결과까지 탭 2번.
     const unknownTime = onboardingReducer(draft, { type: 'setTimeUnknown' })
-    expect(collectMissingFields(unknownTime)).toEqual([])
-    const built = buildBirthInput(unknownTime)
+    const withSelfReport = onboardingReducer(
+      onboardingReducer(unknownTime, { type: 'setMbti', mbti: 'INFP' }),
+      { type: 'setBlood', blood: 'A' },
+    )
+    expect(collectMissingFields(withSelfReport)).toEqual([])
+    const built = buildBirthInput(withSelfReport)
     expect(built.ok).toBe(true)
     if (!built.ok) {
       return
@@ -210,8 +220,14 @@ describe('프리필 → 온보딩 드래프트 (원터치 경로)', () => {
 
     // 엔진이 보는 값도 음력이다 — 여기서 'solar' 가 새면 조용히 다른 사주가 나간다.
     const ready = onboardingReducer(
-      onboardingReducer(lunar, { type: 'setGender', gender: 'F' }),
-      { type: 'setTimeUnknown' },
+      onboardingReducer(
+        onboardingReducer(
+          onboardingReducer(lunar, { type: 'setGender', gender: 'F' }),
+          { type: 'setTimeUnknown' },
+        ),
+        { type: 'setMbti', mbti: 'INFP' },
+      ),
+      { type: 'setBlood', blood: 'A' },
     )
     const built = buildBirthInput(ready)
     expect(built.ok).toBe(true)

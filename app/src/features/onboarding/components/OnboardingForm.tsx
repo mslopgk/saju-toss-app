@@ -74,7 +74,8 @@ export interface OnboardingFormProps {
 type SheetKind = 'date' | 'time' | 'place' | 'mbti'
 
 const NOT_SELECTED = '선택해 주세요'
-const UNKNOWN_LABEL = '모름'
+/** MBTI 를 아직 고르지 않은 줄에 보이는 값. 필수가 된 뒤로는 "모름" 이 아니라 재촉이다. */
+const UNKNOWN_LABEL = '선택해 주세요'
 
 const BLOOD_OPTIONS: readonly BloodTypeInput[] = ['A', 'B', 'O', 'AB']
 
@@ -110,8 +111,12 @@ export function OnboardingForm({ onSubmit, engineError = null }: OnboardingFormP
   }
 
   const handleBlood = (blood: BloodTypeInput) => {
-    // 같은 값을 다시 누르면 해제된다 — "모름"으로 돌아갈 길이 없으면 잘못 누른 사용자가 갇힌다.
-    dispatch({ type: 'setBlood', blood: draft.blood === blood ? null : blood })
+    /*
+      재탭 해제를 없앴다. 예전에는 같은 칩을 다시 누르면 "모름"으로 돌아갔는데, 혈액형이
+      필수가 된 뒤로 그 동작은 **방금 열린 CTA 를 다시 잠그는 일**이 된다.
+      잘못 골랐으면 다른 칩을 누르면 되고, 넷 중 하나는 반드시 참이다.
+    */
+    dispatch({ type: 'setBlood', blood })
   }
 
   const handleSubmit = () => {
@@ -327,14 +332,16 @@ export function OnboardingForm({ onSubmit, engineError = null }: OnboardingFormP
 
       <Spacing size={26} />
 
-      {/* 자기신고 값. 사주 계산에는 전혀 쓰이지 않고 리포트 문장에만 쓴다 — 그래서 전부 선택 입력이다. */}
+      {/*
+        자기신고 값. 사주 계산에는 전혀 쓰이지 않고 리포트 문장에만 쓴다.
+        그래도 **필수 입력**이다 — 비운 채로 넘기면 리포트에서 두 항목이 조용히 빠지고,
+        사용자는 자기 리포트가 왜 짧은지 알 길이 없다.
+      */}
       <div style={{ padding: '0 24px' }}>
-        <SectionLabel index={6}>MBTI와 혈액형 (선택)</SectionLabel>
+        <SectionLabel index={6}>MBTI와 혈액형</SectionLabel>
       </div>
       <Spacing size={6} />
-      <Hint>
-        몰라도 괜찮아요. 사주 계산에는 쓰지 않고, 알려주시면 리포트에 항목이 하나씩 늘어나요.
-      </Hint>
+      <Hint>사주 계산에는 쓰지 않고, 리포트의 두 항목을 만드는 데 써요.</Hint>
 
       <Spacing size={12} />
 

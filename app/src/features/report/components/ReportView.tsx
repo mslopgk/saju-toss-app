@@ -1,6 +1,5 @@
-import { formatSourceLabel } from '../../../shared/knowledge'
 import { SECTION_TITLES } from '../../../shared/interpret/ui'
-import { NIGHT, SectionLabel, glassCard } from '../../../shared/design'
+import { NIGHT, glassCard } from '../../../shared/design'
 import { MOTION, cx, stagger } from '../../../shared/motion'
 import type { RuleBasedReport } from '../buildReport'
 import { defaultInterpretationClient } from '../interpretationClient'
@@ -31,7 +30,7 @@ export interface ReportViewProps {
 export function ReportView({ report, client }: ReportViewProps) {
   const resolvedClient = client === undefined ? defaultInterpretationClient() : client
   const view = useInterpretation(report, { client: resolvedClient })
-  const { interpretation, usedCards } = view
+  const { interpretation } = view
 
   return (
     <section>
@@ -98,34 +97,17 @@ export function ReportView({ report, client }: ReportViewProps) {
         </div>
       )}
 
-      {/* 근거 표시. 어떤 카드에서 나온 문장인지 사용자·QA 가 되짚을 수 있어야 한다(문서10 §5.1 설명가능성). */}
-      {usedCards.length > 0 && (
-        <>
-          <div style={{ height: 28 }} />
-          <div style={{ padding: '0 24px' }}>
-            <SectionLabel>이 리포트가 참고한 자료</SectionLabel>
-          </div>
-          <div style={{ height: 12 }} />
-          <div style={{ margin: '0 20px', ...glassCard() }}>
-            {usedCards.map((card, i) => (
-              <div
-                key={card.id}
-                style={{
-                  padding: '10px 0',
-                  borderBottom:
-                    i === usedCards.length - 1 ? 'none' : `1px solid ${NIGHT.glassBorder}`,
-                }}
-              >
-                <div style={{ fontSize: 14, fontWeight: 600, color: NIGHT.text }}>{card.title}</div>
-                <div style={{ fontSize: 12, color: NIGHT.textDim, marginTop: 2 }}>
-                  {/* 한 덩어리로 넘긴다 — 나눠 쓰면 SSR 이 `근거등급 <!-- -->C` 로 쪼갠다. */}
-                  {`${formatSourceLabel(card.source)} · 근거등급 ${card.confidence}`}
-                </div>
-              </div>
-            ))}
-          </div>
-        </>
-      )}
+      {/*
+        근거 카드 목록을 화면에 그리지 않는다.
+
+        예전에는 "이 리포트가 참고한 자료" 로 인용 카드를 나열했다(문서10 §5.1 설명가능성).
+        빼기로 한 이유는 대표님 판단이고, 추적 자체가 사라지는 것은 아니다 —
+        `interpretation.usedCardIds` 는 그대로 오고 서버의 `verifyAuthoredText` 가 인용을
+        검증한다. **화면에 안 보일 뿐 검증은 그대로다.**
+
+        `usedCards` 는 `useInterpretation` 이 여전히 계산한다(여기서 안 쓸 뿐이다) — 그 값은
+        서버 응답을 채택할지 판단하는 데도 쓰이므로 지우면 안 된다.
+      */}
     </section>
   )
 }

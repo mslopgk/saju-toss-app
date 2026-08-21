@@ -10,12 +10,15 @@ import type { OnboardingDraft } from './formState'
 import { DEFAULT_CITY_ID, findCityOrDefault } from './cities'
 import { lunarToSolar } from '../../shared/lib/saju/lunar'
 
+/** 필수 항목을 모두 채운 드래프트. MBTI·혈액형도 필수가 됐으므로 여기 포함한다. */
 function filled(overrides: Partial<OnboardingDraft> = {}): OnboardingDraft {
   return {
     ...INITIAL_DRAFT,
     date: { year: 1993, month: 5, day: 16 },
     time: { hour: 12, minute: 0 },
     gender: 'M',
+    mbti: 'INFP',
+    blood: 'A',
     ...overrides,
   }
 }
@@ -28,7 +31,7 @@ describe('달력 정책', () => {
 
   it('드래프트 필드 목록을 고정한다', () => {
     // 목록을 정확히 고정한다 — 상태가 슬그머니 늘면 캐시 키·직렬화에 새어 들어간다.
-    // (`mbti`/`blood` 는 계산에 쓰이지 않는 선택 입력이며 CTA 를 막지 않는다.)
+    // (`mbti`/`blood` 는 계산에 쓰이지 않지만 **필수 입력**이라 비어 있으면 CTA 가 잠긴다.)
     expect(Object.keys(INITIAL_DRAFT).sort()).toEqual(
       ['blood', 'calendarType', 'cityId', 'date', 'gender', 'mbti', 'time', 'timeUnknown'].sort(),
     )
@@ -83,12 +86,12 @@ describe('onboardingReducer', () => {
 
 describe('collectMissingFields', () => {
   it('초기 상태에서는 날짜·시각·성별이 비어 있다', () => {
-    expect(collectMissingFields(INITIAL_DRAFT)).toEqual(['date', 'time', 'gender'])
+    expect(collectMissingFields(INITIAL_DRAFT)).toEqual(['date', 'time', 'gender', 'mbti', 'blood'])
   })
 
   it('삼주 모드면 시각은 빈 항목이 아니다', () => {
     const draft = onboardingReducer(INITIAL_DRAFT, { type: 'setTimeUnknown' })
-    expect(collectMissingFields(draft)).toEqual(['date', 'gender'])
+    expect(collectMissingFields(draft)).toEqual(['date', 'gender', 'mbti', 'blood'])
   })
 
   it('출생지는 서울 기본값이 있으므로 빈 항목이 될 수 없다 (C00 §S0-3)', () => {
@@ -100,7 +103,7 @@ describe('collectMissingFields', () => {
 describe('buildBirthInput', () => {
   it('덜 채운 상태는 incomplete 로 알린다', () => {
     const result = buildBirthInput(INITIAL_DRAFT)
-    expect(result).toEqual({ ok: false, reason: 'incomplete', missing: ['date', 'time', 'gender'] })
+    expect(result).toEqual({ ok: false, reason: 'incomplete', missing: ['date', 'time', 'gender', 'mbti', 'blood'] })
   })
 
   it('다 채우면 C00 §1.2.2 필드명 그대로 만든다', () => {

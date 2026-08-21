@@ -51,3 +51,10 @@ export function stagger(index: number): { style: React.CSSProperties } {
 export function cx(...parts: readonly (string | false | null | undefined)[]): string {
   return parts.filter(Boolean).join(' ')
 }
+
+/**
+ * 숫자 카운트업. **이 앱에서 자바스크립트로 도는 유일한 모션이다** —
+ * 글자로 쓰인 숫자는 CSS 로 전이되지 않는다(`useCountUp` 주석 참고).
+ */
+export { useCountUp } from './useCountUp'
+export type { CountUpOptions } from './useCountUp'

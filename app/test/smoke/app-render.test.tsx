@@ -114,8 +114,6 @@ describe('리포트 렌더', () => {
       // 문장 전문이 그대로 들어 있어야 한다(잘리거나 다른 값으로 바뀌면 깨진다).
       expect(html).toContain(escapeHtml(section.body))
     }
-    // 근거 카드 제목도 노출된다(어떤 자료에서 나온 문장인지 되짚을 수 있어야 한다).
-    for (const card of report.usedCards) expect(html).toContain(escapeHtml(card.title))
   })
 
   it('자기신고 값이 없으면 MBTI·혈액형 문장이 화면에 없다', () => {
@@ -235,36 +233,43 @@ describe('리포트 렌더', () => {
    * 근거 표시는 제목만으로 부족하다 — 출처와 근거등급이 함께 나와야 "어떤 자료의 어느 절인지"를
    * 되짚을 수 있다(문서10 §5.1 설명가능성). 세 조각 중 하나만 빠져도 그 줄은 근거 구실을 못 한다.
    */
-  it('근거 카드가 출처 문서와 근거등급까지 화면에 나온다', () => {
+  /**
+   * 근거 카드는 **화면에 그리지 않는다**(대표님 판단). 추적이 사라진 것은 아니다 —
+   * `usedCards` 는 그대로 만들어지고 서버의 인용 검증도 그대로다.
+   * 여기서는 화면에 안 나온다는 사실만 고정한다. 되살아나면 아래 유출 가드가 다시 필요해진다.
+   */
+  it('근거 카드 목록을 화면에 그리지 않는다', () => {
     const chart = computeChart(RAW)
     const report = buildRuleBasedReport(chart, SELF)
     const html = render(<DetailPage chart={chart} selfReport={SELF} onBack={() => {}} />)
 
     expect(report.usedCards.length).toBeGreaterThan(0)
-    for (const card of report.usedCards) {
-      // 표시는 `formatSourceLabel` 을 거친 형태다. 파일명 그대로가 아니다 — 아래 테스트 참고.
-      expect(html, `${card.id} 출처`).toContain(escapeHtml(formatSourceLabel(card.source)))
-      expect(html, `${card.id} 근거등급`).toContain(escapeHtml(`근거등급 ${card.confidence}`))
-    }
+    expect(html).not.toContain('이 리포트가 참고한 자료')
+    expect(html).not.toContain('근거등급')
   })
 
   /**
-   * 출처는 보여 주되 **저장소 파일명은 보여 주지 않는다.**
+   * 출처 표기에 **저장소 파일명이 들어가지 않는다.**
+   *
    * 한동안 `C04-…-룩업테이블.md §7-12 §12-1 (+ tables.json gosinGwasuk)` 가 결과 화면에 그대로
    * 찍히고 있었다. 화면에 나오는 문자열이라 타입도 테스트도 막지 못했고, 스토어 스크린샷을 찍다가
    * 눈으로 발견했다. 파일명이 `doc` 과 `section` **양쪽**에 있어서 한쪽만 고쳤을 때도 통과했다.
+   *
+   * 근거 목록을 화면에서 뺀 뒤로 "HTML 에 없다" 는 단언은 **아무것도 지키지 않는다**(안 그리니
+   * 언제나 참이다). 그래서 화면이 아니라 **표시 함수**를 지킨다 — 누군가 다시 출처를 그리는
+   * 순간 이 가드가 그대로 유효하다.
    */
-  it('출처 표기에 파일 확장자·디렉터리가 새어 나오지 않는다', () => {
+  it('출처 표기 함수가 파일 확장자·디렉터리를 흘리지 않는다', () => {
     const chart = computeChart(RAW)
     const report = buildRuleBasedReport(chart, SELF)
-    const html = render(<DetailPage chart={chart} selfReport={SELF} onBack={() => {}} />)
 
-    for (const card of report.usedCards) {
-      expect(html, `${card.id} 원본 파일명 노출`).not.toContain(escapeHtml(card.source.doc))
+    expect(report.retrievedCards.length).toBeGreaterThan(0)
+    for (const card of report.retrievedCards) {
+      const label = formatSourceLabel(card.source)
+      expect(label, `${card.id} 원본 파일명`).not.toContain(card.source.doc)
+      expect(label, `${card.id} 확장자`).not.toMatch(/\.(md|json)\b/)
+      expect(label, `${card.id} 경로`).not.toMatch(/[/\\]/)
     }
-    expect(html).not.toMatch(/\.md\b/)
-    expect(html).not.toMatch(/tables\.json/)
-    expect(html).not.toMatch(/personality-data\.json/)
   })
 
   it('교집합 섹션도 화면까지 도달한다(그 섹션이 서는 사주에서)', () => {
