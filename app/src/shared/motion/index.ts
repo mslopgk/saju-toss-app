@@ -19,8 +19,6 @@ export const MOTION = {
   screen: 'm-screen',
   /** 계속 떠 있다. 오행 오브젝트. */
   float: 'm-float',
-  /** 뒤에서 숨 쉬는 후광. */
-  halo: 'm-halo',
   /** 값이 아직 없다. */
   shimmer: 'm-shimmer',
   /** 0 에서 제 길이까지 찬다. 막대. */

@@ -1,18 +1,20 @@
-import { Paragraph, Spacing } from '@toss/tds-mobile'
 import type { Chart } from '../shared/lib/saju'
 import type { SelfReport } from '../features/onboarding'
 import { buildFactPack, renderTemplateSummary, selectKnowledgeCards } from '../shared/interpret/ui'
 import { CARDS } from '../shared/knowledge'
 import { defaultSummaryClient, useHomeSummary, type SummaryClient } from '../features/report'
-import { elementBackdropUrl, elementObjectUrl } from '../shared/assets'
+import { elementObjectUrl } from '../shared/assets'
 import {
   BottomCTA,
+  C,
   ELEMENT_ACCENT,
   ELEMENT_LABEL,
   ELEMENT_ORDER,
-  NIGHT,
+  GUTTER,
+  S,
   Screen,
-  glassCard,
+  T,
+  card,
 } from '../shared/design'
 import { MOTION, cx, stagger, useCountUp } from '../shared/motion'
 import type { Element } from '../shared/lib/saju/types'
@@ -22,25 +24,27 @@ import type { Element } from '../shared/lib/saju/types'
  *
  * 근거: docs/superpowers/specs/2026-08-19-report-redesign-design.md §4.
  *
- * 이전 결과 화면은 사주 여덟 글자 표로 시작해 문단 열한 개가 세로로 쌓였다. 계산은 정확한데
- * **만세력 도구처럼 보였다.** 여기서는 위에서부터 세 덩어리만 둔다:
- *   ① 가장 강한 오행의 오브젝트  ② 한 단어와 한 문장  ③ 오행 분포
+ * 위에서부터 세 덩어리: ① 오행 오브젝트 ② 한 단어와 한 문장 ③ 오행 분포.
  * 나머지는 전부 깊이읽기로 넘긴다.
+ *
+ * ## 초점은 하나다
+ * 앞 판은 오브젝트 뒤에 후광을 돌리고 배경 이미지를 깔고 막대에 글로우를 얹었다. 전부
+ * 동시에 움직여서 **무엇을 봐야 할지 알 수 없었다.** 지금은 움직이는 것이 오브젝트 하나,
+ * 색이 들어가는 것이 가장 강한 오행 막대 하나다.
  *
  * ## 이 화면은 계산하지 않는다
  * 어느 오행이 강한지, 신강인지 신약인지는 **엔진이 이미 확정했다**(C00 §H). 여기서는 그 값으로
  * 그림을 고르고 막대 길이를 정할 뿐이다. 정렬·임계값 판정·가중합을 하지 않는다.
  *
  * ## AI 가 없어도 채워진다
- * `useHomeSummary` 가 규칙 기반 값을 먼저 그리고 서버 값이 오면 갈아 끼운다. 서버가 없거나
- * 죽어도 첫 화면이 빈 적이 없어야 한다 — 그게 이 앱이 LLM 을 **덧칠로만** 쓰는 이유다.
+ * `useHomeSummary` 가 규칙 기반 값을 먼저 그리고 서버 값이 오면 갈아 끼운다.
  */
 export interface HomePageProps {
   readonly chart: Chart
   readonly selfReport?: SelfReport
   /**
    * 요약 서버 클라이언트. 생략하면 빌드 설정(`VITE_INTERPRET_API_BASE`)을 보고 정한다.
-   * `null` 을 명시하면 서버를 쓰지 않는다(테스트·미리보기) — `ReportView` 의 `client` 와 같은 규칙이다.
+   * `null` 을 명시하면 서버를 쓰지 않는다(테스트·미리보기).
    */
   readonly client?: SummaryClient | null
   readonly onOpenDetail: () => void
@@ -53,8 +57,8 @@ export interface HomePageProps {
  * 길이는 엔진 점수를 그대로 쓴다. **분모는 고정 80 이다** — 실제 합으로 나누면 불변식이
  * 깨진 상태가 숫자에 묻힌다(합 80 은 엔진이 보장한다, §5.2 게이트).
  *
- * 채워지는 애니메이션(`m-bar`)은 시작점만 0 으로 잡고 끝은 이 `width` 다.
- * 애니메이션이 꺼져도 막대는 제 길이로 그려진다.
+ * 강조되지 않은 넷은 **아주 흐리게** 둔다. 앞 판은 다섯이 거의 같은 무게로 그려져 회색 막대
+ * 네 개가 그대로 노이즈였다 — 이 화면이 말하려는 것은 "불 33%" 하나다.
  */
 function ElementBar({
   element,
@@ -72,21 +76,22 @@ function ElementBar({
   index: number
 }) {
   const ratio = Math.max(0, Math.min(100, (score / 80) * 100))
-  // 막대는 CSS 가 채우고 숫자는 anime.js 가 올린다. 둘이 같은 지연을 쓰므로 함께 움직인다.
+  // 막대는 CSS 가 채우고 숫자는 rAF 가 올린다. 둘이 같은 지연을 쓰므로 함께 움직인다.
   const percentRef = useCountUp(percent, { suffix: '%', delayMs: 120 + index * 55 })
+
   return (
     <div
       className={MOTION.rise}
       {...stagger(index)}
-      style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '6px 0' }}
+      style={{ display: 'flex', alignItems: 'center', gap: S.md, padding: `${S.sm}px 0` }}
     >
       <span
         style={{
-          width: 30,
+          width: 28,
           flexShrink: 0,
-          fontSize: 13,
-          fontWeight: emphasized ? 700 : 400,
-          color: emphasized ? NIGHT.text : NIGHT.textDim,
+          ...T.label,
+          fontWeight: emphasized ? 600 : 400,
+          color: emphasized ? C.text : C.textMuted,
         }}
       >
         {ELEMENT_LABEL[element]}
@@ -94,13 +99,7 @@ function ElementBar({
       <div
         role="img"
         aria-label={`${ELEMENT_LABEL[element]} ${score}점`}
-        style={{
-          flex: 1,
-          height: 8,
-          borderRadius: 4,
-          background: NIGHT.track,
-          overflow: 'hidden',
-        }}
+        style={{ flex: 1, height: 4, borderRadius: 2, background: C.track, overflow: 'hidden' }}
       >
         <div
           className={MOTION.bar}
@@ -108,20 +107,19 @@ function ElementBar({
           style={{
             width: `${ratio}%`,
             height: '100%',
-            borderRadius: 4,
-            background: emphasized ? accent : 'rgba(255,255,255,0.34)',
-            boxShadow: emphasized ? `0 0 12px ${accent}66` : undefined,
+            borderRadius: 2,
+            background: emphasized ? accent : 'rgba(255,255,255,0.2)',
           }}
         />
       </div>
       <span
         ref={percentRef}
         style={{
-          width: 38,
+          width: 34,
           textAlign: 'right',
-          fontSize: 13,
+          ...T.label,
           fontVariantNumeric: 'tabular-nums',
-          color: emphasized ? NIGHT.text : NIGHT.textDim,
+          color: emphasized ? C.text : C.textMuted,
         }}
       >
         {/* 한 덩어리로 넘긴다 — `{percent}%` 는 SSR 이 `14<!-- -->%` 로 쪼갠다. */}
@@ -155,60 +153,49 @@ export function HomePage({ chart, selfReport, client, onOpenDetail, onRestart }:
   const objectUrl = elementObjectUrl(dayElement)
 
   return (
-    <Screen element={dayElement} backdropUrl={elementBackdropUrl(dayElement)} bottomInset={132}>
-      <Spacing size={28} />
+    <Screen element={dayElement} bottomInset={128}>
+      <div style={{ height: S.xxl }} />
 
       {objectUrl !== null && (
-        <div style={{ display: 'flex', justifyContent: 'center', padding: '0 24px' }}>
-          <div className={MOTION.float} style={{ position: 'relative', width: '70%', maxWidth: 300 }}>
-            {/* 후광. 오브젝트 뒤에서 숨 쉰다 — 네모 이미지의 경계를 눌러 주는 역할도 한다. */}
-            <div
-              aria-hidden
-              className={MOTION.halo}
-              style={{
-                position: 'absolute',
-                inset: '-14%',
-                borderRadius: '50%',
-                background: `radial-gradient(circle, ${accent}4D 0%, transparent 68%)`,
-                filter: 'blur(14px)',
-              }}
-            />
+        <div style={{ display: 'flex', justifyContent: 'center', padding: `0 ${GUTTER}px` }}>
+          {/*
+            오브젝트.
+
+            배경 상자는 **이미지 쪽에서 없앴다** — `optimize-assets` 가 밝기를 알파로 구워
+            어두운 배경이 투명하다. CSS 로 지우려 두 번 시도했고 둘 다 실패했다:
+            마스크로 원을 잘라도 남색이 원 안에 남았고, `mix-blend-mode: screen` 은 어두운
+            픽셀을 투명하게 만드는 게 아니라 밝게 할 뿐이며 마스크가 합성 컨텍스트를 분리해
+            페이지 배경과 섞이지도 않았다.
+
+            이 화면에서 **끝없이 움직이는 것은 이것 하나**다.
+          */}
+          <div
+            className={MOTION.float}
+            style={{ width: '62%', maxWidth: 250, aspectRatio: '1 / 1' }}
+          >
             <img
               src={objectUrl}
               alt={`${ELEMENT_LABEL[dayElement]} 기운을 나타내는 오브젝트`}
-              className={MOTION.pop}
-              style={{
-                position: 'relative',
-                width: '100%',
-                aspectRatio: '1 / 1',
-                objectFit: 'contain',
-                // 생성 에셋은 제 배경을 달고 온다. 모서리를 깎지 않으면 하늘 위에 네모가 얹힌 티가 난다.
-                borderRadius: 28,
-              }}
+              className={MOTION.fade}
+              style={{ width: '100%', height: '100%', objectFit: 'contain' }}
             />
           </div>
         </div>
       )}
 
-      <Spacing size={20} />
+      <div style={{ height: S.xl }} />
 
-      <div style={{ padding: '0 24px', textAlign: 'center' }}>
+      <div style={{ padding: `0 ${GUTTER}px`, textAlign: 'center' }}>
         <div className={MOTION.rise} {...stagger(1)}>
-          <Paragraph typography="st12" color={NIGHT.textDim}>
-            한 단어로 말하면
-          </Paragraph>
+          <p style={{ margin: 0, ...T.caption, color: C.textMuted }}>한 단어로 말하면</p>
         </div>
-        <Spacing size={6} />
+        <div style={{ height: S.sm }} />
         <div className={MOTION.rise} {...stagger(2)}>
-          <Paragraph typography="t2" fontWeight="bold" color={NIGHT.text}>
-            {shown.word}
-          </Paragraph>
+          <h1 style={{ margin: 0, ...T.display, color: C.text }}>{shown.word}</h1>
         </div>
-        <Spacing size={10} />
+        <div style={{ height: S.md }} />
         <div className={MOTION.rise} {...stagger(3)}>
-          <Paragraph typography="st11" color={NIGHT.textSub}>
-            {shown.sentence}
-          </Paragraph>
+          <p style={{ margin: 0, ...T.body, color: C.textBody }}>{shown.sentence}</p>
         </div>
 
         {/*
@@ -217,16 +204,16 @@ export function HomePage({ chart, selfReport, client, onOpenDetail, onRestart }:
         */}
         {summaryPending && (
           <>
-            <Spacing size={10} />
+            <div style={{ height: S.md }} />
             <span
               className={cx(MOTION.fade, MOTION.shimmer)}
               style={{
                 display: 'inline-block',
-                padding: '4px 12px',
+                padding: `${S.xs}px ${S.md}px`,
                 borderRadius: 999,
-                background: 'rgba(255,255,255,0.08)',
-                fontSize: 12,
-                color: NIGHT.textDim,
+                background: C.surface,
+                ...T.caption,
+                color: C.textMuted,
               }}
             >
               조금 더 다듬는 중이에요
@@ -235,14 +222,10 @@ export function HomePage({ chart, selfReport, client, onOpenDetail, onRestart }:
         )}
       </div>
 
-      <Spacing size={32} />
+      <div style={{ height: S.xxxl }} />
 
       {strength !== null && (
-        <div className={MOTION.rise} {...stagger(4)} style={{ margin: '0 20px', ...glassCard() }}>
-          <Paragraph typography="st12" fontWeight="bold" color={NIGHT.text}>
-            타고난 기운의 분포
-          </Paragraph>
-          <Spacing size={10} />
+        <div className={MOTION.rise} {...stagger(4)} style={{ margin: `0 ${GUTTER}px`, ...card() }}>
           {ELEMENT_ORDER.map((element, i) => (
             <ElementBar
               key={element}
@@ -254,22 +237,20 @@ export function HomePage({ chart, selfReport, client, onOpenDetail, onRestart }:
               index={i + 5}
             />
           ))}
-          <Spacing size={8} />
-          <Paragraph typography="st13" color={NIGHT.textDim}>
-            {ELEMENT_LABEL[dayElement]} 기운이 당신의 중심이에요. 다섯을 합치면 80점이 됩니다.
-          </Paragraph>
         </div>
       )}
 
-      {/*
-        "다시 입력하기"를 본문 맨 아래가 아니라 CTA 옆에 붙인다. 본문에 두면 스크롤을 끝까지
-        내려야 보이고, 그 자리는 오행 분포를 읽고 난 사람이 가장 덜 원하는 동작이다.
-      */}
-      <BottomCTA
-        accent={accent}
-        onClick={onOpenDetail}
-        secondary={{ label: '다시 입력', onClick: onRestart }}
+      <div style={{ height: S.md }} />
+
+      <p
+        className={MOTION.rise}
+        {...stagger(10)}
+        style={{ margin: 0, padding: `0 ${GUTTER}px`, ...T.caption, color: C.textMuted }}
       >
+        {`${ELEMENT_LABEL[dayElement]} 기운이 중심이에요. 다섯을 합치면 80점이 됩니다.`}
+      </p>
+
+      <BottomCTA onClick={onOpenDetail} secondary={{ label: '다시 입력', onClick: onRestart }}>
         자세히 보기
       </BottomCTA>
     </Screen>

@@ -294,7 +294,8 @@ async function main() {
     // "서버가 요청을 거절해도 홈이 비지 않는다"를 고정한다 — 폴백 경로 그 자체다.
     check(home.includes('한 단어로 말하면'), '홈이 뜬다');
     check(/(뻗는|밝히는|품는|벼리는|스미는)\s(결|사람|힘)/.test(home), 'AI 없이 한 단어가 채워진다');
-    check(home.includes('타고난 기운의 분포'), '오행 분포가 나온다');
+    // 분포 카드에 제목을 두지 않는다 — 막대와 퍼센트가 스스로 말한다.
+    check(home.includes('다섯을 합치면 80점이 됩니다'), '오행 분포가 나온다');
     for (const label of ['나무', '불', '흙', '쇠', '물']) {
       check(home.includes(label), `오행 막대 ${label} 가 있다`);
     }

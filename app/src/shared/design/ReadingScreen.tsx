@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { loadingUrl } from '../assets'
 import { MOTION, cx } from '../motion'
-import { NIGHT } from './theme'
+import { C, S, T } from './theme'
 import { Screen } from './Screen'
 
 /**
@@ -51,25 +51,22 @@ export function ReadingScreen({ stepMs = 2200 }: ReadingScreenProps) {
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          gap: 28,
-          padding: '0 32px',
+          gap: S.xxl,
+          padding: `0 ${S.xxl}px`,
         }}
         role="status"
         aria-live="polite"
       >
         {art !== null && (
-          <div className={MOTION.float} style={{ position: 'relative', width: '62%', maxWidth: 260 }}>
-            <div
-              aria-hidden
-              className={MOTION.halo}
-              style={{
-                position: 'absolute',
-                inset: '-16%',
-                borderRadius: '50%',
-                background: 'radial-gradient(circle, rgba(129,140,248,0.42) 0%, transparent 68%)',
-                filter: 'blur(16px)',
-              }}
-            />
+          <div
+            className={MOTION.float}
+            style={{
+              width: '58%',
+              maxWidth: 230,
+              aspectRatio: '1 / 1',
+            }}
+          >
+            {/* 후광을 두지 않는다 — 홈과 같은 이유로, 움직이는 것은 그림 하나뿐이다. */}
             {/*
               `key` 를 단계로 준다 — 그래야 그림이 바뀔 때 React 가 새 요소로 갈아 끼우고
               등장 애니메이션이 **다시 돈다**. 같은 요소의 src 만 바꾸면 그림이 툭 바뀐다.
@@ -80,13 +77,8 @@ export function ReadingScreen({ stepMs = 2200 }: ReadingScreenProps) {
               alt=""
               aria-hidden
               className={MOTION.pop}
-              style={{
-                position: 'relative',
-                width: '100%',
-                aspectRatio: '1 / 1',
-                objectFit: 'contain',
-                borderRadius: 26,
-              }}
+              // 배경 상자는 에셋 자체에 알파로 구워져 있다(`optimize-assets`).
+              style={{ width: '100%', height: '100%', objectFit: 'contain' }}
             />
           </div>
         )}
@@ -96,10 +88,10 @@ export function ReadingScreen({ stepMs = 2200 }: ReadingScreenProps) {
           className={cx(MOTION.rise)}
           style={{
             margin: 0,
+            ...T.body,
             fontSize: 16,
-            lineHeight: 1.6,
             textAlign: 'center',
-            color: NIGHT.textSub,
+            color: C.textBody,
           }}
         >
           {STEPS[step]}
@@ -114,7 +106,7 @@ export function ReadingScreen({ stepMs = 2200 }: ReadingScreenProps) {
                 width: 6,
                 height: 6,
                 borderRadius: '50%',
-                background: i <= step ? NIGHT.text : NIGHT.track,
+                background: i <= step ? C.text : C.track,
                 transition: 'background var(--dur-base) var(--ease-out)',
               }}
             />

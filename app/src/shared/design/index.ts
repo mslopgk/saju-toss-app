@@ -1,4 +1,4 @@
-/** 세계관 계층의 공개 표면. */
+/** 디자인 계층의 공개 표면. */
 export { BottomCTA } from './BottomCTA'
 export type { BottomCTAProps } from './BottomCTA'
 export { ChipGroup, FieldGroup, FieldRow, Hint, ScreenTitle, SectionLabel } from './Field'
@@ -8,10 +8,12 @@ export type { ReadingScreenProps } from './ReadingScreen'
 export { Screen } from './Screen'
 export type { ScreenProps } from './Screen'
 export {
+  C,
   ELEMENT_ACCENT,
-  ELEMENT_GROUND,
   ELEMENT_LABEL,
   ELEMENT_ORDER,
-  NIGHT,
-  glassCard,
+  GUTTER,
+  S,
+  T,
+  card,
 } from './theme'

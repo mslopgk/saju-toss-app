@@ -1,5 +1,5 @@
 import type { CompatResult } from '../../../shared/lib/compat'
-import { Hint, NIGHT, SectionLabel, glassCard } from '../../../shared/design'
+import { C, GUTTER, Hint, S, SectionLabel, T, card } from '../../../shared/design'
 import { MOTION, stagger, useCountUp } from '../../../shared/motion'
 import { COMPAT_SECTION_TITLES } from '../copy'
 import type { CompatReport } from '../buildCompatReport'
@@ -23,27 +23,25 @@ function ItemBar({
   label,
   score,
   cap,
-  accent,
   index,
 }: {
   label: string
   score: number
   cap: number
-  accent: string
   index: number
 }) {
   const ratio = cap === 0 ? 0 : Math.max(0, Math.min(1, score / cap))
   return (
     <div className={MOTION.rise} {...stagger(index)} style={{ padding: '7px 0' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8 }}>
-        <span style={{ fontSize: 13, color: NIGHT.textDim }}>{label}</span>
-        <span style={{ fontSize: 13, fontWeight: 700, color: NIGHT.text }}>
+        <span style={{ ...T.label, color: C.textMuted }}>{label}</span>
+        <span style={{ ...T.label, fontWeight: 700, color: C.text }}>
           {`${Number.isInteger(score) ? score : score.toFixed(1)} / ${cap}`}
         </span>
       </div>
-      <div style={{ height: 6 }} />
+      <div style={{ height: S.sm }} />
       <div
-        style={{ height: 6, borderRadius: 3, background: NIGHT.track, overflow: 'hidden' }}
+        style={{ height: 4, borderRadius: 2, background: C.track, overflow: 'hidden' }}
         role="img"
         aria-label={`${label} ${score} / ${cap}점`}
       >
@@ -53,8 +51,10 @@ function ItemBar({
           style={{
             width: `${ratio * 100}%`,
             height: '100%',
-            borderRadius: 3,
-            background: accent,
+            borderRadius: 2,
+            // 무채색이다. 여섯 막대에 강조색을 넣으면 화면이 시끄러워지고, 이 화면의
+            // 강조색은 등급 배지 한 군데로 정해 뒀다.
+            background: 'rgba(255,255,255,0.32)',
           }}
         />
       </div>
@@ -68,18 +68,18 @@ export function CompatReportView({ result, report, accent }: CompatReportViewPro
 
   return (
     <section>
-      <div style={{ padding: '0 24px', textAlign: 'center' }}>
+      <div style={{ padding: `0 ${GUTTER}px`, textAlign: 'center' }}>
         <div className={MOTION.rise} {...stagger(1)}>
-          <span style={{ fontSize: 13, color: NIGHT.textDim }}>두 사람의 궁합</span>
+          <span style={{ ...T.label, color: C.textMuted }}>두 사람의 궁합</span>
         </div>
-        <div style={{ height: 6 }} />
+        <div style={{ height: S.sm }} />
         <div className={MOTION.pop} {...stagger(2)}>
           <span
             ref={scoreRef}
             style={{
               fontSize: 44,
               fontWeight: 800,
-              color: NIGHT.text,
+              color: C.text,
               // 자릿수가 바뀔 때 글자가 흔들리지 않게 고정폭 숫자를 쓴다 — 카운트업에서 특히 눈에 띈다.
               fontVariantNumeric: 'tabular-nums',
             }}
@@ -87,7 +87,7 @@ export function CompatReportView({ result, report, accent }: CompatReportViewPro
             {`${result.score}점`}
           </span>
         </div>
-        <div style={{ height: 8 }} />
+        <div style={{ height: S.sm }} />
         <div className={MOTION.rise} {...stagger(3)}>
           <span
             style={{
@@ -98,15 +98,15 @@ export function CompatReportView({ result, report, accent }: CompatReportViewPro
               border: `1px solid ${accent}`,
               fontSize: 13,
               fontWeight: 700,
-              color: NIGHT.text,
+              color: C.text,
             }}
           >
             {`${result.band.tag} · ${result.band.name}`}
           </span>
         </div>
-        <div style={{ height: 14 }} />
+        <div style={{ height: S.lg }} />
         <div className={MOTION.rise} {...stagger(4)}>
-          <p style={{ margin: 0, fontSize: 14, lineHeight: 1.7, color: NIGHT.textSub }}>
+          <p style={{ margin: 0, ...T.body, color: C.textBody }}>
             {report.summary}
           </p>
         </div>
@@ -114,26 +114,25 @@ export function CompatReportView({ result, report, accent }: CompatReportViewPro
 
       {report.missingAxisNote !== null && (
         <>
-          <div style={{ height: 12 }} />
+          <div style={{ height: S.md }} />
           <Hint>{report.missingAxisNote}</Hint>
         </>
       )}
 
-      <div style={{ height: 28 }} />
+      <div style={{ height: S.xxl }} />
 
       {/* 사주 6항목. 점수는 전부 엔진 값 그대로다 */}
-      <div className={MOTION.rise} {...stagger(5)} style={{ margin: '0 20px', ...glassCard() }}>
-        <span style={{ fontSize: 15, fontWeight: 700, color: NIGHT.text }}>
+      <div className={MOTION.rise} {...stagger(5)} style={{ margin: `0 ${GUTTER}px`, ...card() }}>
+        <span style={{ ...T.title, fontSize: 16, color: C.text }}>
           {`사주 궁합 ${Number(result.saju.total.toFixed(1))}점 / 100점`}
         </span>
-        <div style={{ height: 6 }} />
+        <div style={{ height: S.sm }} />
         {result.saju.items.map((item, i) => (
           <ItemBar
             key={item.id}
             label={item.label}
             score={item.score}
             cap={item.cap}
-            accent={accent}
             index={i + 6}
           />
         ))}
@@ -141,11 +140,11 @@ export function CompatReportView({ result, report, accent }: CompatReportViewPro
 
       {report.sections.map((section, i) => (
         <div key={section.id}>
-          <div style={{ height: 22 }} />
-          <div className={MOTION.rise} {...stagger(i + 7)} style={{ padding: '0 24px' }}>
+          <div style={{ height: S.xl }} />
+          <div className={MOTION.rise} {...stagger(i + 7)} style={{ padding: `0 ${GUTTER}px` }}>
             <SectionLabel>{COMPAT_SECTION_TITLES[section.id]}</SectionLabel>
-            <div style={{ height: 8 }} />
-            <p style={{ margin: 0, fontSize: 14, lineHeight: 1.7, color: NIGHT.textSub }}>
+            <div style={{ height: S.sm }} />
+            <p style={{ margin: 0, ...T.body, color: C.textBody }}>
               {section.body}
             </p>
           </div>
@@ -156,16 +155,16 @@ export function CompatReportView({ result, report, accent }: CompatReportViewPro
         근거 카드 목록은 그리지 않는다 — `ReportView` 와 같은 이유다.
         `report.usedCards` 는 그대로 만들어지고 QA 추적에 남는다.
       */}
-      <div style={{ height: 28 }} />
+      <div style={{ height: S.xxl }} />
 
-      <div style={{ padding: '0 24px' }}>
+      <div style={{ padding: `0 ${GUTTER}px` }}>
         <SectionLabel>알아두실 점</SectionLabel>
       </div>
-      <div style={{ height: 10 }} />
+      <div style={{ height: S.md }} />
       {report.disclaimers.map((line) => (
         <Hint key={line}>· {line}</Hint>
       ))}
-      <div style={{ height: 8 }} />
+      <div style={{ height: S.sm }} />
       <Hint>궁합 엔진 {result.version}</Hint>
     </section>
   )

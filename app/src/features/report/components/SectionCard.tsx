@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { NIGHT } from '../../../shared/design'
+import { C, GUTTER, S, T } from '../../../shared/design'
 import { MOTION, cx, stagger } from '../../../shared/motion'
 import { firstSentence } from './sectionPreview'
 
@@ -34,13 +34,13 @@ export function SectionCard({ title, body, defaultOpen = false, index = 0 }: Sec
   const collapsible = preview !== body.trim()
 
   return (
-    <div className={MOTION.rise} {...stagger(index)} style={{ padding: '0 20px 10px' }}>
+    <div className={MOTION.rise} {...stagger(index)} style={{ padding: `0 ${GUTTER}px ${S.md}px` }}>
       <div
         style={{
           padding: '16px 18px',
           borderRadius: 18,
-          background: NIGHT.glass,
-          border: `1px solid ${NIGHT.glassBorder}`,
+          background: C.surface,
+          border: `1px solid ${C.divider}`,
         }}
       >
         <button
@@ -62,7 +62,7 @@ export function SectionCard({ title, body, defaultOpen = false, index = 0 }: Sec
             cursor: collapsible ? 'pointer' : 'default',
           }}
         >
-          <span style={{ fontSize: 16, fontWeight: 700, color: NIGHT.text }}>{title}</span>
+          <span style={{ ...T.title, fontSize: 16, color: C.text }}>{title}</span>
           {collapsible && (
             <svg
               aria-hidden
@@ -70,7 +70,7 @@ export function SectionCard({ title, body, defaultOpen = false, index = 0 }: Sec
               width="18"
               height="18"
               fill="none"
-              stroke={NIGHT.textDim}
+              stroke={C.textMuted}
               strokeWidth="2.4"
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -101,7 +101,7 @@ export function SectionCard({ title, body, defaultOpen = false, index = 0 }: Sec
               margin: '8px 0 0',
               fontSize: 14,
               lineHeight: 1.65,
-              color: NIGHT.textDim,
+              color: C.textMuted,
             }}
           >
             {preview}
@@ -115,7 +115,7 @@ export function SectionCard({ title, body, defaultOpen = false, index = 0 }: Sec
                 margin: '8px 0 0',
                 fontSize: 14,
                 lineHeight: 1.7,
-                color: NIGHT.textSub,
+                color: C.textBody,
               }}
             >
               {body}

@@ -1,5 +1,5 @@
 import { SECTION_TITLES } from '../../../shared/interpret/ui'
-import { NIGHT, glassCard } from '../../../shared/design'
+import { C, GUTTER, S, T, card } from '../../../shared/design'
 import { MOTION, cx, stagger } from '../../../shared/motion'
 import type { RuleBasedReport } from '../buildReport'
 import { defaultInterpretationClient } from '../interpretationClient'
@@ -34,13 +34,13 @@ export function ReportView({ report, client }: ReportViewProps) {
 
   return (
     <section>
-      <div className={MOTION.rise} {...stagger(1)} style={{ padding: '0 24px' }}>
-        <h2 style={{ margin: 0, fontSize: 19, fontWeight: 700, lineHeight: 1.4, color: NIGHT.text }}>
+      <div className={MOTION.rise} {...stagger(1)} style={{ padding: `0 ${GUTTER}px` }}>
+        <h2 style={{ margin: 0, ...T.title, color: C.text }}>
           {interpretation.headline}
         </h2>
       </div>
 
-      <div style={{ height: 16 }} />
+      <div style={{ height: S.lg }} />
 
       {/*
         섹션 하나 = 카드 하나. 첫 장만 펼쳐 둔다 — 전부 접으면 화면이 제목 목록처럼 보여
@@ -59,15 +59,15 @@ export function ReportView({ report, client }: ReportViewProps) {
         />
       ))}
 
-      <div style={{ height: 14 }} />
+      <div style={{ height: S.lg }} />
 
       <div
         className={MOTION.rise}
         {...stagger(3)}
-        style={{ margin: '0 20px', ...glassCard(true) }}
+        style={{ margin: `0 ${GUTTER}px`, ...card(true) }}
       >
-        <span style={{ fontSize: 12, color: NIGHT.textDim }}>오늘 해볼 만한 한 가지</span>
-        <p style={{ margin: '6px 0 0', fontSize: 15, fontWeight: 600, lineHeight: 1.6, color: NIGHT.text }}>
+        <span style={{ ...T.caption, color: C.textMuted }}>오늘 해볼 만한 한 가지</span>
+        <p style={{ margin: '6px 0 0', ...T.body, fontWeight: 600, color: C.text }}>
           {interpretation.actionToday}
         </p>
       </div>
@@ -78,7 +78,7 @@ export function ReportView({ report, client }: ReportViewProps) {
         서버를 아예 쓰지 않는 배포(`state === 'off'`)에서는 아무 말도 하지 않는다 — 폴백이 아니라 정상이다.
       */}
       {(view.state === 'loading' || view.state === 'fallback') && (
-        <div style={{ padding: '12px 24px 0' }}>
+        <div style={{ padding: `${S.md}px ${GUTTER}px 0` }}>
           <span
             className={cx(view.state === 'loading' && MOTION.shimmer)}
             style={{
@@ -87,7 +87,7 @@ export function ReportView({ report, client }: ReportViewProps) {
               borderRadius: 999,
               background: 'rgba(255,255,255,0.08)',
               fontSize: 12,
-              color: NIGHT.textDim,
+              color: C.textMuted,
             }}
           >
             {view.state === 'loading'

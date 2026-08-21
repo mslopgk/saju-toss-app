@@ -35,10 +35,15 @@
 
 /* ─────────────────────────────── 진입 ─────────────────────────────── */
 
+/*
+ * 진입. **이동거리를 14px → 8px 로 줄였다.**
+ * 요소가 크게 움직이면 화면이 정돈되기까지 눈이 따라다녀야 하고, 목록이 길면 그 움직임이
+ * 겹쳐 난잡해진다. 8px 는 "떠올랐다"는 느낌만 남기고 시선을 붙잡지 않는 거리다.
+ */
 @keyframes m-rise {
   from {
     opacity: 0;
-    transform: translate3d(0, 14px, 0);
+    transform: translate3d(0, 8px, 0);
   }
 }
 
@@ -102,36 +107,27 @@
 /* ─────────────────────────────── 지속 ─────────────────────────────── */
 
 /* 오행 오브젝트가 떠 있다. 폭이 작아야 장식이 아니라 숨결로 읽힌다. */
+/*
+ * 오행 오브젝트가 떠 있다. **이 앱에서 끝없이 움직이는 것은 이것 하나뿐이다.**
+ * 앞 판은 뒤에서 후광까지 함께 돌아 초점이 흐려졌다. 폭도 10 → 6px 로 줄여
+ * 장식이 아니라 숨결로 읽히게 한다.
+ */
 @keyframes m-float {
   0%,
   100% {
     transform: translate3d(0, 0, 0);
   }
   50% {
-    transform: translate3d(0, -10px, 0);
+    transform: translate3d(0, -6px, 0);
   }
 }
 
 .m-float {
-  animation: m-float 5.5s ease-in-out infinite;
+  animation: m-float 7s ease-in-out infinite;
 }
 
-/* 오브젝트 뒤에서 천천히 도는 후광. */
-@keyframes m-halo {
-  0%,
-  100% {
-    opacity: 0.45;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 0.75;
-    transform: scale(1.08);
-  }
-}
+/* 후광은 없앴다 — 초점이 하나여야 화면이 정돈된다(`HomePage` 주석 참고). */
 
-.m-halo {
-  animation: m-halo 5.5s ease-in-out infinite;
-}
 
 /* 로딩 자리표시. 값이 아직 없다는 것을 회색 상자보다 덜 시끄럽게 말한다. */
 @keyframes m-shimmer {
@@ -219,7 +215,6 @@
   .m-pop,
   .m-screen,
   .m-float,
-  .m-halo,
   .m-shimmer,
   .m-bar {
     animation: none !important;

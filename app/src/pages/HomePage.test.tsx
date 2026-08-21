@@ -58,7 +58,9 @@ describe('HomePage', () => {
     expect(html).toContain('한 단어로 말하면')
     // 규칙 기반 요약의 어휘(ELEMENT_WORD × GRADE_NOUN)가 실제로 문서에 실렸는지 본다.
     expect(html).toMatch(/뻗는|밝히는|품는|벼리는|스미는/)
-    expect(html).toContain('타고난 기운의 분포')
+    // 분포 카드에는 제목을 두지 않는다 — 막대 다섯과 퍼센트가 이미 스스로 말한다.
+    // 대신 카드 아래 한 줄이 합계 규칙을 밝힌다.
+    expect(html).toContain('다섯을 합치면 80점이 됩니다')
   })
 
   /**

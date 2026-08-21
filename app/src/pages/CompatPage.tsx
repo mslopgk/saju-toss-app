@@ -14,7 +14,7 @@ import {
   compatMoodOf,
 } from '../features/compat'
 import { compatUrl } from '../shared/assets'
-import { BottomCTA, NIGHT, Screen } from '../shared/design'
+import { BottomCTA, C, GUTTER, Screen, T } from '../shared/design'
 import { MOTION, stagger } from '../shared/motion'
 import { ENGINE_ERROR_MESSAGE, GENERIC_ERROR } from './engineErrorCopy'
 
@@ -80,7 +80,7 @@ export function CompatPage({ selfChart, selfProfile, onBack }: CompatPageProps) 
       <Spacing size={24} />
 
       {art !== null && (
-        <div style={{ display: 'flex', justifyContent: 'center', padding: '0 24px' }}>
+        <div style={{ display: 'flex', justifyContent: 'center', padding: `0 ${GUTTER}px` }}>
           <img
             src={art}
             alt=""
@@ -98,11 +98,11 @@ export function CompatPage({ selfChart, selfProfile, onBack }: CompatPageProps) 
         아래 큰 점수·등급 배지와 **같은 말을 두 번** 하게 된다. 큰 숫자가 이 화면의 주인공이므로
         제목 자리는 두 사람이 누구인지에 내준다. 리포트 값을 고친 것이 아니라 안 그릴 뿐이다.
       */}
-      <div className={MOTION.rise} {...stagger(0)} style={{ padding: '0 24px', textAlign: 'center' }}>
-        <h1 style={{ margin: 0, fontSize: 16, fontWeight: 600, lineHeight: 1.5, color: NIGHT.textSub }}>
+      <div className={MOTION.rise} {...stagger(0)} style={{ padding: `0 ${GUTTER}px`, textAlign: 'center' }}>
+        <h1 style={{ margin: 0, fontSize: 16, fontWeight: 600, lineHeight: 1.5, color: C.textBody }}>
           {`${selfChart.pillars.day.ganji}(나) × ${screen.partnerChart.pillars.day.ganji}(상대분)`}
         </h1>
-        <p style={{ margin: '4px 0 0', fontSize: 13, color: NIGHT.textDim }}>일주로 본 두 사람</p>
+        <p style={{ margin: '4px 0 0', ...T.label, color: C.textMuted }}>일주로 본 두 사람</p>
       </div>
 
       <Spacing size={24} />
@@ -110,7 +110,6 @@ export function CompatPage({ selfChart, selfProfile, onBack }: CompatPageProps) 
       <CompatReportView result={screen.result} report={report} accent={accent} />
 
       <BottomCTA
-        accent={accent}
         onClick={onBack}
         secondary={{ label: '다른 사람', onClick: () => setScreen({ name: 'input' }) }}
       >

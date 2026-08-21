@@ -5,14 +5,15 @@ import { DISCLAIMERS, elementOfStem } from '../shared/interpret/ui'
 import { branchUrl } from '../shared/assets'
 import {
   BottomCTA,
-  ELEMENT_ACCENT,
   Hint,
-  NIGHT,
+  C,
+  GUTTER,
   ReadingScreen,
   Screen,
   ScreenTitle,
   SectionLabel,
-  glassCard,
+  T,
+  card,
 } from '../shared/design'
 import { MOTION, stagger } from '../shared/motion'
 import {
@@ -97,11 +98,11 @@ function FactLine({ label, value, last = false }: { label: string; value: string
         alignItems: 'baseline',
         gap: 14,
         padding: '10px 0',
-        borderBottom: last ? 'none' : `1px solid ${NIGHT.glassBorder}`,
+        borderBottom: last ? 'none' : `1px solid ${C.divider}`,
       }}
     >
-      <span style={{ fontSize: 14, fontWeight: 600, color: NIGHT.text, flexShrink: 0 }}>{label}</span>
-      <span style={{ fontSize: 13, color: NIGHT.textDim, textAlign: 'right' }}>{value}</span>
+      <span style={{ ...T.body, fontWeight: 600, color: C.text, flexShrink: 0 }}>{label}</span>
+      <span style={{ ...T.label, color: C.textMuted, textAlign: 'right' }}>{value}</span>
     </div>
   )
 }
@@ -112,9 +113,8 @@ export function DetailPage({ chart, selfReport = NO_SELF_REPORT, onBack }: Detai
   // 순수함수이고 1ms 미만이라 메모이제이션 없이 렌더마다 계산한다(C00 §7.2: 계산이 캐시보다 싸다).
   const report = buildRuleBasedReport(chart, selfReport)
   const [showCompat, setShowCompat] = useState(false)
-  // 세계관 색은 홈과 같은 값에서 나온다 — 두 화면이 같은 오행을 말해야 이어져 보인다.
+  // 화면 위 기운 색은 홈과 같은 값에서 나온다 — 두 화면이 같은 오행을 말해야 이어져 보인다.
   const dayElement = elementOfStem(pillars.day.stem)
-  const accent = ELEMENT_ACCENT[dayElement]
 
   if (showCompat) {
     // 궁합 청크를 받는 동안. 앱의 다른 대기 화면과 같은 연출을 쓴다 — 여기만 스피너면 튄다.
@@ -143,7 +143,7 @@ export function DetailPage({ chart, selfReport = NO_SELF_REPORT, onBack }: Detai
       {warnings.length > 0 && (
         <>
           <Spacing size={16} />
-          <div className={MOTION.rise} {...stagger(1)} style={{ margin: '0 20px', ...glassCard() }}>
+          <div className={MOTION.rise} {...stagger(1)} style={{ margin: `0 ${GUTTER}px`, ...card() }}>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
               {warnings.map((code) => (
                 <span
@@ -169,7 +169,7 @@ export function DetailPage({ chart, selfReport = NO_SELF_REPORT, onBack }: Detai
             {warnings.map((code) => (
               <p
                 key={code}
-                style={{ margin: '2px 0 0', fontSize: 13, lineHeight: 1.55, color: NIGHT.textDim }}
+                style={{ margin: '2px 0 0', ...T.caption, color: C.textMuted }}
               >
                 {ENGINE_WARNING_COPY[code].detail}
               </p>
@@ -194,13 +194,13 @@ export function DetailPage({ chart, selfReport = NO_SELF_REPORT, onBack }: Detai
 
       <Spacing size={32} />
 
-      <div style={{ padding: '0 24px' }}>
+      <div style={{ padding: `0 ${GUTTER}px` }}>
         <SectionLabel>사주 네 기둥</SectionLabel>
       </div>
       <Spacing size={12} />
 
       {/* 네 기둥. 삼주 모드면 시주 칸은 '—' 로 비운다 — 채워 넣지 않는다. */}
-      <div style={{ padding: '0 20px' }}>
+      <div style={{ padding: `0 ${GUTTER}px` }}>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8 }}>
           {PILLAR_ORDER.map(({ key, label }, i) => {
             const pillar = pillars[key]
@@ -216,11 +216,11 @@ export function DetailPage({ chart, selfReport = NO_SELF_REPORT, onBack }: Detai
                   padding: '12px 4px',
                   borderRadius: 14,
                   textAlign: 'center',
-                  background: NIGHT.glass,
-                  border: `1px solid ${NIGHT.glassBorder}`,
+                  background: C.surface,
+                  border: `1px solid ${C.divider}`,
                 }}
               >
-                <span style={{ fontSize: 12, color: NIGHT.textDim }}>{label}</span>
+                <span style={{ ...T.caption, color: C.textMuted }}>{label}</span>
                 {art !== null && (
                   <div style={{ padding: '6px 0 2px' }}>
                     <img
@@ -232,15 +232,15 @@ export function DetailPage({ chart, selfReport = NO_SELF_REPORT, onBack }: Detai
                   </div>
                 )}
                 <Spacing size={4} />
-                <div style={{ fontSize: 19, fontWeight: 700, color: NIGHT.text }}>
+                <div style={{ fontSize: 19, fontWeight: 700, color: C.text }}>
                   {pillar === null ? '—' : pillar.ganji}
                 </div>
-                <div style={{ fontSize: 12, color: NIGHT.textDim }}>
+                <div style={{ ...T.caption, color: C.textMuted }}>
                   {pillar === null ? '시각 모름' : pillar.ganjiKo}
                 </div>
                 <Spacing size={6} />
-                <div style={{ fontSize: 12, color: NIGHT.textSub }}>{tenGodLabel(gods.stem)}</div>
-                <div style={{ fontSize: 12, color: NIGHT.textDim }}>
+                <div style={{ fontSize: 12, color: C.textBody }}>{tenGodLabel(gods.stem)}</div>
+                <div style={{ ...T.caption, color: C.textMuted }}>
                   {tenGodLabel(gods.branchMain)}
                 </div>
               </div>
@@ -257,12 +257,12 @@ export function DetailPage({ chart, selfReport = NO_SELF_REPORT, onBack }: Detai
 
       <Spacing size={30} />
 
-      <div style={{ padding: '0 24px' }}>
+      <div style={{ padding: `0 ${GUTTER}px` }}>
         <SectionLabel>계산 근거</SectionLabel>
       </div>
       <Spacing size={12} />
 
-      <div style={{ margin: '0 20px', ...glassCard() }}>
+      <div style={{ margin: `0 ${GUTTER}px`, ...card() }}>
         <FactLine label="납음오행" value={`${pillars.day.naeum.ko} (${pillars.day.naeum.hanja})`} />
         <FactLine
           label="절기"
@@ -279,12 +279,12 @@ export function DetailPage({ chart, selfReport = NO_SELF_REPORT, onBack }: Detai
 
       <Spacing size={26} />
 
-      <div style={{ padding: '0 24px' }}>
+      <div style={{ padding: `0 ${GUTTER}px` }}>
         <SectionLabel>대운의 흐름</SectionLabel>
       </div>
       <Spacing size={12} />
 
-      <div style={{ margin: '0 20px', ...glassCard() }}>
+      <div style={{ margin: `0 ${GUTTER}px`, ...card() }}>
         {daewoon.map((entry, i) => (
           <FactLine
             key={entry.index}
@@ -297,7 +297,7 @@ export function DetailPage({ chart, selfReport = NO_SELF_REPORT, onBack }: Detai
 
       <Spacing size={30} />
 
-      <div style={{ padding: '0 24px' }}>
+      <div style={{ padding: `0 ${GUTTER}px` }}>
         <SectionLabel>알아두실 점</SectionLabel>
       </div>
       <Spacing size={10} />
@@ -308,7 +308,6 @@ export function DetailPage({ chart, selfReport = NO_SELF_REPORT, onBack }: Detai
       <Hint>계산 엔진 {chart.engineVersion}</Hint>
 
       <BottomCTA
-        accent={accent}
         onClick={() => setShowCompat(true)}
         secondary={{ label: '홈으로', onClick: onBack }}
         caption="상대방의 생년월일만 있으면 두 사람 궁합을 볼 수 있어요."

@@ -91,10 +91,16 @@ export function compatMoodOf(bandTag: string): CompatMoodTag {
   return 'tension';
 }
 
-/** 분위기별 강조색. 오행 색과 겹치지 않게 골라 두 화면이 서로 다른 축을 말하게 한다. */
+/**
+ * 분위기별 강조색.
+ *
+ * 채도를 낮췄다. 앞 판은 형광에 가까운 보라·분홍을 썼고, 그 색이 배점 막대 여섯 개에 전부
+ * 들어가 화면이 시끄러웠다. 이 앱에서 **강조색은 화면당 한 군데**로 정해 뒀으므로(오행 색과
+ * 같은 규율) 여기 색은 등급 배지에만 쓰고 막대는 무채색으로 둔다.
+ */
 export const COMPAT_MOOD_ACCENT: Readonly<Record<CompatMoodTag, string>> = {
-  harmony: '#F472B6',
-  complement: '#A78BFA',
-  independent: '#38BDF8',
-  tension: '#FB923C',
+  harmony: '#D89AB0',
+  complement: '#A79BC4',
+  independent: '#8FA8BE',
+  tension: '#D0937A',
 };

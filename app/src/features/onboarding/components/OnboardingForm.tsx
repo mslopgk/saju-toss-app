@@ -6,10 +6,12 @@ import {
   FieldGroup,
   FieldRow,
   Hint,
-  NIGHT,
+  C,
+  GUTTER,
   Screen,
   ScreenTitle,
   SectionLabel,
+  T,
 } from '../../../shared/design'
 import { MOTION, stagger } from '../../../shared/motion'
 import { MBTI_AXIS_SPECS } from '../mbtiAxes'
@@ -220,7 +222,7 @@ export function OnboardingForm({ onSubmit, engineError = null }: OnboardingFormP
     <div style={{ padding: '12px 24px 4px' }} role="group" aria-label={SOLAR_CONFIRM_QUESTION}>
       <SectionLabel>{SOLAR_CONFIRM_QUESTION}</SectionLabel>
       <Spacing size={6} />
-      <p style={{ margin: 0, fontSize: 13, lineHeight: 1.55, color: NIGHT.textDim }}>
+      <p style={{ margin: 0, ...T.caption, color: C.textMuted }}>
         {SOLAR_CONFIRM_DESCRIPTION}
       </p>
       <Spacing size={10} />
@@ -314,7 +316,7 @@ export function OnboardingForm({ onSubmit, engineError = null }: OnboardingFormP
 
       <Spacing size={26} />
 
-      <div style={{ padding: '0 24px' }}>
+      <div style={{ padding: `0 ${GUTTER}px` }}>
         <SectionLabel index={5}>성별</SectionLabel>
         <Spacing size={10} />
         <ChipGroup
@@ -335,7 +337,7 @@ export function OnboardingForm({ onSubmit, engineError = null }: OnboardingFormP
         그래도 **필수 입력**이다 — 비운 채로 넘기면 리포트에서 두 항목이 조용히 빠지고,
         사용자는 자기 리포트가 왜 짧은지 알 길이 없다.
       */}
-      <div style={{ padding: '0 24px' }}>
+      <div style={{ padding: `0 ${GUTTER}px` }}>
         <SectionLabel index={6}>MBTI와 혈액형</SectionLabel>
       </div>
       <Spacing size={6} />
@@ -348,13 +350,13 @@ export function OnboardingForm({ onSubmit, engineError = null }: OnboardingFormP
         **자기 유형을 통째로 외우고 있어야** 답할 수 있었다. 축별로 물으면 "나는 I 쪽이고
         T 쪽" 처럼 아는 사람도 답한다. 시트가 사라져 탭도 한 번 줄었다.
       */}
-      <div style={{ padding: '0 24px' }}>
+      <div style={{ padding: `0 ${GUTTER}px` }}>
         {MBTI_AXIS_SPECS.map((axis, i) => (
           <div key={axis.key} style={{ paddingBottom: i === MBTI_AXIS_SPECS.length - 1 ? 0 : 12 }}>
             <p
               className={MOTION.rise}
               {...stagger(6 + i)}
-              style={{ margin: '0 0 6px', fontSize: 13, color: NIGHT.textDim }}
+              style={{ margin: '0 0 6px', ...T.label, color: C.textMuted }}
             >
               {axis.title}
             </p>
@@ -371,7 +373,7 @@ export function OnboardingForm({ onSubmit, engineError = null }: OnboardingFormP
 
       <Spacing size={18} />
 
-      <div style={{ padding: '0 24px' }}>
+      <div style={{ padding: `0 ${GUTTER}px` }}>
         <SectionLabel index={7}>혈액형</SectionLabel>
         <Spacing size={10} />
         <ChipGroup index={7} options={BLOOD_OPTIONS} value={draft.blood} onChange={handleBlood} />

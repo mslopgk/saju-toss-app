@@ -6,10 +6,12 @@ import {
   FieldGroup,
   FieldRow,
   Hint,
-  NIGHT,
+  C,
+  GUTTER,
   Screen,
   ScreenTitle,
   SectionLabel,
+  T,
 } from '../../../shared/design'
 import { MOTION, stagger } from '../../../shared/motion'
 import { MBTI_AXIS_SPECS } from '../../../shared/lib/mbti'
@@ -151,7 +153,7 @@ export function PartnerForm({ onSubmit, engineError = null, onBack }: PartnerFor
 
       <Spacing size={26} />
 
-      <div style={{ padding: '0 24px' }}>
+      <div style={{ padding: `0 ${GUTTER}px` }}>
         <SectionLabel index={3}>성별</SectionLabel>
         <Spacing size={10} />
         <ChipGroup
@@ -167,7 +169,7 @@ export function PartnerForm({ onSubmit, engineError = null, onBack }: PartnerFor
 
       <Spacing size={26} />
 
-      <div style={{ padding: '0 24px' }}>
+      <div style={{ padding: `0 ${GUTTER}px` }}>
         <SectionLabel index={4}>상대방의 MBTI와 혈액형</SectionLabel>
       </div>
       <Spacing size={6} />
@@ -176,13 +178,13 @@ export function PartnerForm({ onSubmit, engineError = null, onBack }: PartnerFor
       <Spacing size={14} />
 
       {/* 온보딩과 같은 네 축 이지선다. 두 화면이 같은 방식으로 물어야 사용자가 헷갈리지 않는다. */}
-      <div style={{ padding: '0 24px' }}>
+      <div style={{ padding: `0 ${GUTTER}px` }}>
         {MBTI_AXIS_SPECS.map((axis, i) => (
           <div key={axis.key} style={{ paddingBottom: i === MBTI_AXIS_SPECS.length - 1 ? 0 : 12 }}>
             <p
               className={MOTION.rise}
               {...stagger(4 + i)}
-              style={{ margin: '0 0 6px', fontSize: 13, color: NIGHT.textDim }}
+              style={{ margin: '0 0 6px', ...T.label, color: C.textMuted }}
             >
               {axis.title}
             </p>
@@ -199,7 +201,7 @@ export function PartnerForm({ onSubmit, engineError = null, onBack }: PartnerFor
 
       <Spacing size={18} />
 
-      <div style={{ padding: '0 24px' }}>
+      <div style={{ padding: `0 ${GUTTER}px` }}>
         <SectionLabel index={5}>혈액형</SectionLabel>
         <Spacing size={10} />
         {/*
