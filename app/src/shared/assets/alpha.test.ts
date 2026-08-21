@@ -16,7 +16,7 @@ import sharp from 'sharp';
 import { describe, expect, it } from 'vitest';
 
 /** `optimize-assets.mjs` 의 `KEYED_SETS` 와 같아야 한다. */
-const KEYED_SETS = ['elements', 'loading'] as const;
+const KEYED_SETS = ['elements', 'loading', 'branch', 'compat'] as const;
 
 const ROOT = 'src/assets/generated';
 

@@ -111,7 +111,10 @@ describe('DetailPage — 궁합 진입점', () => {
     }).not.toThrow()
     expect(html).toContain('깊이 읽기')
     expect(html).toContain('사주 네 기둥')
-    expect(html).toContain('계산 근거')
+    // "계산 근거" 블록은 걷어냈다(납음오행·절기·대운수 모두 중복이거나 미사용이었다).
+    // 대신 남아 있어야 하는 것을 고정한다 — 면책 문구는 운세 앱에서 빠지면 안 된다.
+    expect(html).not.toContain('계산 근거')
+    expect(html).toContain('알아두실 점')
   })
 
   it('궁합 화면은 지연 경계 뒤에 있다 — 첫 렌더에 상대방 입력이 섞이지 않는다', () => {

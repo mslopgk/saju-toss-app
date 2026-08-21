@@ -256,27 +256,19 @@ export function DetailPage({ chart, selfReport = NO_SELF_REPORT, onBack }: Detai
 
       <Spacing size={30} />
 
-      <div style={{ padding: `0 ${GUTTER}px` }}>
-        <SectionLabel>계산 근거</SectionLabel>
-      </div>
-      <Spacing size={12} />
+      {/*
+        계산 근거 세 줄(납음오행·절기·대운수)을 걷어냈다.
 
-      <div style={{ margin: `0 ${GUTTER}px`, ...card() }}>
-        <FactLine label="납음오행" value={`${pillars.day.naeum.ko} (${pillars.day.naeum.hanja})`} />
-        <FactLine
-          label="절기"
-          value={`${jie.prev.ko} ~ ${jie.next.ko} 사이 · 월지 ${pillars.month.branch}`}
-        />
-        <FactLine
-          label="대운"
-          value={`${luck.daewoon.forward ? '순행' : '역행'} · 대운수 ${luck.daewoon.daewoonNumber}${
-            luck.daewoon.approx ? ' (생시 모름 · 12시 가정)' : ''
-          }`}
-          last
-        />
-      </div>
+        세 줄 다 사용자에게 새 정보가 아니었다:
+        - **납음오행**: 리포트·지식카드 어디서도 참조하지 않는다(참조처 0). 옛 분류를 그대로
+          찍어 둔 값이라 읽어도 다음 행동이 없다.
+        - **절기**: 화면 부제(`1989년 대설(大雪) 이후`)에 이미 있고, 월지는 네 기둥 표에 있다.
+        - **대운 방향·대운수**: 방향은 대운 섹션 본문이 이미 말한다("진행 방향은 역행입니다").
+          대운수는 그 방향을 구하는 **중간값**이다.
 
-      <Spacing size={26} />
+        엔진 값을 화면에서 감춘 것이 아니라 **중복과 미사용을 지운 것**이다.
+        엔진 버전 한 줄은 남긴다 — 결과가 이상할 때 사용자가 신고할 유일한 단서다.
+      */}
 
       <div style={{ padding: `0 ${GUTTER}px` }}>
         <SectionLabel>대운의 흐름</SectionLabel>
