@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { C, GUTTER, S, T } from '../../../shared/design'
+import { C, GUTTER, R, S, T } from '../../../shared/design'
 import { MOTION, cx, stagger } from '../../../shared/motion'
 import { firstSentence } from './sectionPreview'
 
@@ -38,7 +38,7 @@ export function SectionCard({ title, body, defaultOpen = false, index = 0 }: Sec
       <div
         style={{
           padding: '16px 18px',
-          borderRadius: 18,
+          borderRadius: R.card,
           background: C.surface,
           border: `1px solid ${C.divider}`,
         }}

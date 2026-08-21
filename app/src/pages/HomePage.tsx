@@ -7,10 +7,10 @@ import { elementObjectUrl } from '../shared/assets'
 import {
   BottomCTA,
   C,
-  ELEMENT_ACCENT,
   ELEMENT_LABEL,
   ELEMENT_ORDER,
   GUTTER,
+  R,
   S,
   Screen,
   T,
@@ -24,17 +24,23 @@ import type { Element } from '../shared/lib/saju/types'
  *
  * 근거: docs/superpowers/specs/2026-08-19-report-redesign-design.md §4.
  *
- * 위에서부터 세 덩어리: ① 오행 오브젝트 ② 한 단어와 한 문장 ③ 오행 분포.
- * 나머지는 전부 깊이읽기로 넘긴다.
+ * ## 구성
+ * 왼쪽에 일주 두 글자를 세로 기둥으로 세우고, 오른쪽에 오행 오브젝트를 띄운다. 그 아래
+ * 한 단어를 **좌정렬**로 크게 놓고 인주색 밑줄을 하나 긋는다. 마지막이 오행 분포다.
  *
- * ## 초점은 하나다
- * 앞 판은 오브젝트 뒤에 후광을 돌리고 배경 이미지를 깔고 막대에 글로우를 얹었다. 전부
- * 동시에 움직여서 **무엇을 봐야 할지 알 수 없었다.** 지금은 움직이는 것이 오브젝트 하나,
- * 색이 들어가는 것이 가장 강한 오행 막대 하나다.
+ * ## 가운데 정렬을 버렸다
+ * 2판은 전부 가운데 정렬이었다. 가장 예측 가능한 배치이고, 화면이 "기본값"으로 읽히는 큰
+ * 이유였다(근거: `design-taste-frontend` §4.3 anti-center bias, DESIGN_VARIANCE 7).
+ * 좌정렬 + 오른쪽 오브젝트 + 왼쪽 기둥으로 비대칭을 만든다.
+ *
+ * ## 색은 인주 하나
+ * 1·2판은 사용자의 오행에 따라 강조색이 바뀌었다. 火 사용자에게는 주황 강조가 생기고
+ * 그것이 경고처럼 읽혔다. 지금 색이 들어가는 곳은 **한 단어 밑줄과 주 오행 막대** 둘이고
+ * 둘 다 같은 인주색이다. 오행 정체성은 오브젝트 그림과 이름표가 말한다.
  *
  * ## 이 화면은 계산하지 않는다
- * 어느 오행이 강한지, 신강인지 신약인지는 **엔진이 이미 확정했다**(C00 §H). 여기서는 그 값으로
- * 그림을 고르고 막대 길이를 정할 뿐이다. 정렬·임계값 판정·가중합을 하지 않는다.
+ * 어느 오행이 강한지도 신강신약도 **엔진이 이미 확정했다**(C00 §H). 여기서는 그 값으로
+ * 그림을 고르고 막대 길이를 정할 뿐이다.
  *
  * ## AI 가 없어도 채워진다
  * `useHomeSummary` 가 규칙 기반 값을 먼저 그리고 서버 값이 오면 갈아 끼운다.
@@ -57,21 +63,19 @@ export interface HomePageProps {
  * 길이는 엔진 점수를 그대로 쓴다. **분모는 고정 80 이다** — 실제 합으로 나누면 불변식이
  * 깨진 상태가 숫자에 묻힌다(합 80 은 엔진이 보장한다, §5.2 게이트).
  *
- * 강조되지 않은 넷은 **아주 흐리게** 둔다. 앞 판은 다섯이 거의 같은 무게로 그려져 회색 막대
- * 네 개가 그대로 노이즈였다 — 이 화면이 말하려는 것은 "불 33%" 하나다.
+ * 강조되지 않은 넷은 아주 흐리게 둔다. 1판은 다섯이 거의 같은 무게로 그려져 회색 막대
+ * 네 개가 그대로 노이즈였다 — 이 화면이 말하려는 것은 주 오행 하나다.
  */
 function ElementBar({
   element,
   score,
   percent,
-  accent,
   emphasized,
   index,
 }: {
   element: Element
   score: number
   percent: number
-  accent: string
   emphasized: boolean
   index: number
 }) {
@@ -99,7 +103,7 @@ function ElementBar({
       <div
         role="img"
         aria-label={`${ELEMENT_LABEL[element]} ${score}점`}
-        style={{ flex: 1, height: 4, borderRadius: 2, background: C.track, overflow: 'hidden' }}
+        style={{ flex: 1, height: 3, borderRadius: R.bar, background: C.track, overflow: 'hidden' }}
       >
         <div
           className={MOTION.bar}
@@ -107,8 +111,8 @@ function ElementBar({
           style={{
             width: `${ratio}%`,
             height: '100%',
-            borderRadius: 2,
-            background: emphasized ? accent : 'rgba(255,255,255,0.2)',
+            borderRadius: R.bar,
+            background: emphasized ? C.seal : 'rgba(247,244,238,0.22)',
           }}
         />
       </div>
@@ -149,53 +153,98 @@ export function HomePage({ chart, selfReport, client, onOpenDetail, onRestart }:
 
   const strength = fact.saju.strength
   const dayElement = fact.saju.dayElement
-  const accent = ELEMENT_ACCENT[dayElement]
   const objectUrl = elementObjectUrl(dayElement)
+  // 일주 두 글자. 사용자의 차트에서 나온 값이라 장식이 아니라 내용이다.
+  const iljuChars = [...chart.pillars.day.ganji]
 
   return (
-    <Screen element={dayElement} bottomInset={128}>
+    <Screen bottomInset={128}>
       <div style={{ height: S.xxl }} />
 
-      {objectUrl !== null && (
-        <div style={{ display: 'flex', justifyContent: 'center', padding: `0 ${GUTTER}px` }}>
-          {/*
-            오브젝트.
+      {/*
+        일주 기둥과 오브젝트.
 
-            배경 상자는 **이미지 쪽에서 없앴다** — `optimize-assets` 가 밝기를 알파로 구워
-            어두운 배경이 투명하다. CSS 로 지우려 두 번 시도했고 둘 다 실패했다:
-            마스크로 원을 잘라도 남색이 원 안에 남았고, `mix-blend-mode: screen` 은 어두운
-            픽셀을 투명하게 만드는 게 아니라 밝게 할 뿐이며 마스크가 합성 컨텍스트를 분리해
-            페이지 배경과 섞이지도 않았다.
-
-            이 화면에서 **끝없이 움직이는 것은 이것 하나**다.
-          */}
-          <div
-            className={MOTION.float}
-            style={{ width: '62%', maxWidth: 250, aspectRatio: '1 / 1' }}
-          >
-            <img
-              src={objectUrl}
-              alt={`${ELEMENT_LABEL[dayElement]} 기운을 나타내는 오브젝트`}
-              className={MOTION.fade}
-              style={{ width: '100%', height: '100%', objectFit: 'contain' }}
-            />
-          </div>
+        세로로 쌓은 한자는 **회전시킨 라틴 문자가 아니라** CJK 의 본래 세로쓰기다(§9.F 의
+        "vertical rotated text" 금지는 회전한 영문 라벨을 가리킨다). 사용자의 일주라서
+        내용이기도 하다 — 읽어야 하는 값은 아니므로 스크린리더에서는 뺀다.
+      */}
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: S.lg,
+          padding: `0 ${GUTTER}px`,
+        }}
+      >
+        <div
+          aria-hidden
+          className={MOTION.rise}
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: S.xs,
+            fontSize: 30,
+            fontWeight: 700,
+            lineHeight: 1,
+            letterSpacing: '-0.02em',
+            color: 'rgba(247,244,238,0.16)',
+            flexShrink: 0,
+          }}
+        >
+          {iljuChars.map((ch, i) => (
+            <span key={`${ch}-${i}`}>{ch}</span>
+          ))}
         </div>
-      )}
+
+        {objectUrl !== null && (
+          <div style={{ flex: 1, display: 'flex', justifyContent: 'flex-end' }}>
+            {/*
+              배경 상자는 **이미지 쪽에서 없앴다** — `optimize-assets` 가 밝기를 알파로 구워
+              어두운 배경이 투명하다. CSS 로 지우려 세 번 실패했다(마스크는 원 안에 남색을
+              남기고, `screen` 블렌드는 어두운 픽셀을 투명하게 만들지 않으며, sharp 의
+              `dest-in` 은 알파 채널을 요구한다).
+
+              이 화면에서 **끝없이 움직이는 것은 이것 하나**다.
+            */}
+            <div
+              className={MOTION.float}
+              style={{ width: '76%', maxWidth: 210, aspectRatio: '1 / 1' }}
+            >
+              <img
+                src={objectUrl}
+                alt={`${ELEMENT_LABEL[dayElement]} 기운을 나타내는 오브젝트`}
+                className={MOTION.fade}
+                style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+              />
+            </div>
+          </div>
+        )}
+      </div>
 
       <div style={{ height: S.xl }} />
 
-      <div style={{ padding: `0 ${GUTTER}px`, textAlign: 'center' }}>
+      {/* 한 단어. 좌정렬 + 인주색 밑줄. 이 화면에서 색이 들어가는 두 곳 중 하나다. */}
+      <div style={{ padding: `0 ${GUTTER}px` }}>
         <div className={MOTION.rise} {...stagger(1)}>
           <p style={{ margin: 0, ...T.caption, color: C.textMuted }}>한 단어로 말하면</p>
         </div>
         <div style={{ height: S.sm }} />
         <div className={MOTION.rise} {...stagger(2)}>
-          <h1 style={{ margin: 0, ...T.display, color: C.text }}>{shown.word}</h1>
+          <h1 style={{ margin: 0, ...T.display, color: C.text, display: 'inline-block' }}>
+            {shown.word}
+          </h1>
+          <div
+            aria-hidden
+            className={MOTION.bar}
+            {...stagger(3)}
+            style={{ height: 3, width: '38%', minWidth: 68, background: C.seal, marginTop: S.sm }}
+          />
         </div>
-        <div style={{ height: S.md }} />
-        <div className={MOTION.rise} {...stagger(3)}>
-          <p style={{ margin: 0, ...T.body, color: C.textBody }}>{shown.sentence}</p>
+        <div style={{ height: S.lg }} />
+        <div className={MOTION.rise} {...stagger(4)}>
+          <p style={{ margin: 0, ...T.body, color: C.textBody, maxWidth: '34ch' }}>
+            {shown.sentence}
+          </p>
         </div>
 
         {/*
@@ -210,7 +259,7 @@ export function HomePage({ chart, selfReport, client, onOpenDetail, onRestart }:
               style={{
                 display: 'inline-block',
                 padding: `${S.xs}px ${S.md}px`,
-                borderRadius: 999,
+                borderRadius: R.pill,
                 background: C.surface,
                 ...T.caption,
                 color: C.textMuted,
@@ -225,16 +274,15 @@ export function HomePage({ chart, selfReport, client, onOpenDetail, onRestart }:
       <div style={{ height: S.xxxl }} />
 
       {strength !== null && (
-        <div className={MOTION.rise} {...stagger(4)} style={{ margin: `0 ${GUTTER}px`, ...card() }}>
+        <div className={MOTION.rise} {...stagger(5)} style={{ margin: `0 ${GUTTER}px`, ...card() }}>
           {ELEMENT_ORDER.map((element, i) => (
             <ElementBar
               key={element}
               element={element}
               score={strength.elementScores[element]}
               percent={strength.elementPercent[element]}
-              accent={accent}
               emphasized={element === dayElement}
-              index={i + 5}
+              index={i + 6}
             />
           ))}
         </div>
@@ -244,7 +292,7 @@ export function HomePage({ chart, selfReport, client, onOpenDetail, onRestart }:
 
       <p
         className={MOTION.rise}
-        {...stagger(10)}
+        {...stagger(11)}
         style={{ margin: 0, padding: `0 ${GUTTER}px`, ...T.caption, color: C.textMuted }}
       >
         {`${ELEMENT_LABEL[dayElement]} 기운이 중심이에요. 다섯을 합치면 80점이 됩니다.`}

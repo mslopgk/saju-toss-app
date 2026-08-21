@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 import { MOTION, cx } from '../motion'
-import { C, GUTTER, S, T } from './theme'
+import { C, GUTTER, R, S, T } from './theme'
 
 /**
  * 하단 고정 버튼.
@@ -91,7 +91,7 @@ export function BottomCTA({
             style={{
               flex: '0 0 34%',
               height: 52,
-              borderRadius: 14,
+              borderRadius: R.control,
               border: 'none',
               background: C.surface,
               color: C.textBody,
@@ -111,7 +111,7 @@ export function BottomCTA({
           style={{
             flex: 1,
             height: 52,
-            borderRadius: 14,
+            borderRadius: R.control,
             border: 'none',
             background: disabled ? C.surface : C.text,
             color: disabled ? C.textMuted : C.bg,

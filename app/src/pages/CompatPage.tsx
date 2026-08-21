@@ -7,14 +7,13 @@ import {
   type CompatResult,
 } from '../shared/lib/compat'
 import {
-  COMPAT_MOOD_ACCENT,
   CompatReportView,
   PartnerForm,
   buildCompatReport,
   compatMoodOf,
 } from '../features/compat'
 import { compatUrl } from '../shared/assets'
-import { BottomCTA, C, GUTTER, Screen, T } from '../shared/design'
+import { BottomCTA, C, GUTTER, R, Screen, T } from '../shared/design'
 import { MOTION, stagger } from '../shared/motion'
 import { ENGINE_ERROR_MESSAGE, GENERIC_ERROR } from './engineErrorCopy'
 
@@ -72,7 +71,6 @@ export function CompatPage({ selfChart, selfProfile, onBack }: CompatPageProps) 
 
   // 등급 → 분위기는 **표시용 매핑**이다. 점수도 등급도 엔진이 이미 확정했다.
   const mood = compatMoodOf(screen.result.band.tag)
-  const accent = COMPAT_MOOD_ACCENT[mood]
   const art = compatUrl(mood)
 
   return (
@@ -86,7 +84,7 @@ export function CompatPage({ selfChart, selfProfile, onBack }: CompatPageProps) 
             alt=""
             aria-hidden
             className={MOTION.pop}
-            style={{ width: '52%', maxWidth: 210, aspectRatio: '1 / 1', objectFit: 'contain', borderRadius: 24 }}
+            style={{ width: '52%', maxWidth: 210, aspectRatio: '1 / 1', objectFit: 'contain', borderRadius: R.card }}
           />
         </div>
       )}
@@ -107,7 +105,7 @@ export function CompatPage({ selfChart, selfProfile, onBack }: CompatPageProps) 
 
       <Spacing size={24} />
 
-      <CompatReportView result={screen.result} report={report} accent={accent} />
+      <CompatReportView result={screen.result} report={report} />
 
       <BottomCTA
         onClick={onBack}

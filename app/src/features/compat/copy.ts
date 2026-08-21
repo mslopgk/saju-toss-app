@@ -21,9 +21,9 @@ export type CompatSectionId =
 
 export const COMPAT_SECTION_TITLES: Readonly<Record<CompatSectionId, string>> = {
   score: '이 점수를 만든 것',
-  ilju: '일주(日柱) — 두 사람의 축',
+  ilju: '일주(日柱), 두 사람의 축',
   sipsin: '서로를 어떤 자리로 보는가',
-  element: '오행과 용신 — 채워주는가',
+  element: '오행과 용신, 채워주는가',
   tti: '띠(연지)',
   zodiac: '별자리',
   mbti: 'MBTI',
@@ -91,16 +91,14 @@ export function compatMoodOf(bandTag: string): CompatMoodTag {
   return 'tension';
 }
 
-/**
- * 분위기별 강조색.
- *
- * 채도를 낮췄다. 앞 판은 형광에 가까운 보라·분홍을 썼고, 그 색이 배점 막대 여섯 개에 전부
- * 들어가 화면이 시끄러웠다. 이 앱에서 **강조색은 화면당 한 군데**로 정해 뒀으므로(오행 색과
- * 같은 규율) 여기 색은 등급 배지에만 쓰고 막대는 무채색으로 둔다.
- */
-export const COMPAT_MOOD_ACCENT: Readonly<Record<CompatMoodTag, string>> = {
-  harmony: '#D89AB0',
-  complement: '#A79BC4',
-  independent: '#8FA8BE',
-  tension: '#D0937A',
-};
+/*
+  분위기별 강조색을 두지 않는다.
+
+  앞 판은 분위기마다 색을 달리 줬고(보라·분홍·주홍·하늘), 그 색이 배점 막대 여섯 개에 전부
+  들어가 화면이 시끄러웠다. 채도를 낮춘 뒤에도 **앱의 강조색이 화면마다 달라지는** 문제는
+  그대로였다 — 이 앱의 강조색은 인주(印朱) 하나다(`shared/design/theme.ts`).
+
+  분위기는 색이 아니라 **그림(compat 에셋 4종)과 등급 이름**이 말한다.
+  근거: `design-taste-frontend` §4.2 Color Consistency Lock.
+*/
+

@@ -1,11 +1,12 @@
 import { Suspense, lazy, useState } from 'react'
 import { Spacing } from '@toss/tds-mobile'
 import type { Chart, PillarKey, TenGod } from '../shared/lib/saju'
-import { DISCLAIMERS, elementOfStem } from '../shared/interpret/ui'
+import { DISCLAIMERS } from '../shared/interpret/ui'
 import { branchUrl } from '../shared/assets'
 import {
   BottomCTA,
   Hint,
+  R,
   C,
   GUTTER,
   ReadingScreen,
@@ -113,8 +114,6 @@ export function DetailPage({ chart, selfReport = NO_SELF_REPORT, onBack }: Detai
   // 순수함수이고 1ms 미만이라 메모이제이션 없이 렌더마다 계산한다(C00 §7.2: 계산이 캐시보다 싸다).
   const report = buildRuleBasedReport(chart, selfReport)
   const [showCompat, setShowCompat] = useState(false)
-  // 화면 위 기운 색은 홈과 같은 값에서 나온다 — 두 화면이 같은 오행을 말해야 이어져 보인다.
-  const dayElement = elementOfStem(pillars.day.stem)
 
   if (showCompat) {
     // 궁합 청크를 받는 동안. 앱의 다른 대기 화면과 같은 연출을 쓴다 — 여기만 스피너면 튄다.
@@ -131,7 +130,7 @@ export function DetailPage({ chart, selfReport = NO_SELF_REPORT, onBack }: Detai
   }
 
   return (
-    <Screen element={dayElement} bottomInset={168}>
+    <Screen bottomInset={168}>
       <Spacing size={20} />
 
       <ScreenTitle
@@ -150,7 +149,7 @@ export function DetailPage({ chart, selfReport = NO_SELF_REPORT, onBack }: Detai
                   key={code}
                   style={{
                     padding: '4px 10px',
-                    borderRadius: 999,
+                    borderRadius: R.pill,
                     fontSize: 12,
                     fontWeight: 600,
                     // 경고와 안내를 색으로 가른다. 둘 다 같은 색이면 사용자가 심각도를 읽지 못한다.
@@ -214,7 +213,7 @@ export function DetailPage({ chart, selfReport = NO_SELF_REPORT, onBack }: Detai
                 {...stagger(i + 2)}
                 style={{
                   padding: '12px 4px',
-                  borderRadius: 14,
+                  borderRadius: R.control,
                   textAlign: 'center',
                   background: C.surface,
                   border: `1px solid ${C.divider}`,
@@ -227,7 +226,7 @@ export function DetailPage({ chart, selfReport = NO_SELF_REPORT, onBack }: Detai
                       src={art}
                       alt=""
                       aria-hidden
-                      style={{ width: '68%', aspectRatio: '1 / 1', objectFit: 'contain', borderRadius: 10 }}
+                      style={{ width: '68%', aspectRatio: '1 / 1', objectFit: 'contain', borderRadius: R.control }}
                     />
                   </div>
                 )}

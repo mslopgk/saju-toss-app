@@ -33,6 +33,7 @@
  * 그대로 채워야 하고, 이 파일은 **화면의 1차 경로**라 채울 수 있는 섹션만 만든다 — 그래서 두 벌이다.
  */
 
+import { labelColon } from './dash';
 import { cardBody } from '../knowledge/types';
 import type {
   BloodType,
@@ -354,7 +355,7 @@ function draftSaju(fact: FactPack, cards: readonly KnowledgeCard[], tone: Tone):
       : `당신의 일간은 ${titleHead(card)}, 오행으로는 ${element}, 음양으로는 ${trimTrailingParen(polarity)}입니다.`,
   ];
   if (roles !== undefined) {
-    parts.push(`이 기준에서 나머지 오행의 역할이 갈립니다 — ${roles}.`);
+    parts.push(`이 기준에서 나머지 오행의 역할이 갈립니다. ${roles}.`);
   }
   if (s.threePillarMode) {
     parts.push('태어난 시각을 모른다고 하셨으니 시주(時柱)를 뺀 세 기둥으로 읽었어요.');
@@ -1420,9 +1421,14 @@ export function renderTemplateReport(
   }
 
   // 닫는 한마디는 마지막 섹션 끝에 붙인다(어조 슬롯 2개 중 하나 — TONE_BY_BLOOD 주석 참고).
+  /*
+    `labelColon` 은 **여기 한 곳**에만 있다. 카드 본문의 `라벨 — 값` 문법이 문장으로 인용될 때
+    엠대시가 화면까지 따라오기 때문이다. 파싱은 이 위에서 이미 끝났으므로 구분자를 바꿔도
+    안전하다 — 데이터를 치환하면 `split(' — ')` 가 깨진다(`dash.ts` 주석 참고).
+  */
   const sections: InterpretationSection[] = drafts.map((d, i) => ({
     id: d.id,
-    body: i === drafts.length - 1 ? `${d.body} ${tone.close}` : d.body,
+    body: labelColon(i === drafts.length - 1 ? `${d.body} ${tone.close}` : d.body),
   }));
 
   const usedCardIds: string[] = [];

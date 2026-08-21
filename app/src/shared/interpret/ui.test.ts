@@ -104,10 +104,19 @@ function valueImports(text: string): string[] {
 describe('shared/interpret/ui — 서버 코드 격리', () => {
   it('값(runtime) import 그래프에 서버 전용 모듈이 없다(전이적)', () => {
     const closure = valueImportClosure('./ui.ts');
+    /*
+      목록을 **정확히** 고정한다. 새 모듈이 그래프에 들어오면 이 검사가 먼저 깨지므로,
+      들어온 것이 무엇인지 사람이 한 번 보게 된다 — 프롬프트가 새는 경로는 대개
+      "무해해 보이는 헬퍼 하나"에서 시작한다.
+
+      `./dash.ts` 는 import 가 0 개인 문자열 헬퍼다(엠대시 → 콜론). 그래프를 넓히지 않고,
+      아래 "프롬프트 조각 없음" 검사도 이 파일에 그대로 적용된다.
+    */
     expect([...closure].sort()).toEqual([
       '../data/tables.json',
       '../knowledge/types.ts',
       './copy.ts',
+      './dash.ts',
       './factPack.ts',
       './retrieve.ts',
       './template.ts',

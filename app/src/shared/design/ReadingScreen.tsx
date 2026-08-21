@@ -97,21 +97,13 @@ export function ReadingScreen({ stepMs = 2200 }: ReadingScreenProps) {
           {STEPS[step]}
         </p>
 
-        {/* 단계 표시. 점 세 개면 "얼마나 남았나"를 숫자 없이 말할 수 있다. */}
-        <div style={{ display: 'flex', gap: 7 }} aria-hidden>
-          {STEPS.map((_, i) => (
-            <span
-              key={i}
-              style={{
-                width: 6,
-                height: 6,
-                borderRadius: '50%',
-                background: i <= step ? C.text : C.track,
-                transition: 'background var(--dur-base) var(--ease-out)',
-              }}
-            />
-          ))}
-        </div>
+        {/*
+          단계 표시 점을 없앴다.
+
+          세 문구는 **실제 계산 단계와 대응하지 않는다**(이 파일 위 주석). 그런데 점 세 개는
+          "3단계 중 몇 번째"라는 진행 상태를 주장한다 — 없는 상태를 그린 장식이었다.
+          근거: `design-taste-frontend` §9.F(의미 없는 장식 점 금지).
+        */}
       </div>
     </Screen>
   )

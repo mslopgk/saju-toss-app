@@ -1,5 +1,5 @@
 import { SECTION_TITLES } from '../../../shared/interpret/ui'
-import { C, GUTTER, S, T, card } from '../../../shared/design'
+import { C, GUTTER, R, S, T, card } from '../../../shared/design'
 import { MOTION, cx, stagger } from '../../../shared/motion'
 import type { RuleBasedReport } from '../buildReport'
 import { defaultInterpretationClient } from '../interpretationClient'
@@ -84,7 +84,7 @@ export function ReportView({ report, client }: ReportViewProps) {
             style={{
               display: 'inline-block',
               padding: '4px 12px',
-              borderRadius: 999,
+              borderRadius: R.pill,
               background: 'rgba(255,255,255,0.08)',
               fontSize: 12,
               color: C.textMuted,

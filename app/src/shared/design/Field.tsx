@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 import { MOTION, cx, stagger } from '../motion'
-import { C, GUTTER, S, T } from './theme'
+import { C, GUTTER, R, S, T } from './theme'
 
 /**
  * 입력 한 줄.
@@ -90,7 +90,7 @@ export function FieldGroup({ children, index = 0 }: { children: ReactNode; index
       {...stagger(index)}
       style={{
         margin: `0 ${GUTTER}px`,
-        borderRadius: 16,
+        borderRadius: R.card,
         background: C.surface,
         overflow: 'hidden',
       }}
@@ -139,7 +139,7 @@ export function ChipGroup<T extends string>({
               flex: 1,
               minWidth: 0,
               height: 46,
-              borderRadius: 12,
+              borderRadius: R.control,
               border: 'none',
               background: selected ? C.text : C.surface,
               color: selected ? C.bg : C.textBody,

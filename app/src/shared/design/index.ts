@@ -7,13 +7,4 @@ export { ReadingScreen } from './ReadingScreen'
 export type { ReadingScreenProps } from './ReadingScreen'
 export { Screen } from './Screen'
 export type { ScreenProps } from './Screen'
-export {
-  C,
-  ELEMENT_ACCENT,
-  ELEMENT_LABEL,
-  ELEMENT_ORDER,
-  GUTTER,
-  S,
-  T,
-  card,
-} from './theme'
+export { C, ELEMENT_LABEL, ELEMENT_ORDER, GUTTER, R, S, T, card } from './theme'

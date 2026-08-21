@@ -1,5 +1,5 @@
 import type { CompatResult } from '../../../shared/lib/compat'
-import { C, GUTTER, Hint, S, SectionLabel, T, card } from '../../../shared/design'
+import { C, GUTTER, Hint, R, S, SectionLabel, T, card } from '../../../shared/design'
 import { MOTION, stagger, useCountUp } from '../../../shared/motion'
 import { COMPAT_SECTION_TITLES } from '../copy'
 import type { CompatReport } from '../buildCompatReport'
@@ -14,8 +14,6 @@ import type { CompatReport } from '../buildCompatReport'
 export interface CompatReportViewProps {
   result: CompatResult
   report: CompatReport
-  /** 세계관 강조색. 화면(`CompatPage`)이 등급에서 골라 넘긴다. */
-  accent: string
 }
 
 /** 배점 막대 하나. 항목별 `score / cap` 을 그대로 그린다 */
@@ -41,7 +39,7 @@ function ItemBar({
       </div>
       <div style={{ height: S.sm }} />
       <div
-        style={{ height: 4, borderRadius: 2, background: C.track, overflow: 'hidden' }}
+        style={{ height: 4, borderRadius: R.bar, background: C.track, overflow: 'hidden' }}
         role="img"
         aria-label={`${label} ${score} / ${cap}점`}
       >
@@ -51,7 +49,7 @@ function ItemBar({
           style={{
             width: `${ratio * 100}%`,
             height: '100%',
-            borderRadius: 2,
+            borderRadius: R.bar,
             // 무채색이다. 여섯 막대에 강조색을 넣으면 화면이 시끄러워지고, 이 화면의
             // 강조색은 등급 배지 한 군데로 정해 뒀다.
             background: 'rgba(255,255,255,0.32)',
@@ -62,7 +60,7 @@ function ItemBar({
   )
 }
 
-export function CompatReportView({ result, report, accent }: CompatReportViewProps) {
+export function CompatReportView({ result, report }: CompatReportViewProps) {
   // 이 화면의 결론이 되는 숫자. 올라가는 것이 보여야 "계산했다"로 읽힌다.
   const scoreRef = useCountUp(result.score, { suffix: '점' })
 
@@ -93,9 +91,9 @@ export function CompatReportView({ result, report, accent }: CompatReportViewPro
             style={{
               display: 'inline-block',
               padding: '5px 14px',
-              borderRadius: 999,
-              background: `${accent}26`,
-              border: `1px solid ${accent}`,
+              borderRadius: R.pill,
+              // 인주색. 이 화면에서 색이 들어가는 **유일한** 자리다.
+              background: `${C.seal}24`,
               fontSize: 13,
               fontWeight: 700,
               color: C.text,

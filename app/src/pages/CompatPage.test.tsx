@@ -78,12 +78,12 @@ describe('CompatReportView — 결과 표시', () => {
   it.each(cases)('%s 이어도 던지지 않는다', (_name, pa, pb) => {
     const result = computeCompatibility(SELF, PARTNER, pa, pb)
     const report = buildCompatReport(result)
-    expect(() => render(<CompatReportView accent="#F472B6" result={result} report={report} />)).not.toThrow()
+    expect(() => render(<CompatReportView result={result} report={report} />)).not.toThrow()
   })
 
   it('점수·등급·면책이 화면에 실제로 나온다', () => {
     const result = computeCompatibility(SELF, PARTNER, { mbti: 'ENFP', blood: 'O' }, { mbti: 'INFJ', blood: 'A' })
-    const html = render(<CompatReportView accent="#F472B6" result={result} report={buildCompatReport(result)} />)
+    const html = render(<CompatReportView result={result} report={buildCompatReport(result)} />)
     expect(html).toContain(`${result.score}점`)
     expect(html).toContain(result.band.name)
     expect(html).toContain('혈액형 궁합은 과학적 근거가 없습니다')
@@ -93,7 +93,7 @@ describe('CompatReportView — 결과 표시', () => {
   it('삼주(생시 모름) 상대와도 던지지 않는다', () => {
     const noTime = chartOf(1988, 2, 29, 'F', true)
     const result = computeCompatibility(SELF, noTime, { mbti: null, blood: 'A' }, { mbti: 'ISTJ', blood: 'O' })
-    expect(() => render(<CompatReportView accent="#F472B6" result={result} report={buildCompatReport(result)} />)).not.toThrow()
+    expect(() => render(<CompatReportView result={result} report={buildCompatReport(result)} />)).not.toThrow()
   })
 })
 

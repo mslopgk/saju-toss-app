@@ -12,6 +12,7 @@
  * LLM 이 붙는 날 바뀌는 것은 이 파일 한 벌이다 — 출력 타입이 같기 때문이다.
  */
 
+import { labelColon } from '../../shared/interpret/dash';
 import { CARDS, type KnowledgeCard } from '../../shared/knowledge';
 import type { CompatResult, CompatSajuItem } from '../../shared/lib/compat';
 import {
@@ -116,7 +117,8 @@ export function buildCompatReport(
   const sections: CompatReportSection[] = [];
 
   const push = (id: CompatSectionId, parts: readonly (string | null)[]): void => {
-    const body = parts.filter((p): p is string => p !== null && p.length > 0).join(' ');
+    // 카드 본문에서 인용된 `라벨 — 값` 의 엠대시를 여기서 콜론으로 바꾼다(`dash.ts` 주석 참고).
+    const body = labelColon(parts.filter((p): p is string => p !== null && p.length > 0).join(' '));
     if (body.length > 0) sections.push({ id, body });
   };
 
@@ -134,10 +136,10 @@ export function buildCompatReport(
     .join(' · ');
   push('score', [
     `무작위로 짝지은 100쌍을 줄 세우면 위에서 ${rank}번째쯤이에요.`,
-    `배점 비중 — ${weightLine}.`,
+    `배점 비중은 ${weightLine} 이에요.`,
     // "100점" 처럼 배점 스케일을 숫자로 적지 않는다 — 본문의 `N점` 은 전부 계산 결과에 실재하는
     // 값이어야 하고, 그 규율을 `buildCompatReport.test.ts` 가 정규식으로 지킨다.
-    `각 항목을 백점 만점으로 환산하면 이렇게 나와요 — ${axisLine}.`,
+    `각 항목을 백점 만점으로 환산하면 이렇게 나와요. ${axisLine}.`,
     `그 가중합을 전체 분포에 대보고 나온 값이 ${result.score}점이에요.`,
   ]);
 
@@ -158,7 +160,7 @@ export function buildCompatReport(
   push('ilju', [
     `두 분의 일간은 ${yeyo(dotJoin(stemLabels))}.`,
     `이 둘의 관계는 ${igo(s1Kind)}${result.saju.dayStemHeName === null ? '' : `(${result.saju.dayStemHeName})`}, 일간 항목은 ${s1.cap}점 중 ${fmt(s1.score)}점이에요.`,
-    `일지는 ${dotJoin(branchLabels)} — ${s2.reasons.length === 0 ? '이렇다 할 합도 충도 걸리지 않아요' : `${iGa(s2.reasons.join('·'))} 걸려요`}.`,
+    `일지는 ${dotJoin(branchLabels)} 이고, ${s2.reasons.length === 0 ? '이렇다 할 합도 충도 걸리지 않아요' : `${iGa(s2.reasons.join('·'))} 걸려요`}.`,
     `일지 항목은 ${s2.cap}점 중 ${fmt(s2.score)}점이에요.`,
     result.saju.dayBranchHwa === null
       ? null
@@ -204,7 +206,7 @@ export function buildCompatReport(
     s6.reasons.length === 0
       ? '띠끼리는 이렇다 할 관계가 걸리지 않아요.'
       : `${iGa(s6.reasons.join('·'))} 걸려요.`,
-    `띠 항목은 ${s6.cap}점 중 ${fmt(s6.score)}점이고, 여섯 항목 중 배점이 가장 작아요 — 겉궁합이라 그렇게 뒀어요.`,
+    `띠 항목은 ${s6.cap}점 중 ${fmt(s6.score)}점이고, 여섯 항목 중 배점이 가장 작아요. 겉궁합이라 그렇게 뒀어요.`,
   ]);
 
   // ── 별자리 ──────────────────────────────────────────────────────────────
