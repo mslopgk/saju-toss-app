@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { BottomSheet, TextButton } from '@toss/tds-mobile'
+import { C, GUTTER, S, Sheet, T } from '../../../shared/design'
 import type { BirthTime } from '../calendar'
 import { HOUR_OPTIONS, MINUTE_OPTIONS, formatHourOption, formatMinuteOption } from '../calendar'
 import { WheelColumn } from './WheelColumn'
@@ -26,29 +26,19 @@ export function BirthTimeSheet({ open, initialTime, onClose, onConfirm, onUnknow
   const [minute, setMinute] = useState(initialTime.minute)
 
   return (
-    <BottomSheet
+    <Sheet
       open={open}
       onClose={onClose}
-      onDimmerClick={onClose}
-      // TDS 휠 시트와 맞춘다. 근거와 미검증 범위는 BirthDateSheet 의 같은 줄 주석 참고.
-      disableChildrenDragging
-      header={<BottomSheet.Header>몇 시에 태어났나요?</BottomSheet.Header>}
-      headerDescription={
-        <BottomSheet.HeaderDescription>
-          24시간제로 골라 주세요. 시각이 정확할수록 시주(時柱)와 상승궁이 정확해져요.
-        </BottomSheet.HeaderDescription>
-      }
-      cta={<BottomSheet.CTA onClick={() => onConfirm({ hour, minute })}>선택 완료</BottomSheet.CTA>}
+      title="몇 시에 태어났나요?"
+      cta={{ label: '선택 완료', onClick: () => onConfirm({ hour, minute }) }}
     >
-      {/* 높이는 WheelColumn 이 들고 있다. `alignItems: center` 를 주면 휠이 접힌다(WheelColumn 주석). */}
-      <div style={{ display: 'flex', gap: 8, justifyContent: 'center' }}>
+      <div style={{ display: 'flex', gap: S.sm, justifyContent: 'center', padding: `0 ${GUTTER}px` }}>
         <WheelColumn
           label="시 선택"
           options={HOUR_OPTIONS}
           value={hour}
           format={formatHourOption}
           onChange={setHour}
-          perspective="right"
         />
         <WheelColumn
           label="분 선택"
@@ -56,14 +46,28 @@ export function BirthTimeSheet({ open, initialTime, onClose, onConfirm, onUnknow
           value={minute}
           format={formatMinuteOption}
           onChange={setMinute}
-          perspective="left"
         />
       </div>
-      <div style={{ display: 'flex', justifyContent: 'center', paddingTop: 8 }}>
-        <TextButton size="medium" variant="underline" onClick={onUnknown}>
+      {/*
+        "시간을 모르겠어요" 는 남긴다. 이걸 빼면 생시를 모르는 사용자가 막히고, 삼주(三柱)
+        경로가 화면에서 닿을 수 없게 된다 — 글자를 줄이는 것과 길을 막는 것은 다르다.
+      */}
+      <div style={{ display: 'flex', justifyContent: 'center', paddingTop: S.md }}>
+        <button
+          type="button"
+          onClick={onUnknown}
+          style={{
+            border: 'none',
+            background: 'transparent',
+            ...T.label,
+            color: C.textMuted,
+            textDecoration: 'underline',
+            cursor: 'pointer',
+          }}
+        >
           시간을 모르겠어요
-        </TextButton>
+        </button>
       </div>
-    </BottomSheet>
+    </Sheet>
   )
 }

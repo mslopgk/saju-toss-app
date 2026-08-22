@@ -1,5 +1,4 @@
-import type { ChangeEvent } from 'react'
-import { BottomSheet } from '@toss/tds-mobile'
+import { Sheet, SheetSelect } from '../../../shared/design'
 import { CITIES } from '../cities'
 
 /**
@@ -18,24 +17,14 @@ export interface BirthPlaceSheetProps {
 const OPTIONS = CITIES.map((city) => ({ name: city.name, value: city.id }))
 
 export function BirthPlaceSheet({ open, selectedCityId, onClose, onSelect }: BirthPlaceSheetProps) {
-  const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
-    onSelect(event.target.value)
-  }
-
   return (
-    <BottomSheet
-      open={open}
-      onClose={onClose}
-      onDimmerClick={onClose}
-      maxHeight="72vh"
-      header={<BottomSheet.Header>어디에서 태어났나요?</BottomSheet.Header>}
-      headerDescription={
-        <BottomSheet.HeaderDescription>
-          태어난 곳의 경도로 진태양시를 보정해요. 가장 가까운 지역을 골라 주세요.
-        </BottomSheet.HeaderDescription>
-      }
-    >
-      <BottomSheet.Select options={OPTIONS} value={selectedCityId} onChange={handleChange} />
-    </BottomSheet>
+    <Sheet open={open} onClose={onClose} title="어디에서 태어났나요?">
+      <SheetSelect
+        name="출생지"
+        options={OPTIONS.map((o) => ({ value: o.value, label: o.name }))}
+        value={selectedCityId}
+        onSelect={onSelect}
+      />
+    </Sheet>
   )
 }

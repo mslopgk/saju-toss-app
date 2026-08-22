@@ -141,9 +141,11 @@ async function main() {
   /** 휠 한 칸의 실제 상태. 접혔는지 판정하는 데 필요한 값만 재서 돌려준다. */
   const wheelState = (label) =>
     page.evaluate((l) => {
-      const rg = document.querySelector(`[role=radiogroup][aria-label="${l}"]`);
+      // 역할 이름에 묶지 않는다. TDS 휠은 radiogroup/radio 였고 자체 휠은 listbox/option 이다 —
+      // 둘 다 단일 선택 목록이고, 이 검사가 보는 것은 "항목이 겹쳐 접혔는가" 이지 역할이 아니다.
+      const rg = document.querySelector(`[aria-label="${l}"]`);
       if (rg === null) return null;
-      const items = [...rg.querySelectorAll('[role=radio]')];
+      const items = [...rg.querySelectorAll('[role=radio], [role=option]')];
       let best = { h: 0, t: '' };
       let visible = 0;
       const texts = new Set();
@@ -157,6 +159,7 @@ async function main() {
       }
       return { total: items.length, centered: best.t, centeredHeight: best.h, visible, distinct: texts.size };
     }, label);
+
 
   const shot = async (name) => {
     if (shotsDir === undefined) return;
@@ -173,7 +176,7 @@ async function main() {
 
     /* 1) 온보딩 */
     const bodyText = await page.locator('body').innerText();
-    check(bodyText.includes('언제 태어났는지'), '온보딩이 렌더된다');
+    check(bodyText.includes('언제 태어났나요'), '온보딩이 렌더된다');
 
     if (process.argv.includes('--prefill')) {
       check(
@@ -224,14 +227,14 @@ async function main() {
 
     /* 3) 스와이프로 값이 바뀌는가 */
     const before = (await wheelState('년도 선택'))?.centered ?? '';
-    const box = await page.locator('[role=radiogroup][aria-label="년도 선택"]').boundingBox();
+    const box = await page.locator('[aria-label="년도 선택"]').boundingBox();
     if (box !== null) {
       await swipe(Math.round(box.x + box.width / 2), Math.round(box.y + box.height / 2), 120);
     }
     const after = (await wheelState('년도 선택'))?.centered ?? '';
     check(before !== '' && after !== '' && before !== after, '스와이프로 연도가 바뀐다', `${before} → ${after}`);
     check(
-      (await page.locator('body').innerText()).includes('태어난 날이 언제인가요?'),
+      (await page.locator('body').innerText()).includes('언제 태어났나요?'),
       '휠을 쓸어도 시트가 닫히지 않는다',
     );
 
@@ -515,7 +518,7 @@ async function main() {
       back.includes('자세히 보기') && !back.includes('깊이 읽기'),
       '깊이읽기에서 나오면 홈으로 온다',
     );
-    check(!back.includes('언제 태어났는지'), '온보딩까지 되돌아가지 않는다');
+    check(!back.includes('태어난 날'), '온보딩까지 되돌아가지 않는다');
 
     /*
       8) 궁합 — 지금까지 스모크가 한 번도 들어가 보지 않은 화면이다.

@@ -1,10 +1,9 @@
 import { useState } from 'react'
-import { BottomSheet, Button, Paragraph, Spacing } from '@toss/tds-mobile'
+import { ChipGroup, GUTTER, S, Sheet } from '../../../shared/design'
 import type { BirthDate } from '../calendar'
 import {
   BIRTH_YEAR_OPTIONS,
   clampDay,
-  describeBirthDate,
   formatMonthOption,
   isLunarCalendar,
   monthIndexOf,
@@ -39,6 +38,9 @@ export interface BirthDateSheetProps {
   onClose: () => void
   onConfirm: (calendarType: CalendarType, date: BirthDate) => void
 }
+
+/** 달력 두 종류. 칩으로 고르므로 목록이 필요하다. */
+const CALENDAR_OPTIONS = ['양력', '음력'] as const
 
 export function BirthDateSheet({
   open,
@@ -93,67 +95,34 @@ export function BirthDateSheet({
   const value: BirthDate = { year, month: picked?.month ?? 1, day: boundedDay }
 
   return (
-    <BottomSheet
+    <Sheet
       open={open}
       onClose={onClose}
-      onDimmerClick={onClose}
-      // TDS 자체 `WheelDateSheet` 가 휠을 담을 때 켜는 값과 맞춘다(번들의 `disableChildrenDragging:!0`).
-      // 휠을 아래로 쓰는 동작과 시트를 아래로 내려 닫는 동작이 같은 방향이라, 이 둘이 겹치면
-      // "과거 연도를 고르려다 시트가 닫힌다"가 된다.
-      // ⚠ 근거는 TDS 선례뿐이다 — 헤드리스 Chrome 의 터치 시뮬레이션에서는 이 값이 없어도 닫히지
-      //   않았다(마우스 드래그로는 닫혔지만 그건 실사용 경로가 아니다). 실기기에서 확인할 항목.
-      disableChildrenDragging
-      header={<BottomSheet.Header>태어난 날이 언제인가요?</BottomSheet.Header>}
-      headerDescription={
-        <BottomSheet.HeaderDescription>
-          주민등록상 날짜가 아니라 실제로 태어난 날짜를 골라 주세요.
-        </BottomSheet.HeaderDescription>
-      }
-      cta={
-        <BottomSheet.CTA disabled={maxDay === 0} onClick={() => onConfirm(selected, value)}>
-          선택 완료
-        </BottomSheet.CTA>
-      }
+      title="언제 태어났나요?"
+      cta={{ label: '선택 완료', onClick: () => onConfirm(selected, value) }}
     >
-      <div style={{ display: 'flex', gap: 8, padding: '0 0 12px' }} role="group" aria-label="달력 종류">
-        <div style={{ flex: 1 }}>
-          <Button
-            display="block"
-            size="medium"
-            color={lunar ? 'dark' : 'primary'}
-            variant={lunar ? 'weak' : 'fill'}
-            aria-pressed={!lunar}
-            onClick={() => switchCalendar(false)}
-          >
-            양력
-          </Button>
-        </div>
-        <div style={{ flex: 1 }}>
-          <Button
-            display="block"
-            size="medium"
-            color={lunar ? 'primary' : 'dark'}
-            variant={lunar ? 'fill' : 'weak'}
-            aria-pressed={lunar}
-            onClick={() => switchCalendar(true)}
-          >
-            음력
-          </Button>
-        </div>
+      <div style={{ padding: `0 ${GUTTER}px ${S.md}px` }}>
+        {/*
+          달력 종류. 예전에는 시트 설명문("주민등록상 날짜가 아니라 실제로 태어난 날짜를
+          골라 주세요")이 함께 있었는데, 이 시트가 하는 일은 날짜를 고르는 것 하나뿐이라
+          제목만으로 충분하다 — 글자를 줄이라는 방향에 맞춰 뺐다.
+        */}
+        <ChipGroup
+          options={CALENDAR_OPTIONS}
+          value={lunar ? '음력' : '양력'}
+          onChange={(next) => switchCalendar(next === '음력')}
+        />
       </div>
 
-      {/* 높이는 WheelColumn 이 들고 있다. 여기서 `alignItems: center` 를 주면 안 된다 —
-          휠은 행 높이만큼 늘어나야 원통이 성립한다(WheelColumn 주석). */}
-      <div style={{ display: 'flex', gap: 8, justifyContent: 'center' }}>
+      <div style={{ display: 'flex', gap: S.sm, justifyContent: 'center', padding: `0 ${GUTTER}px` }}>
         <WheelColumn
           label="년도 선택"
           options={BIRTH_YEAR_OPTIONS}
           value={year}
           format={(v) => `${v}년`}
           onChange={handleYear}
-          perspective="right"
         />
-        {/* 연도·달력이 바뀌면 달 목록 자체가 바뀐다(윤달). 비제어 휠이라 재마운트로만 되돌릴 수 있다. */}
+        {/* 연도·달력이 바뀌면 달 목록 자체가 바뀐다(윤달). 항목 수가 달라지면 휠이 경계를 다시 잡는다. */}
         <WheelColumn
           key={`month-${calendarType}-${months.length}-${year}`}
           label="월 선택"
@@ -173,17 +142,8 @@ export function BirthDateSheet({
           value={boundedDay}
           format={(v) => `${v}일`}
           onChange={setDay}
-          perspective="left"
         />
       </div>
-
-      {lunar && (
-        <>
-          <Spacing size={8} />
-          {/* 음력 입력자가 윤달을 잘못 골랐는지 확인할 수 있는 유일한 값이 환산된 양력 날짜다. */}
-          <Paragraph typography="st12">{describeBirthDate(selected, value)}</Paragraph>
-        </>
-      )}
-    </BottomSheet>
+    </Sheet>
   )
 }

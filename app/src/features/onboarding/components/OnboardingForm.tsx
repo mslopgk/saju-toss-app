@@ -8,6 +8,7 @@ import {
   Hint,
   C,
   GUTTER,
+  S,
   Screen,
   ScreenTitle,
   SectionLabel,
@@ -248,14 +249,14 @@ export function OnboardingForm({ onSubmit, engineError = null }: OnboardingFormP
   )
 
   return (
-    <Screen bottomInset={150}>
+    <Screen bottomInset={118}>
       <Spacing size={20} />
 
-      <ScreenTitle
-        index={0}
-        title="언제 태어났는지 알려주세요"
-        subtitle="사주 네 기둥을 계산하는 데만 써요. 양력·음력 모두 괜찮아요."
-      />
+      {/*
+        부제를 뺐다. "사주 네 기둥을 계산하는 데만 써요" 는 이 화면이 무엇인지 이미 아는
+        사용자에게 한 줄을 더 읽힌다. 제목이 질문이면 그것으로 끝난다.
+      */}
+      <ScreenTitle index={0} title="언제 태어났나요?" />
 
       <Spacing size={20} />
 
@@ -276,7 +277,13 @@ export function OnboardingForm({ onSubmit, engineError = null }: OnboardingFormP
               : PREFILL_BUTTON_LABEL}
           </Button>
           <Spacing size={8} />
-          <Hint>생년월일과 성별만 가져와요. 이름·연락처·주소는 가져오지 않아요.</Hint>
+          {/*
+            **짧게 줄이되 없애지는 않는다.** 무엇을 가져가는지 알리는 문구는 설명이 아니라
+            고지다. 토스 동의 화면이 항목을 보여 주긴 하지만 그건 버튼을 누른 **뒤**이고,
+            누르기 전에 아는 것과 누른 뒤에 아는 것은 다르다.
+            (원래 문구: "생년월일과 성별만 가져와요. 이름·연락처·주소는 가져오지 않아요.")
+          */}
+          <Hint>생년월일·성별만 가져와요</Hint>
         </div>
       )}
 
@@ -314,11 +321,15 @@ export function OnboardingForm({ onSubmit, engineError = null }: OnboardingFormP
         </>
       )}
 
-      <Spacing size={26} />
+      <Spacing size={20} />
 
+      {/*
+        구획 제목("성별" · "MBTI" · "혈액형")을 전부 뺐다.
+
+        칩이 스스로 말한다 — `남성/여성`, `E 외향/I 내향`, `A/B/O/AB` 를 보고 무엇을 고르는
+        자리인지 모를 사람은 없다. 제목 셋이 사라지면서 글자도 줄고 높이도 60px 줄었다.
+      */}
       <div style={{ padding: `0 ${GUTTER}px` }}>
-        <SectionLabel index={5}>성별</SectionLabel>
-        <Spacing size={10} />
         <ChipGroup
           index={5}
           options={GENDER_OPTIONS}
@@ -327,60 +338,61 @@ export function OnboardingForm({ onSubmit, engineError = null }: OnboardingFormP
           label={(g) => (g === 'M' ? '남성' : '여성')}
         />
       </div>
-      <Spacing size={10} />
-      <Hint>대운(大運)이 순행인지 역행인지를 성별로 판정해서 꼭 필요해요.</Hint>
+      {/* 성별이 왜 필요한지는 깊이읽기의 대운 섹션이 문장으로 말한다. 입력 화면에서 설명하지 않는다. */}
 
-      <Spacing size={26} />
+      <Spacing size={20} />
 
       {/*
         자기신고 값. 사주 계산에는 전혀 쓰이지 않고 리포트 문장에만 쓴다.
         그래도 **필수 입력**이다 — 비운 채로 넘기면 리포트에서 두 항목이 조용히 빠지고,
         사용자는 자기 리포트가 왜 짧은지 알 길이 없다.
       */}
-      <div style={{ padding: `0 ${GUTTER}px` }}>
-        <SectionLabel index={6}>MBTI와 혈액형</SectionLabel>
-      </div>
-      <Spacing size={6} />
-      <Hint>사주 계산에는 쓰지 않고, 리포트의 두 항목을 만드는 데 써요. 네 줄에서 하나씩 골라 주세요.</Hint>
-
-      <Spacing size={14} />
 
       {/*
         16개 목록 시트를 네 축 이지선다로 바꿨다. 목록은 스크롤이 필요했고 무엇보다
         **자기 유형을 통째로 외우고 있어야** 답할 수 있었다. 축별로 물으면 "나는 I 쪽이고
         T 쪽" 처럼 아는 사람도 답한다. 시트가 사라져 탭도 한 번 줄었다.
       */}
-      <div style={{ padding: `0 ${GUTTER}px` }}>
+      {/*
+        네 축을 2×2 로 접었다.
+
+        세로로 넷을 쌓으면 축 제목 4개 + 칩 줄 4개로 화면의 3분의 1을 쓴다. 격자로 접으면
+        절반이고, **축 제목도 필요 없어진다** — 칩에 `E 외향` 처럼 글자와 우리말이 함께
+        들어 있어 무엇을 고르는지가 칩 안에서 끝난다.
+      */}
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: '1fr 1fr',
+          gap: S.sm,
+          padding: `0 ${GUTTER}px`,
+        }}
+      >
         {MBTI_AXIS_SPECS.map((axis, i) => (
-          <div key={axis.key} style={{ paddingBottom: i === MBTI_AXIS_SPECS.length - 1 ? 0 : 12 }}>
-            <p
-              className={MOTION.rise}
-              {...stagger(6 + i)}
-              style={{ margin: '0 0 6px', ...T.label, color: C.textMuted }}
-            >
-              {axis.title}
-            </p>
-            <ChipGroup
-              index={6 + i}
-              options={axis.options}
-              value={draft.mbtiAxes[axis.key]}
-              onChange={(value) => dispatch({ type: 'setMbtiAxis', patch: { [axis.key]: value } })}
-              label={(option) => axis.label[option] ?? option}
-            />
-          </div>
+          <ChipGroup
+            key={axis.key}
+            index={6 + i}
+            options={axis.options}
+            value={draft.mbtiAxes[axis.key]}
+            onChange={(value) => dispatch({ type: 'setMbtiAxis', patch: { [axis.key]: value } })}
+            label={(option) => axis.label[option] ?? option}
+          />
         ))}
       </div>
 
-      <Spacing size={18} />
+      <Spacing size={16} />
 
       <div style={{ padding: `0 ${GUTTER}px` }}>
-        <SectionLabel index={7}>혈액형</SectionLabel>
-        <Spacing size={10} />
         <ChipGroup index={7} options={BLOOD_OPTIONS} value={draft.blood} onChange={handleBlood} />
       </div>
       <Spacing size={10} />
       {/* 문서06 §A-2 / C18(縄田健悟 2014, n=11,729)이 반증을 확정했다. 입력 단계에서 미리 밝힌다. */}
-      <Hint>혈액형과 성격의 관계는 확인된 근거가 없어요. 이 앱에서 혈액형은 문장의 말투만 정해요.</Hint>
+      {/*
+        이 한 줄은 **남긴다.** 문서06 §A-2 / C18(縄田健悟 2014, n=11,729)이 혈액형 성격론의
+        반증을 확정했고, 그걸 알면서 입력을 받는 이상 받는 자리에서 밝혀야 한다.
+        글자를 줄이는 것과 알아야 할 것을 감추는 것은 다르다. 대신 두 문장을 한 문장으로 줄였다.
+      */}
+      <Hint>혈액형과 성격의 관계는 확인된 근거가 없어요. 문장의 말투에만 씁니다.</Hint>
 
       {!built.ok && built.reason === 'invalid' && (
         <>

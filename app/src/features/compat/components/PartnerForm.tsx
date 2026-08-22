@@ -1,17 +1,20 @@
 import { useReducer, useState } from 'react'
-import { BottomSheet, Button, Paragraph, Spacing, TextButton, Wheel } from '@toss/tds-mobile'
+import { Spacing } from '@toss/tds-mobile'
 import {
   BottomCTA,
+  C,
   ChipGroup,
   FieldGroup,
   FieldRow,
-  Hint,
-  C,
   GUTTER,
+  Hint,
+  S,
   Screen,
   ScreenTitle,
   SectionLabel,
+  Sheet,
   T,
+  Wheel,
 } from '../../../shared/design'
 import { MOTION, stagger } from '../../../shared/motion'
 import { MBTI_AXIS_SPECS } from '../../../shared/lib/mbti'
@@ -57,11 +60,19 @@ type SheetKind = 'date' | 'time'
 
 const NOT_SELECTED = '선택해 주세요'
 /** 성별 두 값. 대운 방향과 혈액형 남녀 보정에 쓰이는 **계산 입력**이라 필수다. */
+/** 달력 두 종류. 칩으로 고르므로 목록이 필요하다. */
+const PARTNER_CALENDAR_OPTIONS = ['양력', '음력'] as const
+
 const PARTNER_GENDER_OPTIONS = ['M', 'F'] as const
 
 const BLOOD_OPTIONS: readonly CompatBloodType[] = ['A', 'B', 'O', 'AB']
 
-/** 휠 한 칸. TDS `Wheel` 은 비제어라(`initialIndex` 만 읽는다) 되돌리려면 `key` 재마운트가 필요하다 */
+/**
+ * 휠 한 칸. 온보딩과 같은 자체 휠을 쓴다(`shared/design/Wheel`).
+ *
+ * 예전에는 여기와 온보딩이 각각 TDS `Wheel` 을 감싸고 있었고, 높이를 주는 방식도 서로 달랐다
+ * (온보딩은 240px, 여기는 없음). 새 휠은 스스로 높이를 갖고 값도 제어하므로 둘이 같은 감각이다.
+ */
 function WheelColumn({
   label,
   options,
@@ -75,19 +86,7 @@ function WheelColumn({
   format: (v: number) => string
   onChange: (v: number) => void
 }) {
-  const index = options.indexOf(value)
-  return (
-    <div style={{ flex: 1, minWidth: 0 }}>
-      <Wheel
-        aria-label={label}
-        options={options}
-        initialIndex={index < 0 ? 0 : index}
-        formatValue={format}
-        onChange={onChange}
-        width="100%"
-      />
-    </div>
-  )
+  return <Wheel label={label} options={options} value={value} format={format} onChange={onChange} />
 }
 
 export function PartnerForm({ onSubmit, engineError = null, onBack }: PartnerFormProps) {
@@ -235,9 +234,20 @@ export function PartnerForm({ onSubmit, engineError = null, onBack }: PartnerFor
           {...stagger(6)}
           style={{ display: 'flex', justifyContent: 'center', padding: '22px 24px 0' }}
         >
-          <TextButton size="medium" variant="underline" onClick={onBack}>
+          <button
+            type="button"
+            onClick={onBack}
+            style={{
+              border: 'none',
+              background: 'transparent',
+              ...T.label,
+              color: C.textMuted,
+              textDecoration: 'underline',
+              cursor: 'pointer',
+            }}
+          >
             내 결과로 돌아가기
-          </TextButton>
+          </button>
         </div>
       )}
 
@@ -333,40 +343,20 @@ function PartnerDateSheet({
   }
 
   return (
-    <BottomSheet
+    <Sheet
       open={open}
       onClose={onClose}
-      onDimmerClick={onClose}
-      header={<BottomSheet.Header>상대방이 태어난 날은요?</BottomSheet.Header>}
-      headerDescription={
-        <BottomSheet.HeaderDescription>
-          주민등록상 날짜가 아니라 실제로 태어난 날짜를 골라 주세요.
-        </BottomSheet.HeaderDescription>
-      }
-      cta={
-        <BottomSheet.CTA disabled={maxDay === 0} onClick={() => onConfirm(selected, value)}>
-          선택 완료
-        </BottomSheet.CTA>
-      }
+      title="상대방이 태어난 날은요?"
+      cta={{ label: '선택 완료', onClick: () => onConfirm(selected, value) }}
     >
-      <div style={{ display: 'flex', gap: 8, padding: '0 0 12px' }} role="group" aria-label="달력 종류">
-        {[false, true].map((isLunar) => (
-          <div key={String(isLunar)} style={{ flex: 1 }}>
-            <Button
-              display="block"
-              size="medium"
-              color={lunar === isLunar ? 'primary' : 'dark'}
-              variant={lunar === isLunar ? 'fill' : 'weak'}
-              aria-pressed={lunar === isLunar}
-              onClick={() => switchCalendar(isLunar)}
-            >
-              {isLunar ? '음력' : '양력'}
-            </Button>
-          </div>
-        ))}
+      <div style={{ padding: `0 ${GUTTER}px ${S.md}px` }}>
+        <ChipGroup
+          options={PARTNER_CALENDAR_OPTIONS}
+          value={lunar ? '음력' : '양력'}
+          onChange={(next) => switchCalendar(next === '음력')}
+        />
       </div>
-
-      <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+      <div style={{ display: 'flex', gap: S.sm, justifyContent: 'center', padding: `0 ${GUTTER}px` }}>
         <WheelColumn
           label="년도 선택"
           options={YEAR_OPTIONS}
@@ -397,11 +387,13 @@ function PartnerDateSheet({
 
       {lunar && (
         <>
-          <Spacing size={8} />
-          <Paragraph typography="st12">{describePartnerDate(selected, value)}</Paragraph>
+          <div style={{ height: S.sm }} />
+          <p style={{ margin: 0, padding: `0 ${GUTTER}px`, ...T.caption, color: C.textMuted }}>
+            {describePartnerDate(selected, value)}
+          </p>
         </>
       )}
-    </BottomSheet>
+    </Sheet>
   )
 }
 
@@ -422,19 +414,13 @@ function PartnerTimeSheet({
   const [minute, setMinute] = useState(initialTime.minute)
 
   return (
-    <BottomSheet
+    <Sheet
       open={open}
       onClose={onClose}
-      onDimmerClick={onClose}
-      header={<BottomSheet.Header>상대방은 몇 시에 태어났나요?</BottomSheet.Header>}
-      headerDescription={
-        <BottomSheet.HeaderDescription>
-          24시간제로 골라 주세요. 모르면 아래에서 넘어갈 수 있어요.
-        </BottomSheet.HeaderDescription>
-      }
-      cta={<BottomSheet.CTA onClick={() => onConfirm({ hour, minute })}>선택 완료</BottomSheet.CTA>}
+      title="상대방은 몇 시에 태어났나요?"
+      cta={{ label: '선택 완료', onClick: () => onConfirm({ hour, minute }) }}
     >
-      <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+      <div style={{ display: 'flex', gap: S.sm, justifyContent: 'center', padding: `0 ${GUTTER}px` }}>
         <WheelColumn
           label="시 선택"
           options={HOUR_OPTIONS}
@@ -451,11 +437,22 @@ function PartnerTimeSheet({
         />
       </div>
       <div style={{ display: 'flex', justifyContent: 'center', paddingTop: 8 }}>
-        <TextButton size="medium" variant="underline" onClick={onUnknown}>
+        <button
+          type="button"
+          onClick={onUnknown}
+          style={{
+            border: 'none',
+            background: 'transparent',
+            ...T.label,
+            color: C.textMuted,
+            textDecoration: 'underline',
+            cursor: 'pointer',
+          }}
+        >
           시간을 모르겠어요
-        </TextButton>
+        </button>
       </div>
-    </BottomSheet>
+    </Sheet>
   )
 }
 

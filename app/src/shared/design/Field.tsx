@@ -33,7 +33,7 @@ export function FieldRow({ label, value, muted = false, onClick, index = 0 }: Fi
         alignItems: 'center',
         justifyContent: 'space-between',
         gap: S.md,
-        padding: `${S.lg}px ${S.lg}px`,
+        padding: `${S.md}px ${S.lg}px`,
         border: 'none',
         background: 'transparent',
         textAlign: 'left',
@@ -41,21 +41,26 @@ export function FieldRow({ label, value, muted = false, onClick, index = 0 }: Fi
         color: C.text,
       }}
     >
-      <span style={{ display: 'flex', flexDirection: 'column', gap: 2, minWidth: 0 }}>
-        <span style={{ ...T.caption, color: C.textMuted }}>{label}</span>
-        <span
-          style={{
-            fontSize: 16,
-            fontWeight: 600,
-            letterSpacing: '-0.01em',
-            color: muted ? C.textMuted : C.text,
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            whiteSpace: 'nowrap',
-          }}
-        >
-          {value}
-        </span>
+      {/*
+        한 줄이다. 예전에는 라벨 위·값 아래로 두 줄이었고 줄마다 62px 을 썼다 — 세 줄이면
+        186px, 작은 화면 높이의 3분의 1이다. 라벨과 값을 좌우로 놓으면 절반이고,
+        읽는 순서(무엇 → 무엇으로 정했나)는 그대로다.
+      */}
+      <span style={{ ...T.label, color: C.textMuted, flexShrink: 0 }}>{label}</span>
+      <span
+        style={{
+          flex: 1,
+          textAlign: 'right',
+          fontSize: 15,
+          fontWeight: 600,
+          letterSpacing: '-0.01em',
+          color: muted ? C.textMuted : C.text,
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          whiteSpace: 'nowrap',
+        }}
+      >
+        {value}
       </span>
       {/* 화살괄호를 SVG 로 그린다 — 글자(`›`)는 글꼴에 따라 기준선이 어긋난다. */}
       <svg

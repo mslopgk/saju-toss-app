@@ -51,7 +51,7 @@ describe('프리필 진입점 렌더', () => {
     mocks.isSupported.mockReturnValue(false)
 
     const html = renderForm()
-    expect(html).toContain('언제 태어났는지 알려주세요')
+    expect(html).toContain('언제 태어났나요?')
     expect(html).toContain('태어난 시각')
     expect(html).not.toContain(PREFILL_BUTTON_LABEL)
   })
@@ -60,7 +60,7 @@ describe('프리필 진입점 렌더', () => {
     mocks.isSupported.mockReturnValue(true)
 
     const html = renderForm()
-    expect(html).toContain('언제 태어났는지 알려주세요')
+    expect(html).toContain('언제 태어났나요?')
     expect(html).not.toContain(PREFILL_BUTTON_LABEL)
   })
 
@@ -71,7 +71,7 @@ describe('프리필 진입점 렌더', () => {
     })
 
     const html = renderForm()
-    expect(html).toContain('언제 태어났는지 알려주세요')
+    expect(html).toContain('언제 태어났나요?')
     expect(html).not.toContain(PREFILL_BUTTON_LABEL)
   })
 
@@ -82,7 +82,8 @@ describe('프리필 진입점 렌더', () => {
     const html = renderForm()
     expect(html).toContain(PREFILL_BUTTON_LABEL)
     // 최소수집을 화면에서도 밝힌다.
-    expect(html).toContain('이름·연락처·주소는 가져오지 않아요')
+    // 문구는 짧아졌지만 **무엇을 가져가는지 알리는 고지**는 남아 있어야 한다.
+    expect(html).toContain('생년월일·성별만 가져와요')
   })
 
   it('양력 확인은 프리필된 날짜가 있을 때만 나온다 (초기 렌더에는 없다)', () => {
