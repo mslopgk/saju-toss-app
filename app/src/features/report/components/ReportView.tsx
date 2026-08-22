@@ -43,11 +43,14 @@ export function ReportView({ report, client }: ReportViewProps) {
       <div style={{ height: S.lg }} />
 
       {/*
-        섹션 하나 = 카드 하나. 첫 장만 펼쳐 둔다 — 전부 접으면 화면이 제목 목록처럼 보여
-        읽을 것이 없어 보이고, 전부 펼치면 예전의 문단 더미로 돌아간다.
+        섹션 하나 = 카드 하나. **전부 접는다.**
 
-        섹션별 근거 카드는 여기 없다. `InterpretationSection` 은 `id` 와 `body` 뿐이고
-        인용 카드는 리포트 단위(`usedCardIds`)로만 온다. 아래 "참고한 자료" 가 그 자리다.
+        앞 판은 첫 장을 펼쳐 뒀다("전부 접으면 읽을 것이 없어 보인다"는 이유였다). 그런데
+        재 보니 펼친 첫 장 하나가 화면 높이의 1.5배였고, 깊이읽기 전체가 6.7배가 된 큰 몫이
+        거기 있었다. 카드마다 **첫 문장 미리보기**가 남아 있으므로 제목만 늘어선 목록이
+        되지도 않는다 — 접어도 무엇이 들었는지 읽힌다.
+
+        섹션별 근거 카드는 여기 없다. `InterpretationSection` 은 `id` 와 `body` 뿐이다.
       */}
       {interpretation.sections.map((section, index) => (
         <SectionCard
@@ -55,7 +58,6 @@ export function ReportView({ report, client }: ReportViewProps) {
           index={index + 2}
           title={SECTION_TITLES[section.id]}
           body={section.body}
-          defaultOpen={index === 0}
         />
       ))}
 

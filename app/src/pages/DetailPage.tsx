@@ -9,6 +9,7 @@ import {
   R,
   C,
   GUTTER,
+  S,
   ReadingScreen,
   Screen,
   ScreenTitle,
@@ -99,7 +100,7 @@ function FactLine({ label, value, last = false }: { label: string; value: string
         justifyContent: 'space-between',
         alignItems: 'baseline',
         gap: 14,
-        padding: '10px 0',
+        padding: `${S.sm}px 0`,
         borderBottom: last ? 'none' : `1px solid ${C.divider}`,
       }}
     >
@@ -257,11 +258,7 @@ export function DetailPage({ chart, selfReport = NO_SELF_REPORT, onBack }: Detai
         </div>
       </div>
 
-      <Spacing size={10} />
-      <Hint>
-        칸의 아래 두 줄은 십신이에요. 위가 천간, 아래가 지지 정기 기준이고 일간 자리는 기준점이라
-        &apos;일간&apos; 으로 표시해요.
-      </Hint>
+      {/* 십신 설명은 리포트의 십신 섹션이 문장으로 말한다. 표 아래에서 또 설명하지 않는다. */}
 
       <Spacing size={30} />
 

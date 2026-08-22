@@ -11,7 +11,6 @@ import {
   S,
   Screen,
   ScreenTitle,
-  SectionLabel,
   Sheet,
   T,
   Wheel,
@@ -107,13 +106,12 @@ export function PartnerForm({ onSubmit, engineError = null, onBack }: PartnerFor
   }
 
   return (
-    <Screen bottomInset={168}>
+    <Screen bottomInset={118}>
       <Spacing size={20} />
 
       <ScreenTitle
         index={0}
         title="상대방은 언제 태어났나요?"
-        subtitle="두 사람의 사주를 나란히 놓고 궁합을 봐요. 내 정보는 이미 받았으니 다시 묻지 않아요."
       />
 
       <Spacing size={20} />
@@ -140,21 +138,17 @@ export function PartnerForm({ onSubmit, engineError = null, onBack }: PartnerFor
       {draft.timeUnknown && (
         <>
           <Spacing size={10} />
-          <Hint>시각을 몰라도 연·월·일 세 기둥은 그대로 나와요. 시주만 빼고 계산해요.</Hint>
+          <Hint>시각을 몰라도 세 기둥은 그대로 나와요</Hint>
         </>
       )}
 
       <Spacing size={10} />
-      <Hint>
-        태어난 곳은 서울 기준으로 계산해요. 국내에서는 진태양시 보정 차이가 최대 8분대라 시주
-        경계에 걸리지 않는 한 결과가 달라지지 않아요.
-      </Hint>
+      {/* 서울 기준이라는 사실만 남긴다. 진태양시 보정폭(최대 8분대)은 입력 화면에서 알 필요가 없다. */}
+      <Hint>태어난 곳은 서울 기준으로 계산해요</Hint>
 
-      <Spacing size={26} />
+      <Spacing size={20} />
 
       <div style={{ padding: `0 ${GUTTER}px` }}>
-        <SectionLabel index={3}>성별</SectionLabel>
-        <Spacing size={10} />
         <ChipGroup
           index={3}
           options={PARTNER_GENDER_OPTIONS}
@@ -163,46 +157,38 @@ export function PartnerForm({ onSubmit, engineError = null, onBack }: PartnerFor
           label={(g) => (g === 'M' ? '남성' : '여성')}
         />
       </div>
-      <Spacing size={10} />
-      <Hint>대운 방향 판정에 필요하고, 혈액형 궁합의 남녀 보정에도 써요.</Hint>
+      {/* 성별이 왜 필요한지는 결과 화면이 문장으로 말한다. 입력 화면에서 설명하지 않는다. */}
 
-      <Spacing size={26} />
+      <Spacing size={20} />
 
-      <div style={{ padding: `0 ${GUTTER}px` }}>
-        <SectionLabel index={4}>상대방의 MBTI와 혈액형</SectionLabel>
-      </div>
-      <Spacing size={6} />
-      <Hint>MBTI·혈액형 궁합도 배점에 들어가요. 네 줄에서 하나씩 골라 주세요.</Hint>
+      {/* 배점에 들어간다는 것은 결과 화면의 항목별 배점이 보여 준다. 여기서 예고하지 않는다. */}
 
       <Spacing size={14} />
 
-      {/* 온보딩과 같은 네 축 이지선다. 두 화면이 같은 방식으로 물어야 사용자가 헷갈리지 않는다. */}
-      <div style={{ padding: `0 ${GUTTER}px` }}>
+      {/* 온보딩과 같은 네 축 2×2. 두 화면이 같은 방식으로 물어야 사용자가 헷갈리지 않는다. */}
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: '1fr 1fr',
+          gap: S.sm,
+          padding: `0 ${GUTTER}px`,
+        }}
+      >
         {MBTI_AXIS_SPECS.map((axis, i) => (
-          <div key={axis.key} style={{ paddingBottom: i === MBTI_AXIS_SPECS.length - 1 ? 0 : 12 }}>
-            <p
-              className={MOTION.rise}
-              {...stagger(4 + i)}
-              style={{ margin: '0 0 6px', ...T.label, color: C.textMuted }}
-            >
-              {axis.title}
-            </p>
-            <ChipGroup
-              index={4 + i}
-              options={axis.options}
-              value={draft.mbtiAxes[axis.key]}
-              onChange={(value) => dispatch({ type: 'setMbtiAxis', patch: { [axis.key]: value } })}
-              label={(option) => axis.label[option] ?? option}
-            />
-          </div>
+          <ChipGroup
+            key={axis.key}
+            index={4 + i}
+            options={axis.options}
+            value={draft.mbtiAxes[axis.key]}
+            onChange={(value) => dispatch({ type: 'setMbtiAxis', patch: { [axis.key]: value } })}
+            label={(option) => axis.label[option] ?? option}
+          />
         ))}
       </div>
 
-      <Spacing size={18} />
+      <Spacing size={16} />
 
       <div style={{ padding: `0 ${GUTTER}px` }}>
-        <SectionLabel index={5}>혈액형</SectionLabel>
-        <Spacing size={10} />
         {/*
           재탭 해제를 없앴다. 예전에는 같은 칩을 다시 누르면 "모름"으로 돌아갔는데, 혈액형이
           필수가 된 뒤로 그 동작은 **방금 열린 CTA 를 다시 잠그는 일**이 된다.

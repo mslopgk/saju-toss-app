@@ -453,6 +453,7 @@ async function main() {
     check(!detail.includes('근거등급'), '근거등급 표기가 없다');
 
 
+
     await shot('shot-4-detail-top');
 
     /*
@@ -467,19 +468,21 @@ async function main() {
     const cardCount = await toggles.count();
     check(cardCount > 1, '섹션이 카드로 쪼개져 있다', `카드 ${cardCount}개`);
 
-    // 첫 장은 펼쳐 둔다(defaultOpen). 전부 접혀 있으면 읽을 것이 없어 보인다.
-    check(
-      (await toggles.first().getAttribute('aria-expanded')) === 'true',
-      '첫 카드는 펼쳐진 채로 시작한다',
+    /*
+      **전부 접혀서 시작한다.**
+
+      앞 판은 첫 장을 펼쳐 뒀는데, 재 보니 펼친 그 한 장이 화면 높이의 1.5배였다.
+      카드마다 첫 문장 미리보기가 남아 있어 접어도 무엇이 들었는지 읽힌다.
+    */
+    const openCount = await page.evaluate(
+      () => document.querySelectorAll('button[aria-expanded="true"]').length,
     );
+    check(openCount === 0, '카드가 전부 접힌 채로 시작한다', `펼쳐진 카드 ${openCount}개`);
 
     if (cardCount > 1) {
       const target = toggles.nth(1);
       const card = target.locator('xpath=..');
-      check(
-        (await target.getAttribute('aria-expanded')) === 'false',
-        '둘째 카드부터는 접혀 있다',
-      );
+
       /*
         **글자 수가 아니라 높이로 잰다.**
         펼침을 grid(`0fr → 1fr`)로 하기 때문에 본문은 접혀 있어도 DOM 에 남고 `innerText` 에
